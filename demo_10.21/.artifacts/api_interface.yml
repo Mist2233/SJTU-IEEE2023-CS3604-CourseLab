@@ -1,0 +1,344 @@
+# 12306购票系统后端API接口库
+# Backend API Interface Library for 12306 Ticket Booking System
+
+- type: Backend
+  id: API-POST-SendVerificationCode
+  route: POST /api/auth/send-verification-code
+  description: 发送手机验证码，用于注册和登录验证。
+  input:
+    type: JSON
+    body:
+      phoneNumber: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "验证码已发送", codeId: "uuid" }
+    error:
+      - statusCode: 400
+        body: { error: "手机号格式错误" }
+      - statusCode: 429
+        body: { error: "发送频率过快，请稍后再试" }
+  dependencies:
+    - DB-CreateVerificationCode
+  acceptanceCriteria:
+    - 验证手机号格式的有效性。
+    - 限制同一手机号60秒内只能发送一次验证码。
+    - 生成6位数字验证码并发送短信。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-Register
+  route: POST /api/auth/register
+  description: 处理用户注册请求，包含验证码校验和用户创建。
+  input:
+    type: JSON
+    body:
+      phoneNumber: string
+      verificationCode: string
+      agreementAccepted: boolean
+  output:
+    success:
+      statusCode: 201
+      body: { userId: "uuid", token: "jwt", message: "注册成功" }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误或验证码无效" }
+      - statusCode: 409
+        body: { error: "用户已存在，将为您自动登录" }
+  dependencies:
+    - DB-FindUserByPhone
+    - DB-VerifyCode
+    - DB-CreateUser
+  acceptanceCriteria:
+    - 验证码校验必须通过。
+    - 用户协议必须同意。
+    - 如果用户已存在，返回409状态码并提供登录token。
+    - 注册成功后返回JWT token。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-Login
+  route: POST /api/auth/login
+  description: 处理用户登录请求，验证手机号和验证码。
+  input:
+    type: JSON
+    body:
+      phoneNumber: string
+      verificationCode: string
+  output:
+    success:
+      statusCode: 200
+      body: { userId: "uuid", token: "jwt", message: "登录成功" }
+    error:
+      - statusCode: 400
+        body: { error: "验证码错误" }
+      - statusCode: 404
+        body: { error: "用户不存在，请先注册" }
+  dependencies:
+    - DB-FindUserByPhone
+    - DB-VerifyCode
+  acceptanceCriteria:
+    - 验证用户是否已注册。
+    - 验证码必须正确且在有效期内。
+    - 登录成功后返回JWT token。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-GET-TrainQuery
+  route: GET /api/tickets/trains
+  description: 查询指定条件的车次信息和票价。
+  input:
+    type: Query Parameters
+    params:
+      fromStation: string
+      toStation: string
+      departDate: string (YYYY-MM-DD)
+      trainType: string (optional)
+  output:
+    success:
+      statusCode: 200
+      body: 
+        trains: 
+          - trainNumber: string
+            departTime: string
+            arriveTime: string
+            duration: string
+            seats:
+              - seatType: string
+                price: number
+                available: number
+    error:
+      - statusCode: 400
+        body: { error: "查询参数错误" }
+      - statusCode: 404
+        body: { error: "未找到符合条件的车次" }
+  dependencies:
+    - DB-QueryTrainSchedule
+    - DB-QueryTicketInventory
+  acceptanceCriteria:
+    - 出发地、目的地、日期为必填参数。
+    - 返回车次列表包含时间、价格、余票信息。
+    - 查询响应时间不超过2秒。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-CreateOrder
+  route: POST /api/orders/create
+  description: 创建车票订单，包含车次选择和乘车人信息。
+  input:
+    type: JSON
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    body:
+      trainNumber: string
+      departDate: string
+      seatType: string
+      passengers:
+        - name: string
+          idType: string
+          idNumber: string
+          phoneNumber: string
+          ticketType: string
+  output:
+    success:
+      statusCode: 201
+      body: 
+        orderId: "uuid"
+        totalAmount: number
+        paymentDeadline: string
+        message: "订单创建成功"
+    error:
+      - statusCode: 400
+        body: { error: "订单信息错误" }
+      - statusCode: 401
+        body: { error: "用户未登录" }
+      - statusCode: 409
+        body: { error: "余票不足" }
+  dependencies:
+    - DB-QueryTicketInventory
+    - DB-LockTicketInventory
+    - DB-CreatePassenger
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - 用户必须已登录。
+    - 验证乘车人信息的完整性和有效性。
+    - 检查车票余量并锁定库存。
+    - 设置30分钟支付超时。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-GET-OrderDetail
+  route: GET /api/orders/{orderId}
+  description: 获取订单详细信息，用于订单确认和支付页面。
+  input:
+    type: Path Parameter
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    params:
+      orderId: string
+  output:
+    success:
+      statusCode: 200
+      body:
+        orderId: string
+        trainInfo: object
+        passengers: array
+        totalAmount: number
+        status: string
+        paymentDeadline: string
+    error:
+      - statusCode: 401
+        body: { error: "用户未登录" }
+      - statusCode: 404
+        body: { error: "订单不存在" }
+  dependencies:
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - 用户只能查看自己的订单。
+    - 返回完整的订单信息。
+    - 包含支付倒计时信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-InitiatePayment
+  route: POST /api/payments/initiate
+  description: 发起支付请求，支持多种支付方式。
+  input:
+    type: JSON
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    body:
+      orderId: string
+      paymentMethod: string
+      returnUrl: string
+  output:
+    success:
+      statusCode: 200
+      body:
+        paymentId: "uuid"
+        paymentUrl: string
+        qrCode: string (optional)
+    error:
+      - statusCode: 400
+        body: { error: "支付参数错误" }
+      - statusCode: 404
+        body: { error: "订单不存在或已过期" }
+  dependencies:
+    - DB-CreateOrder
+    - DB-CreatePaymentRecord
+  acceptanceCriteria:
+    - 验证订单状态为"待支付"。
+    - 支持支付宝、微信支付、银行卡等方式。
+    - 返回第三方支付平台的支付链接。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-PaymentCallback
+  route: POST /api/payments/callback
+  description: 处理第三方支付平台的回调通知。
+  input:
+    type: JSON
+    body:
+      paymentId: string
+      orderId: string
+      status: string
+      transactionId: string
+      amount: number
+      signature: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "success" }
+    error:
+      - statusCode: 400
+        body: { error: "回调数据验证失败" }
+  dependencies:
+    - DB-UpdateOrderStatus
+    - DB-CreatePaymentRecord
+  acceptanceCriteria:
+    - 验证回调数据的签名和完整性。
+    - 更新订单状态为"已支付"。
+    - 生成电子车票。
+    - 发送支付成功通知。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-POST-CancelOrder
+  route: POST /api/orders/{orderId}/cancel
+  description: 取消订单并释放车票库存。
+  input:
+    type: Path Parameter
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    params:
+      orderId: string
+    body:
+      reason: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "订单已取消" }
+    error:
+      - statusCode: 400
+        body: { error: "订单无法取消" }
+      - statusCode: 404
+        body: { error: "订单不存在" }
+  dependencies:
+    - DB-UpdateOrderStatus
+    - DB-ReleaseTicketInventory
+  acceptanceCriteria:
+    - 只能取消"待支付"状态的订单。
+    - 释放锁定的车票库存。
+    - 记录取消原因和时间。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Backend
+  id: API-GET-UserOrders
+  route: GET /api/users/orders
+  description: 获取用户的订单列表，支持分页和状态筛选。
+  input:
+    type: Query Parameters
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    params:
+      page: number (optional)
+      limit: number (optional)
+      status: string (optional)
+  output:
+    success:
+      statusCode: 200
+      body:
+        orders: array
+        total: number
+        page: number
+        limit: number
+    error:
+      - statusCode: 401
+        body: { error: "用户未登录" }
+  dependencies:
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - 用户只能查看自己的订单。
+    - 支持按状态筛选订单。
+    - 支持分页查询。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"

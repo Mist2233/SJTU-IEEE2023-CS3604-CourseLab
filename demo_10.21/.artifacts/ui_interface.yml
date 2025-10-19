@@ -1,0 +1,381 @@
+# 12306购票系统前端UI接口库
+# Frontend UI Interface Library for 12306 Ticket Booking System
+
+- type: Frontend
+  id: UI-HomePage
+  description: 系统首页组件，包含车票查询表单和导航功能。
+  properties:
+    - name: onSearch
+      type: function
+      description: "车票查询提交回调函数。"
+    - name: onLogin
+      type: function
+      description: "用户登录按钮点击回调。"
+    - name: onRegister
+      type: function
+      description: "用户注册按钮点击回调。"
+  state:
+    - fromStation
+    - toStation
+    - departDate
+    - isLoggedIn
+    - userInfo
+  dependencies:
+    - API-GET-TrainQuery
+  acceptanceCriteria:
+    - 组件应渲染出发地、目的地选择框和日期选择器。
+    - 包含"查询"按钮，点击时调用车票查询API。
+    - 显示用户登录状态和登录/注册入口。
+    - 验证查询参数的完整性。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-RegisterForm
+  description: 用户注册表单组件，处理手机号注册流程。
+  properties:
+    - name: onRegisterSuccess
+      type: function
+      description: "注册成功后的回调函数。"
+    - name: onSwitchToLogin
+      type: function
+      description: "切换到登录页面的回调函数。"
+  state:
+    - phoneNumber
+    - verificationCode
+    - agreementAccepted
+    - isLoading
+    - countdown
+    - error
+  dependencies:
+    - API-POST-SendVerificationCode
+    - API-POST-Register
+  acceptanceCriteria:
+    - 组件应渲染手机号输入框、验证码输入框、获取验证码按钮。
+    - 包含用户协议勾选框和注册按钮。
+    - 验证码按钮应有60秒倒计时功能。
+    - 当isLoading状态为true时，注册按钮应被禁用。
+    - 显示错误提示信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-LoginForm
+  description: 用户登录表单组件，处理手机号验证码登录。
+  properties:
+    - name: onLoginSuccess
+      type: function
+      description: "登录成功后的回调函数。"
+    - name: onSwitchToRegister
+      type: function
+      description: "切换到注册页面的回调函数。"
+  state:
+    - phoneNumber
+    - verificationCode
+    - isLoading
+    - countdown
+    - error
+  dependencies:
+    - API-POST-SendVerificationCode
+    - API-POST-Login
+  acceptanceCriteria:
+    - 组件应渲染手机号输入框、验证码输入框、获取验证码按钮。
+    - 包含登录按钮和切换到注册的链接。
+    - 验证码按钮应有60秒倒计时功能。
+    - 当isLoading状态为true时，登录按钮应被禁用。
+    - 显示错误提示信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-TrainSearchResults
+  description: 车次查询结果列表组件，展示可用车次和票价信息。
+  properties:
+    - name: searchParams
+      type: object
+      description: "查询参数对象，包含出发地、目的地、日期。"
+    - name: onBookTicket
+      type: function
+      description: "预订车票按钮点击回调。"
+    - name: onRefresh
+      type: function
+      description: "刷新查询结果回调。"
+  state:
+    - trains
+    - isLoading
+    - error
+    - sortBy
+    - filterBy
+  dependencies:
+    - API-GET-TrainQuery
+  acceptanceCriteria:
+    - 组件应显示车次列表，包含车次号、时间、历时、价格、余票。
+    - 每个车次应有"预订"按钮。
+    - 支持按时间、价格排序。
+    - 支持按车次类型筛选。
+    - 显示加载状态和错误信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-TicketBookingForm
+  description: 车票预订表单组件，处理席别选择和乘车人信息。
+  properties:
+    - name: trainInfo
+      type: object
+      description: "选中的车次信息。"
+    - name: onSubmitOrder
+      type: function
+      description: "提交订单回调函数。"
+    - name: onCancel
+      type: function
+      description: "取消预订回调函数。"
+  state:
+    - selectedSeatType
+    - passengers
+    - totalAmount
+    - isLoading
+    - error
+  dependencies:
+    - API-POST-CreateOrder
+  acceptanceCriteria:
+    - 组件应显示车次信息和可选席别。
+    - 包含乘车人信息表单，支持添加多个乘车人。
+    - 实时计算并显示总金额。
+    - 验证乘车人信息的完整性。
+    - 提交订单时显示加载状态。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-PassengerForm
+  description: 乘车人信息表单组件，用于添加和编辑乘车人。
+  properties:
+    - name: passenger
+      type: object
+      description: "乘车人信息对象（编辑模式）。"
+    - name: onSave
+      type: function
+      description: "保存乘车人信息回调。"
+    - name: onCancel
+      type: function
+      description: "取消编辑回调。"
+  state:
+    - name
+    - idType
+    - idNumber
+    - phoneNumber
+    - ticketType
+    - errors
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 组件应包含姓名、证件类型、证件号码、手机号、票种输入框。
+    - 验证身份证号码格式。
+    - 验证手机号格式。
+    - 显示字段验证错误信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-OrderConfirmation
+  description: 订单确认页面组件，显示订单详情和支付入口。
+  properties:
+    - name: orderId
+      type: string
+      description: "订单ID。"
+    - name: onProceedToPayment
+      type: function
+      description: "进入支付页面回调。"
+    - name: onCancelOrder
+      type: function
+      description: "取消订单回调。"
+  state:
+    - orderInfo
+    - timeRemaining
+    - isLoading
+    - error
+  dependencies:
+    - API-GET-OrderDetail
+    - API-POST-CancelOrder
+  acceptanceCriteria:
+    - 组件应显示完整的订单信息：车次、乘车人、金额。
+    - 显示30分钟支付倒计时。
+    - 包含"立即支付"和"取消订单"按钮。
+    - 倒计时结束时自动跳转或提示。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-PaymentPage
+  description: 支付页面组件，处理多种支付方式选择和支付流程。
+  properties:
+    - name: orderId
+      type: string
+      description: "订单ID。"
+    - name: amount
+      type: number
+      description: "支付金额。"
+    - name: onPaymentSuccess
+      type: function
+      description: "支付成功回调。"
+    - name: onPaymentFailed
+      type: function
+      description: "支付失败回调。"
+  state:
+    - selectedPaymentMethod
+    - paymentUrl
+    - qrCode
+    - isLoading
+    - timeRemaining
+    - error
+  dependencies:
+    - API-POST-InitiatePayment
+  acceptanceCriteria:
+    - 组件应显示可用支付方式：支付宝、微信支付、银行卡。
+    - 显示订单金额和支付倒计时。
+    - 根据支付方式显示相应的支付界面。
+    - 处理支付结果并给出相应提示。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-PaymentSuccess
+  description: 支付成功页面组件，显示支付结果和电子票信息。
+  properties:
+    - name: orderId
+      type: string
+      description: "订单ID。"
+    - name: onViewTicket
+      type: function
+      description: "查看电子票回调。"
+    - name: onBackToHome
+      type: function
+      description: "返回首页回调。"
+  state:
+    - orderInfo
+    - ticketInfo
+    - isLoading
+  dependencies:
+    - API-GET-OrderDetail
+  acceptanceCriteria:
+    - 组件应显示支付成功信息。
+    - 显示订单详情和电子票信息。
+    - 包含"查看电子票"和"返回首页"按钮。
+    - 提供分享和保存功能。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-UserOrderList
+  description: 用户订单列表组件，显示用户的历史订单。
+  properties:
+    - name: onViewOrder
+      type: function
+      description: "查看订单详情回调。"
+    - name: onCancelOrder
+      type: function
+      description: "取消订单回调。"
+  state:
+    - orders
+    - currentPage
+    - totalPages
+    - selectedStatus
+    - isLoading
+    - error
+  dependencies:
+    - API-GET-UserOrders
+    - API-POST-CancelOrder
+  acceptanceCriteria:
+    - 组件应显示订单列表，包含车次、时间、状态、金额。
+    - 支持按状态筛选订单。
+    - 支持分页显示。
+    - 对于可取消的订单显示取消按钮。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-Header
+  description: 页面头部导航组件，包含用户信息和主要导航。
+  properties:
+    - name: user
+      type: object
+      description: "当前登录用户信息。"
+    - name: onLogin
+      type: function
+      description: "登录按钮点击回调。"
+    - name: onLogout
+      type: function
+      description: "退出登录回调。"
+  state:
+    - isLoggedIn
+    - showUserMenu
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 组件应显示网站Logo和主导航菜单。
+    - 显示用户登录状态和用户菜单。
+    - 包含"我的订单"、"个人中心"等链接。
+    - 响应式设计，适配移动端。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-LoadingSpinner
+  description: 通用加载状态组件，用于显示数据加载中状态。
+  properties:
+    - name: size
+      type: string
+      description: "加载图标大小：small、medium、large。"
+    - name: message
+      type: string
+      description: "加载提示文字。"
+  state:
+    - none
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 组件应显示旋转的加载图标。
+    - 支持不同尺寸的加载图标。
+    - 可选择性显示加载提示文字。
+    - 具有良好的视觉效果。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Frontend
+  id: UI-ErrorMessage
+  description: 通用错误提示组件，用于显示错误信息。
+  properties:
+    - name: error
+      type: string
+      description: "错误信息文本。"
+    - name: onRetry
+      type: function
+      description: "重试按钮点击回调。"
+    - name: onDismiss
+      type: function
+      description: "关闭错误提示回调。"
+  state:
+    - isVisible
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 组件应清晰显示错误信息。
+    - 包含"重试"和"关闭"按钮。
+    - 支持自动消失功能。
+    - 具有适当的视觉样式。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"

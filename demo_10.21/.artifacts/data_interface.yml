@@ -1,0 +1,160 @@
+# 12306购票系统数据库操作接口库
+# Database Interface Library for 12306 Ticket Booking System
+
+- type: Database
+  id: DB-CreateUser
+  description: 在数据库中创建一个新的用户记录，支持手机号注册。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 成功执行后，users表中会增加一条新记录。
+    - 如果手机号已存在，操作应失败并抛出唯一性约束错误。
+    - 用户记录包含：用户ID、手机号、注册时间、状态等字段。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-FindUserByPhone
+  description: 根据手机号查询用户信息，用于登录验证和重复注册检查。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 能够根据手机号精确查询用户记录。
+    - 如果用户不存在，返回空结果。
+    - 查询结果包含用户的基本信息但不包含敏感数据。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-CreateVerificationCode
+  description: 在数据库中创建验证码记录，用于手机号验证。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 成功创建验证码记录，包含手机号、验证码、创建时间、有效期。
+    - 验证码有效期为60秒。
+    - 同一手机号的旧验证码应被标记为失效。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-VerifyCode
+  description: 验证手机号和验证码的匹配性及有效性。
+  dependencies:
+    - DB-CreateVerificationCode
+  acceptanceCriteria:
+    - 验证验证码是否与手机号匹配。
+    - 验证验证码是否在有效期内。
+    - 验证成功后将验证码标记为已使用。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-QueryTrainSchedule
+  description: 查询指定日期和路线的列车班次信息。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 根据出发地、目的地、出发日期查询可用车次。
+    - 返回车次号、出发时间、到达时间、历时等信息。
+    - 支持按时间、价格等条件排序。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-QueryTicketInventory
+  description: 查询指定车次各席别的余票数量。
+  dependencies:
+    - DB-QueryTrainSchedule
+  acceptanceCriteria:
+    - 实时查询各席别（一等座、二等座、硬卧等）余票数量。
+    - 支持高并发查询，确保数据一致性。
+    - 返回准确的库存信息。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-CreateOrder
+  description: 创建车票订单记录。
+  dependencies:
+    - DB-FindUserByPhone
+    - DB-QueryTicketInventory
+  acceptanceCriteria:
+    - 创建包含车次、乘车人、席别、价格等信息的订单。
+    - 订单状态初始为"待支付"。
+    - 设置30分钟支付超时时间。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-LockTicketInventory
+  description: 锁定车票库存，防止超卖。
+  dependencies:
+    - DB-QueryTicketInventory
+  acceptanceCriteria:
+    - 在创建订单时锁定对应数量的车票。
+    - 使用数据库锁机制确保并发安全。
+    - 支持库存回滚机制。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-CreatePassenger
+  description: 创建或更新乘车人信息。
+  dependencies:
+    - DB-FindUserByPhone
+  acceptanceCriteria:
+    - 存储乘车人姓名、证件类型、证件号码、手机号等信息。
+    - 支持身份证号码格式验证。
+    - 关联到用户账户。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-UpdateOrderStatus
+  description: 更新订单状态，支持支付、取消、退票等状态变更。
+  dependencies:
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - 支持订单状态流转：待支付->已支付->已出票->已完成。
+    - 记录状态变更时间和原因。
+    - 支持订单取消和退票处理。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-CreatePaymentRecord
+  description: 创建支付记录，记录支付交易信息。
+  dependencies:
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - 记录支付方式、支付金额、支付时间、交易流水号。
+    - 支持支付状态跟踪。
+    - 确保支付数据的完整性和安全性。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"
+
+- type: Database
+  id: DB-ReleaseTicketInventory
+  description: 释放车票库存，用于订单取消或支付超时场景。
+  dependencies:
+    - DB-LockTicketInventory
+    - DB-UpdateOrderStatus
+  acceptanceCriteria:
+    - 在订单取消或超时时释放锁定的车票库存。
+    - 确保库存数据的准确性。
+    - 支持批量释放操作。
+  changeLog:
+    - date: "2024-10-19"
+      description: "初始创建。"

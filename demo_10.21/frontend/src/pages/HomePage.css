@@ -88,7 +88,7 @@
 
 .station-group {
   display: flex;
-  align-items: end;
+  align-items: center;
   gap: 15px;
   flex: 2;
 }
@@ -137,6 +137,8 @@
   transition: all 0.3s ease;
   font-size: 18px;
   color: #6c757d;
+  margin-top: 20px;
+  flex-shrink: 0;
 }
 
 .swap-btn:hover {

@@ -86,7 +86,7 @@
 }
 
 .logo-icon {
-  font-size: 32px;
+  font-size: 30px;
   color: #0066cc;
 }
 
@@ -121,26 +121,31 @@
   flex-direction: column;
   align-items: center;
   text-decoration: none;
-  color: #333;
-  padding: 10px 15px;
+  color: #333 !important;
+  padding: 12px 20px;
   border-radius: 6px;
   transition: all 0.3s;
   position: relative;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.nav-link span {
+  color: #333 !important;
 }
 
 .nav-link:hover {
   background: #f0f8ff;
-  color: #0066cc;
+  color: #0066cc !important;
 }
 
-.nav-icon {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.nav-link span:last-child {
-  font-size: 14px;
-  font-weight: 500;
+.nav-link:hover span {
+  color: #0066cc !important;
 }
 
 /* 用户区域 */
@@ -394,7 +399,7 @@
 }
 
 .user-actions {
-  opacity: 0.7;
+  opacity: 1;
   visibility: visible;
   transition: all 0.3s;
 }

@@ -1,0 +1,513 @@
+/* 车次查询结果页面样式 - 仿12306官网风格 */
+.search-results-container {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* 顶部导航栏 - 蓝色渐变 */
+.top-nav {
+  background: linear-gradient(to right, #0066cc, #004499);
+  color: white;
+  padding: 8px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.logo-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 6px;
+  background: white;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0066cc;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  transition: opacity 0.3s;
+  padding: 4px 8px;
+}
+
+.nav-link:hover {
+  opacity: 0.8;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+/* 搜索条件栏 - 白色背景 */
+.search-bar {
+  background: white;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.search-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-group label {
+  font-size: 13px;
+  color: #666;
+  min-width: 40px;
+}
+
+.search-input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 13px;
+  min-width: 80px;
+  background: white;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 3px rgba(0,102,204,0.3);
+}
+
+.search-btn {
+  background: #ff6600;
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+  background: #e55a00;
+}
+
+.swap-btn {
+  background: none;
+  border: 1px solid #ccc;
+  color: #0066cc;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+.swap-btn:hover {
+  background: #f0f8ff;
+  border-color: #0066cc;
+}
+
+/* 筛选和排序栏 */
+.filter-bar {
+  background: #f8f9fa;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.filter-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.filter-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-options {
+  display: flex;
+  gap: 6px;
+}
+
+.filter-option {
+  padding: 4px 10px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+  color: #666;
+}
+
+.filter-option:hover {
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+.filter-option.active {
+  background: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+.sort-options {
+  display: flex;
+  gap: 12px;
+}
+
+.sort-option {
+  color: #666;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: all 0.3s;
+}
+
+.sort-option:hover {
+  color: #0066cc;
+  background: #f0f8ff;
+}
+
+.sort-option.active {
+  color: #0066cc;
+  font-weight: bold;
+  background: #f0f8ff;
+}
+
+/* 车次列表容器 */
+.results-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 20px;
+}
+
+/* 表头 */
+.results-header {
+  background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+  padding: 10px 15px;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  display: grid;
+  grid-template-columns: 70px 100px 100px 60px 50px 50px 50px 50px 50px 50px 50px 70px;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #495057;
+  align-items: center;
+  text-align: center;
+}
+
+/* 车次列表 */
+.train-list {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 4px 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.train-item {
+  display: grid;
+  grid-template-columns: 70px 100px 100px 60px 50px 50px 50px 50px 50px 50px 50px 70px;
+  gap: 8px;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f1f3f4;
+  align-items: center;
+  transition: background-color 0.2s;
+  text-align: center;
+}
+
+.train-item:hover {
+  background: #f8f9fa;
+}
+
+.train-item:last-child {
+  border-bottom: none;
+}
+
+/* 车次号 */
+.train-number {
+  font-weight: bold;
+  color: #0066cc;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* 车站信息 */
+.station-info {
+  text-align: center;
+}
+
+.station-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.station-time {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 历时 */
+.duration {
+  text-align: center;
+  color: #666;
+  font-size: 12px;
+}
+
+/* 座位信息 */
+.seat-info {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.seat-available {
+  color: #28a745;
+  background: #d4edda;
+}
+
+.seat-few {
+  color: #fd7e14;
+  background: #fff3cd;
+}
+
+.seat-none {
+  color: #6c757d;
+  background: #f8f9fa;
+}
+
+/* 预订按钮 */
+.book-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.book-btn:hover {
+  background: #0056b3;
+}
+
+.book-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+/* 加载和错误状态 */
+.loading, .error, .no-results {
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 249, 250, 0.9));
+  margin: 15px 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.loading {
+  color: #495057;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.loading-text {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: #495057;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 14px;
+}
+
+.error::before {
+  content: "⚠️ ";
+}
+
+.no-results {
+  color: #666;
+  font-size: 14px;
+}
+
+.no-results h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.no-results::before {
+  content: "📋 ";
+  display: block;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .results-header,
+  .train-item {
+    grid-template-columns: 60px 90px 90px 50px 45px 45px 45px 45px 45px 45px 45px 60px;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  
+  .nav-content,
+  .search-content,
+  .filter-content,
+  .results-container {
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .search-group {
+    justify-content: space-between;
+  }
+  
+  .filter-content {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  
+  .filter-left {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .results-header {
+    display: none;
+  }
+  
+  .train-item {
+    display: block;
+    padding: 15px;
+    text-align: left;
+  }
+  
+  .train-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f3f4;
+  }
+  
+  .train-mobile .train-number {
+    font-size: 16px;
+  }
+  
+  .stations-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .seats-mobile {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .seat-mobile {
+    text-align: center;
+    padding: 6px 4px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    font-size: 11px;
+    border: 1px solid #e9ecef;
+  }
+  
+  .book-mobile {
+    text-align: center;
+  }
+  
+  .book-mobile .book-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+}

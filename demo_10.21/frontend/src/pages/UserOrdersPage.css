@@ -1,0 +1,523 @@
+/* 我的订单页面样式 */
+.orders-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding-top: 150px; /* 为固定头部留出空间 (30px + 80px + 40px) */
+}
+
+/* 页面头部 */
+.orders-header {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.orders-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-link {
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.breadcrumb .separator {
+  margin: 0 8px;
+  color: #ccc;
+  font-size: 12px;
+}
+
+.breadcrumb .current {
+  color: #007bff;
+  font-weight: 500;
+}
+
+/* 订单筛选标签 */
+.orders-tabs {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 20px;
+  padding: 12px 0 0 0;
+}
+
+.tabs-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.tabs-buttons {
+  display: flex;
+  gap: 0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 16px 24px;
+  font-size: 16px;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: #007bff;
+  background: #f8f9fa;
+}
+
+.tab-btn.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  font-weight: 600;
+}
+
+/* 订单内容区域 */
+.orders-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* 无订单状态 */
+.no-orders {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.no-orders-icon {
+  margin-bottom: 20px;
+}
+
+.no-orders h3 {
+  font-size: 20px;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.no-orders p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 30px 0;
+}
+
+.go-booking-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.go-booking-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+/* 订单列表 */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 订单卡片 */
+.order-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 订单头部 */
+.order-header {
+  background: #f8f9fa;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.order-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-time {
+  font-size: 14px;
+  color: #666;
+}
+
+.order-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-paid {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 订单主体 */
+.order-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 120px;
+  gap: 20px;
+  align-items: start;
+}
+
+/* 车次信息 */
+.train-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.train-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.station-time {
+  text-align: center;
+  min-width: 80px;
+}
+
+.station-time .time {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.station-time .station {
+  font-size: 14px;
+  color: #666;
+}
+
+.route-line {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.route-line .line {
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #007bff, #28a745);
+  border-radius: 1px;
+  position: relative;
+}
+
+.route-line .line::before,
+.route-line .line::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  top: -3px;
+}
+
+.route-line .line::before {
+  left: 0;
+  background: #007bff;
+}
+
+.route-line .line::after {
+  right: 0;
+  background: #28a745;
+}
+
+.route-line .duration {
+  font-size: 12px;
+  color: #666;
+}
+
+.travel-date {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 乘车人信息 */
+.passenger-info h4 {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+}
+
+.passenger-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.passenger-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.seat-info {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 金额信息 */
+.amount-info {
+  text-align: right;
+}
+
+.amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #e74c3c;
+  margin-bottom: 4px;
+}
+
+.amount-label {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 订单操作 */
+.order-actions {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid;
+}
+
+.action-btn.primary {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.action-btn.primary:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.action-btn.secondary {
+  background: white;
+  color: #666;
+  border-color: #ddd;
+}
+
+.action-btn.secondary:hover {
+  background: #f8f9fa;
+  color: #333;
+  border-color: #bbb;
+}
+
+.action-btn.danger {
+  background: white;
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.action-btn.danger:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  margin: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.loading-container p {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .orders-page {
+    padding-top: 60px;
+  }
+  
+  .header-content,
+  .tabs-container,
+  .orders-content {
+    padding: 0 16px;
+  }
+  
+  .orders-header h1 {
+    font-size: 20px;
+  }
+  
+  .tab-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .order-body {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .route-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .route-line {
+    order: -1;
+    flex-direction: row;
+    width: 100%;
+  }
+  
+  .route-line .line {
+    height: 2px;
+  }
+  
+  .station-time {
+    min-width: auto;
+  }
+  
+  .amount-info {
+    text-align: left;
+  }
+  
+  .order-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .action-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .no-orders {
+    padding: 40px 20px;
+  }
+  
+  .order-card {
+    margin: 0 -4px;
+  }
+  
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .order-body {
+    padding: 16px;
+  }
+  
+  .train-number {
+    font-size: 16px;
+  }
+  
+  .amount {
+    font-size: 20px;
+  }
+}

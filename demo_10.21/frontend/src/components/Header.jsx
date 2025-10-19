@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import './Header.css'
 
 const Header = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const [user, setUser] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -41,6 +42,39 @@ const Header = () => {
     })
   }
 
+  // 生成面包屑导航
+  const generateBreadcrumb = () => {
+    const pathMap = {
+      '/': { name: '首页', path: '/' },
+      '/tickets': { name: '车票预订', path: '/tickets' },
+      '/my-orders': { name: '我的订单', path: '/my-orders' },
+      '/login': { name: '登录', path: '/login' },
+      '/register': { name: '注册', path: '/register' },
+      '/timetable': { name: '时刻表', path: '/timetable' },
+      '/info': { name: '出行指南', path: '/info' },
+      '/service': { name: '客运服务', path: '/service' },
+      '/freight': { name: '货运服务', path: '/freight' },
+      '/corporate': { name: '企业服务', path: '/corporate' },
+      '/profile': { name: '个人中心', path: '/profile' }
+    }
+
+    const currentPath = location.pathname
+    const breadcrumbs = [{ name: '首页', path: '/' }]
+
+    if (currentPath !== '/') {
+      const currentPage = pathMap[currentPath]
+      if (currentPage) {
+        // 对于某些页面，添加中间层级
+        if (currentPath === '/my-orders') {
+          breadcrumbs.push({ name: '车票预订', path: '/tickets' })
+        }
+        breadcrumbs.push(currentPage)
+      }
+    }
+
+    return breadcrumbs
+  }
+
   return (
     <header className="header">
       {/* 顶部信息栏 */}
@@ -72,31 +106,31 @@ const Header = () => {
           
           <nav className="main-nav">
             <Link to="/" className="nav-link">
-              <span className="nav-icon">🏠</span>
+              <div className="nav-icon">🏠</div>
               <span>首页</span>
             </Link>
             <Link to="/tickets" className="nav-link">
-              <span className="nav-icon">🎫</span>
+              <div className="nav-icon">🎫</div>
               <span>车票预订</span>
             </Link>
             <Link to="/timetable" className="nav-link">
-              <span className="nav-icon">📅</span>
+              <div className="nav-icon">🕐</div>
               <span>时刻表</span>
             </Link>
             <Link to="/info" className="nav-link">
-              <span className="nav-icon">ℹ️</span>
+              <div className="nav-icon">📋</div>
               <span>出行指南</span>
             </Link>
             <Link to="/service" className="nav-link">
-              <span className="nav-icon">🛎️</span>
+              <div className="nav-icon">🚇</div>
               <span>客运服务</span>
             </Link>
             <Link to="/freight" className="nav-link">
-              <span className="nav-icon">📦</span>
+              <div className="nav-icon">📦</div>
               <span>货运服务</span>
             </Link>
             <Link to="/corporate" className="nav-link">
-              <span className="nav-icon">🏢</span>
+              <div className="nav-icon">🏢</div>
               <span>企业服务</span>
             </Link>
           </nav>
@@ -130,9 +164,18 @@ const Header = () => {
       <div className="sub-header">
         <div className="sub-container">
           <div className="breadcrumb">
-            <Link to="/" className="breadcrumb-link">首页</Link>
-            <span className="breadcrumb-separator">&gt;</span>
-            <span className="breadcrumb-current">车票预订</span>
+            {generateBreadcrumb().map((item, index, array) => (
+              <React.Fragment key={item.path}>
+                {index === array.length - 1 ? (
+                  <span className="breadcrumb-current">{item.name}</span>
+                ) : (
+                  <>
+                    <Link to={item.path} className="breadcrumb-link">{item.name}</Link>
+                    <span className="breadcrumb-separator">&gt;</span>
+                  </>
+                )}
+              </React.Fragment>
+            ))}
           </div>
           <div className="quick-links">
             <Link to="/my-orders" className="quick-link">我的订单</Link>

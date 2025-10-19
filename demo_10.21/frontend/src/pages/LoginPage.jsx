@@ -155,19 +155,16 @@ const LoginPage = () => {
         <form onSubmit={handleSubmit} className="login-form" role="form">
           <div className={`form-group ${fieldErrors.phone ? 'error' : ''}`}>
             <label htmlFor="phone" className="required">手机号</label>
-            <div className="input-with-icon">
-              <span className="input-icon">📱</span>
-              <input
-                id="phone"
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="请输入手机号"
-                maxLength="11"
-              />
-            </div>
+            <input
+              id="phone"
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="请输入手机号"
+              maxLength="11"
+            />
             {fieldErrors.phone && (
               <div className="field-error">{fieldErrors.phone}</div>
             )}
@@ -175,18 +172,15 @@ const LoginPage = () => {
 
           <div className={`form-group ${fieldErrors.password ? 'error' : ''}`}>
             <label htmlFor="password" className="required">密码</label>
-            <div className="input-with-icon">
-              <span className="input-icon">🔒</span>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="请输入密码"
-              />
-            </div>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="请输入密码"
+            />
             {fieldErrors.password && (
               <div className="field-error">{fieldErrors.password}</div>
             )}
@@ -209,7 +203,6 @@ const LoginPage = () => {
           </div>
 
           <button type="submit" className="login-btn" disabled={loading}>
-            {loading && <span className="loading"></span>}
             {loading ? '登录中...' : '登录'}
           </button>
         </form>

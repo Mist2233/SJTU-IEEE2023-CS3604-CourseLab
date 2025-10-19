@@ -266,20 +266,17 @@ const RegisterPage = () => {
         <form onSubmit={handleSubmit} className="register-form" role="form">
           <div className={`form-group ${fieldErrors.phone ? 'error' : ''}`}>
             <label htmlFor="phone" className="required">手机号</label>
-            <div className="input-with-icon">
-              <span className="input-icon">📱</span>
-              <input
-                id="phone"
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                placeholder="请输入手机号"
-                maxLength="11"
-                aria-label="手机号"
-              />
-            </div>
+            <input
+              id="phone"
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="请输入手机号"
+              maxLength="11"
+              aria-label="手机号"
+            />
             {fieldErrors.phone && (
               <div className="field-error">{fieldErrors.phone}</div>
             )}
@@ -314,19 +311,16 @@ const RegisterPage = () => {
 
           <div className={`form-group ${fieldErrors.password ? 'error' : ''}`}>
             <label htmlFor="password" className="required">密码</label>
-            <div className="input-with-icon">
-              <span className="input-icon">🔒</span>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                placeholder="请输入密码（至少6位）"
-                aria-label="密码"
-              />
-            </div>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="请输入密码（至少6位）"
+              aria-label="密码"
+            />
             {formData.password && (
               <div className="password-strength">
                 <div className={`strength-bar ${passwordStrength >= 1 ? getPasswordStrengthClass() : ''}`}></div>
@@ -346,19 +340,16 @@ const RegisterPage = () => {
 
           <div className={`form-group ${fieldErrors.confirmPassword ? 'error' : ''}`}>
             <label htmlFor="confirmPassword" className="required">确认密码</label>
-            <div className="input-with-icon">
-              <span className="input-icon">🔒</span>
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                placeholder="请再次输入密码"
-                aria-label="确认密码"
-              />
-            </div>
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="请再次输入密码"
+              aria-label="确认密码"
+            />
             {fieldErrors.confirmPassword && (
               <div className="field-error">{fieldErrors.confirmPassword}</div>
             )}
@@ -369,19 +360,16 @@ const RegisterPage = () => {
 
           <div className={`form-group ${fieldErrors.realName ? 'error' : ''}`}>
             <label htmlFor="realName" className="required">真实姓名</label>
-            <div className="input-with-icon">
-              <span className="input-icon">👤</span>
-              <input
-                id="realName"
-                type="text"
-                name="realName"
-                value={formData.realName}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                placeholder="请输入真实姓名"
-                aria-label="真实姓名"
-              />
-            </div>
+            <input
+              id="realName"
+              type="text"
+              name="realName"
+              value={formData.realName}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="请输入真实姓名"
+              aria-label="真实姓名"
+            />
             {fieldErrors.realName && (
               <div className="field-error">{fieldErrors.realName}</div>
             )}
@@ -389,20 +377,17 @@ const RegisterPage = () => {
 
           <div className={`form-group ${fieldErrors.idNumber ? 'error' : ''}`}>
             <label htmlFor="idNumber" className="required">身份证号</label>
-            <div className="input-with-icon">
-              <span className="input-icon">🆔</span>
-              <input
-                id="idNumber"
-                type="text"
-                name="idNumber"
-                value={formData.idNumber}
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                placeholder="请输入身份证号"
-                maxLength="18"
-                aria-label="身份证号"
-              />
-            </div>
+            <input
+              id="idNumber"
+              type="text"
+              name="idNumber"
+              value={formData.idNumber}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder="请输入身份证号"
+              maxLength="18"
+              aria-label="身份证号"
+            />
             {fieldErrors.idNumber && (
               <div className="field-error">{fieldErrors.idNumber}</div>
             )}
@@ -426,7 +411,6 @@ const RegisterPage = () => {
           </div>
 
           <button type="submit" className="register-btn" disabled={loading}>
-            {loading && <span className="loading"></span>}
             {loading ? '注册中...' : '注册'}
           </button>
         </form>

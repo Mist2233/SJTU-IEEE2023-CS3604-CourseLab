@@ -259,20 +259,7 @@
   box-shadow: none;
 }
 
-.loading {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 8px;
-}
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
 
 /* 密码强度指示器 */
 .password-strength {
@@ -377,22 +364,7 @@
 }
 
 /* 输入框图标 */
-.input-with-icon {
-  position: relative;
-}
 
-.input-with-icon input {
-  padding-left: 45px;
-}
-
-.input-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-  font-size: 16px;
-}
 
 /* 返回登录链接 */
 .back-to-login {

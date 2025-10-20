@@ -11,8 +11,7 @@ class: invert
 
 **第八组 - Triple-AI**
 **软件工程与项目管理**
-
-
+**小组成员**：毛天宇、仇翊宇、陈翎玺
 
 ---
 
@@ -21,8 +20,7 @@ class: invert
 - 选题与进度
 - 需求和场景分解
 - 需求到设计
-- 需求到测试
-- 挑战与应对
+- 面临的挑战
 - 未来规划
 
 <!-- *图片建议：一个清晰的路线图 (Roadmap) 图标或图形。* -->
@@ -55,15 +53,14 @@ class: invert
 
 ## 需求提取: 挖掘深层与异常
 
-- **Agent**: Observer
-- **深层需求**:
-    - 用户说: "我要查票"
-    - 真实意图: "帮我找到最合适的出行方案"
-- **异常情况**:
-    - **未登录** 状态下的功能限制
-    - **网络中断** 或 **无效输入**
+<img src="参考.png" width="400" style="display:inline-block;margin-right:10px;"/>
+<img src="参考2.png" width="400" style="display:inline-block;margin-right:10px;"/>
 
-<!-- *图片建议：一个冰山模型图，水面上是"显性需求"(UI功能)，水面下是"隐性需求"(性能、安全、用户情感)。* -->
+
+---
+## 需求规范
+<img src="prompt.png" width="500" style="display:inline-block;"/>
+<img src="参考3.png" width="400" style="display:inline-block;"/>
 
 ---
 
@@ -76,74 +73,74 @@ class: invert
 - **Developer (开发者)**: 编写代码以通过所有测试。
 
 <!-- *图片建议：经典的测试驱动开发循环图 (红 -> 绿 -> 重构)。* -->
-
 ---
 
-## 4. 需求转化测试: Test Generator
-
-- **输入**: `Given-When-Then` 场景描述
-- **输出**: 自动化测试脚本 (Jest / Vitest)
-- **目标**: 确保代码实现严格符合业务场景
-
-<!-- *图片建议：一段简洁的测试代码示例，例如：`test('should display error for invalid date', ...)`。* -->
-
----
-
-## 5. 挑战与应对
+## 4. 面临的挑战
 
 - **Agent 自动切换**: 如何实现 Agent 间的无缝调用？
 - **AI 测试盲区**: 如何测试购票、支付等真实交互？
-- **Issue 自动化**: 如何将需求自动同步到项目管理工具？
-- **非功能性需求**: 如何衡量与测试性能、安全性？
+- **需求插入的困难**：如何保证新需求的插入自动化流程？
+- **Agent 之间连贯性差**：如何保证下一个 Agent 能彻底理解上一个 Agent 的输出？
 
 <!-- *图片建议：四个象限，每个象限包含一个挑战关键词和一个问号图标。* -->
 
 ---
 
-## 我们的解决方案
-
-- **Agent 切换**: 构建一个中央 **Orchestrator (调度器)**。
-- **测试盲区**: **Mocking (模拟)** 外部服务 / **人工确认** 关键节点。
-- **Issue 管理**: 调用 **GitHub API** 自动创建和链接 Issues。
-- **非功能性需求**: 引入专门的 **性能/安全 Agent**。
-
-<!-- *图片建议：一个大脑图标，周围环绕着齿轮，象征着智能与自动化解决方案。* -->
-
----
-
-## 6. 未来规划
+## 5. 未来规划
 
 - **Q4 2025**:
     - [ ] 完善 12306 需求库
-    - [ ] 构建并集成 GitHub Issue 系统
     - [ ] 实现 Agent 工作流的初步自动化
-    - [ ] 量化记录开发成果与效率
-
-<!-- *图片建议：一个简单的甘特图或时间轴，展示未来几个月的关键里程碑。* -->
-
----## 6. 未来规划
-
-- **Q4 2025**:
-    - [ ] 完善 12306 需求库
-    - [ ] 构建并集成 GitHub Issue 系统
-    - [ ] 实现 Agent 工作流的初步自动化
-    - [ ] 量化记录开发成果与效率
+    - [ ] 完成新需求的接口开发
 
 <!-- *图片建议：一个简单的甘特图或时间轴，展示未来几个月的关键里程碑。* -->
 
 ---
 
-## 7. Demo展示
+## 6. Demo展示
 - 首页展示
 - 购票界面展示
 - 订单界面展示
 - 登录界面展示
 - 注册界面展示
 
+---
+
+<div style="text-align: center;">
+  <img src="图片1.png" alt="图片1" style="max-width: 90%; height: auto;">
+</div>
+
+---
+
+<div style="text-align: center;">
+  <img src="图片2.png" alt="图片2" style="max-width: 90%; height: auto;">
+</div>
+
+---
+
+<div style="text-align: center;">
+  <img src="图片3.png" alt="图片3" style="max-width: 90%; height: auto;">
+</div>
+
+---
+
+<div style="text-align: center;">
+  <img src="图片4.png" alt="图片4" style="max-width: 90%; height: auto;">
+</div>
+
+---
+
+<div style="text-align: center;">
+  <img src="图片5.png" alt="图片5" style="max-width: 90%; height: auto;">
+</div>
 
 ---
 # 感谢聆听
 
 **Q&A**
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <img src="Triple_AI-removebg-preview.png" alt="Triple-AI Logo" style="height: 80px; margin-left: 20px;">
+</div>
 
 <!-- *图片建议：简洁的感谢页面，可以加上小组 Logo。* -->
+

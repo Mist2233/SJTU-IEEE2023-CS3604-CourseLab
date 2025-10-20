@@ -1,11 +1,17 @@
 const express = require('express');
 const cors = require('cors');
+const { initDatabase } = require('./database/init');
 const authRoutes = require('./routes/auth');
 const trainRoutes = require('./routes/trains');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
 
 const app = express();
+
+// 初始化数据库
+initDatabase().catch(err => {
+  console.error('数据库初始化失败:', err);
+});
 
 // 中间件配置
 app.use(cors());

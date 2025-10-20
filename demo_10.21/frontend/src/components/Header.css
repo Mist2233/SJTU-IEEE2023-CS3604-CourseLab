@@ -154,6 +154,19 @@
   align-items: center;
 }
 
+/* 用户登录状态 */
+.user-logged-in {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -203,17 +216,20 @@
 }
 
 .logout-btn {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
-  background: none;
-  border: none;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.3s;
+  padding: 6px 12px;
+  transition: all 0.3s;
 }
 
 .logout-btn:hover {
   color: #ff4444;
+  border-color: #ff4444;
+  background: rgba(255, 68, 68, 0.05);
 }
 
 .auth-buttons {

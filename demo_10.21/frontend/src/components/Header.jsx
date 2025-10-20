@@ -10,24 +10,45 @@ const Header = () => {
 
   useEffect(() => {
     // 检查本地存储中的用户信息
-    const token = localStorage.getItem('token')
-    const userData = localStorage.getItem('user')
-    if (token && userData) {
-      setUser(JSON.parse(userData))
+    const checkUserStatus = () => {
+      const token = localStorage.getItem('token')
+      const userData = localStorage.getItem('user')
+      if (token && userData) {
+        setUser(JSON.parse(userData))
+      } else {
+        setUser(null)
+      }
     }
+
+    // 初始检查
+    checkUserStatus()
+
+    // 监听存储变化（用于多标签页同步）
+    window.addEventListener('storage', checkUserStatus)
+    
+    // 监听自定义登录事件（用于同标签页内的状态更新）
+    window.addEventListener('userLoginStatusChanged', checkUserStatus)
 
     // 更新时间
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
 
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      window.removeEventListener('storage', checkUserStatus)
+      window.removeEventListener('userLoginStatusChanged', checkUserStatus)
+    }
   }, [])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setUser(null)
+    
+    // 触发自定义事件，确保状态同步
+    window.dispatchEvent(new CustomEvent('userLoginStatusChanged'))
+    
     navigate('/')
   }
 
@@ -137,18 +158,11 @@ const Header = () => {
           
           <div className="user-section">
             {user ? (
-              <div className="user-info">
-                <div className="user-avatar">
-                  <span>{user.realName ? user.realName.charAt(0) : '用'}</span>
-                </div>
-                <div className="user-details">
-                  <span className="user-name">{user.realName || '用户'}</span>
-                  <div className="user-actions">
-                    <Link to="/my-orders" className="user-link">我的订单</Link>
-                    <Link to="/profile" className="user-link">个人中心</Link>
-                    <button onClick={handleLogout} className="logout-btn">退出</button>
-                  </div>
-                </div>
+              <div className="user-logged-in">
+                <span className="user-greeting">
+                  {user.real_name || user.realName || '用户'}，你好
+                </span>
+                <button onClick={handleLogout} className="logout-btn">退出</button>
               </div>
             ) : (
               <div className="auth-buttons">

@@ -96,18 +96,22 @@ const LoginPage = () => {
 
     setLoading(true)
     try {
-      const response = await login(formData)
+      const data = await login(formData)
       
-      // 处理不同的响应格式
-      const data = response.data || response
+      console.log('登录响应数据:', data)
       
       if (data.success) {
         // 保存用户信息和token
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('token', data.data.token)
+        localStorage.setItem('user', JSON.stringify(data.data.user))
+        
+        // 触发自定义事件，通知Header组件更新状态
+        window.dispatchEvent(new CustomEvent('userLoginStatusChanged'))
         
         // 重置登录尝试次数
         setLoginAttempts(0)
+        
+        console.log('登录成功，即将跳转到首页')
         
         // 跳转到首页
         navigate('/')

@@ -379,3 +379,144 @@
   changeLog:
     - date: "2024-10-19"
       description: "初始创建。"
+
+- type: Frontend
+  id: UI-PasswordPhoneResetForm
+  description: 手机号码找回密码表单，包含身份校验、验证码获取与新密码设置。
+  properties:
+    - name: onResetSuccess
+      type: function
+      description: "重置成功后的回调函数。"
+    - name: onSwitchMethod
+      type: function
+      description: "切换到其他找回方式（邮箱/人脸）。"
+  state:
+    - phoneNumber
+    - idType
+    - idNumber
+    - verificationCode
+    - newPassword
+    - confirmPassword
+    - countdown
+    - isLoading
+    - error
+  dependencies:
+    - API-POST-SendVerificationCode
+    - API-POST-Password-ResetByPhone
+  acceptanceCriteria:
+    - 渲染手机号、身份证号、证件类型、获取验证码按钮。
+    - "获取验证码"按钮支持禁用/启用与60秒倒计时显示。
+    - 显示格式错误、身份匹配失败等错误提示UI。
+    - 新密码与确认密码输入并显示一致性提示，成功后跳转登录页。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持手机通道找回密码组件。"
+
+- type: Frontend
+  id: UI-PasswordEmailResetForm
+  description: 邮箱找回密码表单，包含身份校验与申请重置链接。
+  properties:
+    - name: onLinkRequested
+      type: function
+      description: "重置链接申请成功的回调。"
+    - name: onSwitchMethod
+      type: function
+      description: "切换到其他找回方式（手机/人脸）。"
+  state:
+    - email
+    - idType
+    - idNumber
+    - isLoading
+    - error
+  dependencies:
+    - API-POST-Password-RequestEmailLink
+  acceptanceCriteria:
+    - 渲染邮箱、身份证、证件类型输入与提交按钮。
+    - 提交后提示"重置链接已发送至您的邮箱"。
+    - 提供过期提示页入口以便重新申请。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持邮箱通道找回密码组件。"
+
+- type: Frontend
+  id: UI-PasswordResetPageFromEmail
+  description: 通过邮件链接进入的密码重置页面，校验token并设置新密码。
+  properties:
+    - name: token
+      type: string
+      description: "邮箱重置链接token。"
+    - name: onResetSuccess
+      type: function
+      description: "重置成功后回调。"
+  state:
+    - newPassword
+    - confirmPassword
+    - isLoading
+    - error
+    - isTokenValid
+  dependencies:
+    - API-GET-Password-ValidateToken
+    - API-POST-Password-ResetByEmail
+  acceptanceCriteria:
+    - 打开页面时校验token有效性，过期展示提示并提供重新申请入口。
+    - 渲染新密码与确认输入，弱密码错误信息与红色边框样式。
+    - 设置成功后显示成功提示。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增邮箱链接进入的重置页面组件。"
+
+- type: Frontend
+  id: UI-FacePasswordReset
+  description: 人脸识别找回密码入口与二维码展示，支持状态轮询与重试。
+  properties:
+    - name: onResetSuccess
+      type: function
+      description: "重置成功后的回调函数。"
+    - name: onSwitchMethod
+      type: function
+      description: "切换到其他找回方式（手机/邮箱）。"
+  state:
+    - sessionId
+    - qrCode
+    - status
+    - attempts
+    - lockedUntil
+    - isLoading
+    - error
+  dependencies:
+    - API-POST-FaceAuthInit
+    - API-GET-FaceAuthStatus
+    - API-POST-FaceAuthConfirm
+  acceptanceCriteria:
+    - 渲染人脸找回入口视图与二维码展示。
+    - 支持失败重试与"尝试其他方式"按钮交互。
+    - 连续3次识别失败触发30分钟锁定并在UI提示。
+    - 授权成功后进入设置新密码页面并完成重置。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增人脸识别通道找回密码组件。"
+
+- type: Frontend
+  id: UI-ChangePasswordForm
+  description: 登录后修改密码表单，包含旧密码校验、强度指示与成功反馈。
+  properties:
+    - name: onChangeSuccess
+      type: function
+      description: "修改成功后的回调。"
+  state:
+    - oldPassword
+    - newPassword
+    - confirmPassword
+    - strength
+    - isLoading
+    - error
+  dependencies:
+    - API-POST-Password-Change
+  acceptanceCriteria:
+    - 渲染原密码、新密码、确认新密码、强度指示器。
+    - 弱密码显示错误信息与红色边框样式。
+    - 成功修改后显示提示并触发短信/邮件通知。
+    - 原密码错误流程应清空新密码输入并允许重试。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增账户安全修改密码组件。"

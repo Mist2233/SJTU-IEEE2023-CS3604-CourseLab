@@ -207,4 +207,23 @@ describe('Authentication API', () => {
       expect(response.body.message).toContain('登录尝试过于频繁');
     });
   });
+
+  describe('POST /api/auth/send-verification-code (password reset context)', () => {
+    it('密码找回场景需提供证件信息并通过身份校验', async () => {
+      const response = await request(app)
+        .post('/api/auth/send-verification-code')
+        .send({ phoneNumber: '13800138007', context: 'password_reset', idType: 'idcard', idNumber: '110101199001011238' })
+
+      expect(response.status).toBe(200)
+      expect(response.body.message).toContain('验证码已发送')
+    })
+
+    it('缺少证件信息时应返回400', async () => {
+      const response = await request(app)
+        .post('/api/auth/send-verification-code')
+        .send({ phoneNumber: '13800138007', context: 'password_reset' })
+
+      expect(response.status).toBe(400)
+    })
+  })
 });

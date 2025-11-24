@@ -30,7 +30,11 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       window.location.href = '/login'
     }
-    return Promise.reject(error.response?.data?.message || error.message)
+    return Promise.reject(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message
+    )
   }
 )
 
@@ -108,3 +112,34 @@ export const handlePaymentCallback = async (callbackData) => {
 }
 
 export default api
+export const requestPasswordResetByPhone = async ({ phoneNumber, verificationCode, newPassword }) => {
+  return api.post('/password/reset/phone', { phoneNumber, verificationCode, newPassword })
+}
+
+export const requestEmailResetLink = async ({ email, idType, idNumber }) => {
+  return api.post('/password/reset/email/request', { email, idType, idNumber })
+}
+
+export const validateEmailResetToken = async (token) => {
+  return api.get(`/password/reset/email/${token}`)
+}
+
+export const resetPasswordByEmail = async ({ token, newPassword }) => {
+  return api.post('/password/reset/email', { token, newPassword })
+}
+
+export const changePassword = async ({ oldPassword, newPassword }) => {
+  return api.post('/account/password/change', { oldPassword, newPassword })
+}
+
+export const initFaceAuth = async () => {
+  return api.post('/password/reset/face/init', {})
+}
+
+export const getFaceAuthStatus = async (sessionId) => {
+  return api.get(`/password/reset/face/${sessionId}/status`)
+}
+
+export const confirmFaceAuth = async ({ sessionId, newPassword }) => {
+  return api.post('/password/reset/face/confirm', { sessionId, newPassword })
+}

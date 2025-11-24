@@ -11,6 +11,11 @@ import OrderConfirmationPage from './pages/P005/OrderConfirmationPage'
 import PaymentPage from './pages/P005/PaymentPage'
 import PaymentSuccessPage from './pages/P005/PaymentSuccessPage'
 import UserOrdersPage from './pages/P006/UserOrdersPage'
+import ForgotPasswordPage from './pages/P007/ForgotPasswordPage'
+import PasswordPhoneResetPage from './pages/P007/PasswordPhoneResetPage'
+import PasswordEmailResetPage from './pages/P007/PasswordEmailResetPage'
+import PasswordResetFromEmailPage from './pages/P007/PasswordResetFromEmailPage'
+import FacePasswordResetPage from './pages/P007/FacePasswordResetPage'
 import './App.css'
 
 function App() {
@@ -35,6 +40,11 @@ function App() {
           <Route path="/payment/:orderId" element={<PaymentPage />} />
           <Route path="/payment-success/:orderId" element={<PaymentSuccessPage />} />
           <Route path="/my-orders" element={<UserOrdersPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/password/phone" element={<PasswordPhoneResetPage />} />
+          <Route path="/password/email" element={<PasswordEmailResetPage />} />
+          <Route path="/password/email/:token" element={<PasswordResetFromEmailPage />} />
+          <Route path="/password/face" element={<FacePasswordResetPage />} />
         </Routes>
       </main>
     </div>

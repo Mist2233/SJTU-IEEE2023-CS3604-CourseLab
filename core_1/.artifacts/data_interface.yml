@@ -158,3 +158,121 @@
   changeLog:
     - date: "2024-10-19"
       description: "初始创建。"
+
+- type: Database
+  id: DB-VerifyUserIdentity
+  description: 验证用户身份信息（证件类型与号码）与用户账户的匹配性。
+  dependencies:
+    - DB-FindUserByPhone
+    - DB-GetUserByEmail
+  acceptanceCriteria:
+    - 当提供手机号时，验证手机号与证件信息在同一用户记录中匹配。
+    - 当提供邮箱时，验证邮箱与证件信息在同一用户记录中匹配。
+    - 返回布尔结果或匹配的用户ID。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持密码找回前置身份校验。"
+
+- type: Database
+  id: DB-GetUserByEmail
+  description: 根据邮箱查询用户信息，用于密码找回与通知。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 能够根据邮箱精确查询用户记录。
+    - 如果用户不存在，返回空结果。
+    - 返回基本信息与安全相关字段的可用性（不含敏感数据）。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持邮箱找回流程。"
+
+- type: Database
+  id: DB-CreatePasswordResetToken
+  description: 创建用于邮箱密码重置的令牌，默认有效期24小时。
+  dependencies:
+    - DB-GetUserByEmail
+  acceptanceCriteria:
+    - 生成唯一token，包含创建时间、过期时间、使用状态。
+    - 过期时间设置为创建后24小时。
+    - 旧未使用token在新建时标记为失效或作废。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持邮箱重置链接生成。"
+
+- type: Database
+  id: DB-ValidatePasswordResetToken
+  description: 验证密码重置token的有效性并返回关联用户。
+  dependencies:
+    - DB-CreatePasswordResetToken
+  acceptanceCriteria:
+    - token未过期且未使用时验证通过并返回用户标识。
+    - 过期或作废token验证失败。
+    - 在重置成功后将token标记为已使用。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持邮箱重置页打开与提交验证。"
+
+- type: Database
+  id: DB-CheckUserPassword
+  description: 校验用户旧密码是否正确，支持失败计数与锁定策略。
+  dependencies:
+    - DB-FindUserByPhone
+  acceptanceCriteria:
+    - 对比提交的旧密码（经安全算法处理）与存储的密码哈希。
+    - 当失败次数达到3次时，记录锁定开始时间，锁定10分钟。
+    - 返回校验结果与当前失败计数/锁定状态。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持登录后修改密码的旧密码校验。"
+
+- type: Database
+  id: DB-UpdatePasswordFailureStatus
+  description: 更新用户密码失败计数与锁定状态，成功时清零计数。
+  dependencies:
+    - DB-FindUserByPhone
+  acceptanceCriteria:
+    - 每次失败递增计数；达到3次后设置锁定10分钟。
+    - 成功修改密码或验证通过时清零计数并解除锁定。
+    - 记录变更时间与原因。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持锁定策略与恢复。"
+
+- type: Database
+  id: DB-SetUserPassword
+  description: 设置或更新用户登录密码（安全存储哈希与盐）。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 存储密码哈希与随机盐，不保存明文。
+    - 拒绝与旧密码相同的设置请求。
+    - 记录密码最近修改时间与操作来源（手机/邮箱/人脸/账户安全）。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持多通道密码重置与修改。"
+
+- type: Database
+  id: DB-CreateAuthSession
+  description: 创建通用授权会话（支持人脸识别二维码），用于轮询授权状态。
+  dependencies:
+    - none
+  acceptanceCriteria:
+    - 生成sessionId、二维码payload、状态（pending）。
+    - 支持会话过期时间与最大尝试次数记录。
+    - 用于密码找回人脸通道的授权初始化。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持人脸识别二维码授权会话。"
+
+- type: Database
+  id: DB-UpdateAuthSessionStatus
+  description: 更新授权会话状态（authorized/failed/expired），支持失败次数与锁定策略。
+  dependencies:
+    - DB-CreateAuthSession
+  acceptanceCriteria:
+    - 连续3次识别失败触发30分钟锁定并返回锁定状态。
+    - 记录每次状态更新的时间与原因。
+    - authorized状态应与对应用户标识建立关联以用于后续重置。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增以支持人脸识别失败计数与锁定策略。"

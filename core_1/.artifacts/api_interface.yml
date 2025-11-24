@@ -9,6 +9,9 @@
     type: JSON
     body:
       phoneNumber: string
+      context: string (optional: register|login|password_reset)
+      idType: string (optional, 当context为password_reset时必填)
+      idNumber: string (optional, 当context为password_reset时必填)
   output:
     success:
       statusCode: 200
@@ -20,13 +23,17 @@
         body: { error: "发送频率过快，请稍后再试" }
   dependencies:
     - DB-CreateVerificationCode
+    - DB-VerifyUserIdentity
   acceptanceCriteria:
     - 验证手机号格式的有效性。
     - 限制同一手机号60秒内只能发送一次验证码。
     - 生成6位数字验证码并发送短信。
+    - 当context为password_reset时，需先通过证件信息身份校验后再发送验证码。
   changeLog:
     - date: "2024-10-19"
       description: "初始创建。"
+    - date: "2025-11-24"
+      description: "扩展支持密码找回场景（增加context与身份校验）。"
 
 - type: Backend
   id: API-POST-Register
@@ -59,6 +66,246 @@
   changeLog:
     - date: "2024-10-19"
       description: "初始创建。"
+
+- type: Backend
+  id: API-POST-Password-ResetByPhone
+  route: POST /api/password/reset/phone
+  description: 通过手机验证码重置密码。
+  input:
+    type: JSON
+    body:
+      phoneNumber: string
+      verificationCode: string
+      newPassword: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "密码重置成功" }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误或验证码无效" }
+      - statusCode: 404
+        body: { error: "用户不存在" }
+      - statusCode: 422
+        body: { error: "密码强度不足或与旧密码相同" }
+  dependencies:
+    - DB-VerifyCode
+    - DB-SetUserPassword
+    - DB-UpdatePasswordFailureStatus
+  acceptanceCriteria:
+    - 验证码必须正确且在有效期内。
+    - 新密码需满足强度要求（长度≥8，含大小写字母、数字、特殊字符）。
+    - 拒绝与旧密码相同的设置请求。
+    - 重置成功后清零失败计数。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增手机通道密码重置接口。"
+
+- type: Backend
+  id: API-POST-Password-RequestEmailLink
+  route: POST /api/password/reset/email/request
+  description: 申请邮箱密码重置链接，校验身份后发送邮件。
+  input:
+    type: JSON
+    body:
+      email: string
+      idType: string
+      idNumber: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "重置链接已发送至您的邮箱" }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误或邮箱格式无效" }
+      - statusCode: 404
+        body: { error: "用户不存在" }
+  dependencies:
+    - DB-GetUserByEmail
+    - DB-VerifyUserIdentity
+    - DB-CreatePasswordResetToken
+  acceptanceCriteria:
+    - 邮箱格式有效并存在于系统中。
+    - 身份证件信息与邮箱对应的用户匹配。
+    - 生成24小时有效的重置token并触发邮件发送。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增邮箱找回链接申请接口。"
+
+- type: Backend
+  id: API-GET-Password-ValidateToken
+  route: GET /api/password/reset/email/{token}
+  description: 验证邮箱重置token有效性并返回可用状态。
+  input:
+    type: Path Parameter
+    params:
+      token: string
+  output:
+    success:
+      statusCode: 200
+      body: { valid: true }
+    error:
+      - statusCode: 410
+        body: { error: "链接已过期" }
+      - statusCode: 404
+        body: { error: "链接无效" }
+  dependencies:
+    - DB-ValidatePasswordResetToken
+  acceptanceCriteria:
+    - 未过期且未使用的token验证通过。
+    - 过期返回410状态码。
+    - 无效token返回404状态码。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增邮箱重置链接验证接口。"
+
+- type: Backend
+  id: API-POST-Password-ResetByEmail
+  route: POST /api/password/reset/email
+  description: 通过邮箱重置链接设置新密码。
+  input:
+    type: JSON
+    body:
+      token: string
+      newPassword: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "密码重置成功" }
+    error:
+      - statusCode: 410
+        body: { error: "链接已过期" }
+      - statusCode: 404
+        body: { error: "链接无效" }
+      - statusCode: 422
+        body: { error: "密码强度不足或与旧密码相同" }
+  dependencies:
+    - DB-ValidatePasswordResetToken
+    - DB-SetUserPassword
+    - DB-UpdatePasswordFailureStatus
+  acceptanceCriteria:
+    - token验证通过后允许设置新密码。
+    - 新密码需满足强度要求且不同于旧密码。
+    - 设置成功后将token标记为已使用并清零失败计数。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增邮箱通道密码重置接口。"
+
+- type: Backend
+  id: API-POST-Password-Change
+  route: POST /api/account/password/change
+  description: 登录后用户修改密码，包含旧密码校验与锁定策略。
+  input:
+    type: JSON
+    headers:
+      Authorization: "Bearer {jwt_token}"
+    body:
+      oldPassword: string
+      newPassword: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "密码修改成功" }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误" }
+      - statusCode: 401
+        body: { error: "用户未登录" }
+      - statusCode: 423
+        body: { error: "账户暂时锁定，请稍后再试" }
+      - statusCode: 422
+        body: { error: "密码强度不足或与旧密码相同" }
+  dependencies:
+    - DB-CheckUserPassword
+    - DB-UpdatePasswordFailureStatus
+    - DB-SetUserPassword
+  acceptanceCriteria:
+    - 旧密码校验失败累计3次后锁定账户10分钟。
+    - 新密码需满足强度要求且不同于旧密码。
+    - 修改成功后清零失败计数并触发通知（短信/邮箱）。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增登录后修改密码接口。"
+
+- type: Backend
+  id: API-POST-FaceAuthInit
+  route: POST /api/password/reset/face/init
+  description: 初始化人脸识别密码找回，生成二维码与会话ID。
+  input:
+    type: JSON
+    body:
+      userHint: string (optional)
+  output:
+    success:
+      statusCode: 200
+      body: { sessionId: "uuid", qrCode: string }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误" }
+  dependencies:
+    - DB-CreateAuthSession
+  acceptanceCriteria:
+    - 返回可扫描的二维码与有效的sessionId。
+    - 会话状态初始为pending，包含过期时间与最大尝试次数。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增人脸识别找回初始化接口。"
+
+- type: Backend
+  id: API-GET-FaceAuthStatus
+  route: GET /api/password/reset/face/{sessionId}/status
+  description: 轮询人脸识别授权状态以驱动前端流程。
+  input:
+    type: Path Parameter
+    params:
+      sessionId: string
+  output:
+    success:
+      statusCode: 200
+      body: { status: "pending|authorized|failed|expired", attempts: number, lockedUntil: string (optional) }
+    error:
+      - statusCode: 404
+        body: { error: "会话不存在" }
+  dependencies:
+    - DB-UpdateAuthSessionStatus
+  acceptanceCriteria:
+    - 连续3次识别失败后返回锁定状态与锁定截止时间。
+    - authorized状态时前端可进入设置新密码页面。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增人脸识别授权状态轮询接口。"
+
+- type: Backend
+  id: API-POST-FaceAuthConfirm
+  route: POST /api/password/reset/face/confirm
+  description: 在授权通过后设置新密码，完成重置。
+  input:
+    type: JSON
+    body:
+      sessionId: string
+      newPassword: string
+  output:
+    success:
+      statusCode: 200
+      body: { message: "密码重置成功" }
+    error:
+      - statusCode: 400
+        body: { error: "参数错误或会话未授权" }
+      - statusCode: 410
+        body: { error: "会话已过期" }
+      - statusCode: 422
+        body: { error: "密码强度不足或与旧密码相同" }
+  dependencies:
+    - DB-UpdateAuthSessionStatus
+    - DB-SetUserPassword
+    - DB-UpdatePasswordFailureStatus
+  acceptanceCriteria:
+    - 仅在授权状态为authorized时允许设置新密码。
+    - 新密码需满足强度要求且不同于旧密码。
+    - 成功后将会话标记为完成并清零失败计数。
+  changeLog:
+    - date: "2025-11-24"
+      description: "新增人脸识别授权后密码重置接口。"
 
 - type: Backend
   id: API-POST-Login

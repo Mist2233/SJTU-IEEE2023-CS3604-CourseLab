@@ -11,7 +11,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('数据库连接失败:', err.message);
   } else {
-    console.log('数据库连接成功:', dbPath);
+    if (process.env.NODE_ENV !== 'test') console.log('数据库连接成功:', dbPath);
   }
 });
 
@@ -31,7 +31,7 @@ db.serialize(() => {
     if (err) {
       console.error('创建用户表失败:', err.message);
     } else {
-      console.log('用户表创建成功');
+      if (process.env.NODE_ENV !== 'test') console.log('用户表创建成功');
     }
   });
 
@@ -49,7 +49,7 @@ db.serialize(() => {
     if (err) {
       console.error('创建验证码表失败:', err.message);
     } else {
-      console.log('验证码表创建成功');
+      if (process.env.NODE_ENV !== 'test') console.log('验证码表创建成功');
     }
   });
 
@@ -74,7 +74,7 @@ db.serialize(() => {
     if (err) {
       console.error('创建订单表失败:', err.message);
     } else {
-      console.log('订单表创建成功');
+      if (process.env.NODE_ENV !== 'test') console.log('订单表创建成功');
     }
   });
 
@@ -91,7 +91,7 @@ db.serialize(() => {
     if (err) {
       console.error('创建订单乘客表失败:', err.message);
     } else {
-      console.log('订单乘客表创建成功');
+      if (process.env.NODE_ENV !== 'test') console.log('订单乘客表创建成功');
     }
   });
 
@@ -118,7 +118,7 @@ db.serialize(() => {
     if (err) {
       console.error('创建列车表失败:', err.message);
     } else {
-      console.log('列车表创建成功');
+      if (process.env.NODE_ENV !== 'test') console.log('列车表创建成功');
       // 如为空则进行种子数据初始化
       db.get('SELECT COUNT(*) AS cnt FROM trains', [], (cErr, row) => {
         if (cErr) {
@@ -159,7 +159,7 @@ db.serialize(() => {
             seed.forEach(r => stmt.run(r));
             stmt.finalize(err2 => {
               if (err2) console.error('插入列车种子数据失败:', err2.message);
-              else console.log('列车种子数据已初始化');
+              else if (process.env.NODE_ENV !== 'test') console.log('列车种子数据已初始化');
             });
           });
         } else if ((row?.cnt || 0) < 40) {
@@ -211,7 +211,7 @@ db.serialize(() => {
             extra.forEach(r => stmt2.run(r));
             stmt2.finalize(err3 => {
               if (err3) console.error('追加列车数据失败:', err3.message);
-              else console.log('列车额外数据已追加', extra.length);
+              else if (process.env.NODE_ENV !== 'test') console.log('列车额外数据已追加', extra.length);
             });
           });
         }

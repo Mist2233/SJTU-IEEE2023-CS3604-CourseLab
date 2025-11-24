@@ -11,7 +11,7 @@ import iconStation from '../../assets/images/station.png'
 import iconFeature from '../../assets/images/feature.png'
 import iconFeedback from '../../assets/images/feedback.png'
 
-export const swapLogic = ({ from, to }) => ({ from: to, to: to })
+export const swapLogic = ({ from, to }) => ({ from: to, to: from })
 
 const HomePage = () => {
   const navigate = useNavigate()

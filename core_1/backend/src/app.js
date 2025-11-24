@@ -5,6 +5,9 @@ const authRoutes = require('./routes/auth');
 const trainRoutes = require('./routes/trains');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
+const passwordRoutes = require('./routes/password');
+const accountRoutes = require('./routes/account');
+const faceRoutes = require('./routes/face');
 
 const app = express();
 
@@ -29,6 +32,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/password', passwordRoutes);
+app.use('/api/account', accountRoutes);
+app.use('/api/password/reset/face', faceRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {
@@ -57,14 +63,41 @@ app.use((err, req, res, next) => {
   });
 });
 
+const net = require('net');
 const PORT = process.env.PORT || 3000;
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`12306购票系统后端服务启动成功`);
-    console.log(`服务地址: http://localhost:${PORT}`);
-    console.log(`健康检查: http://localhost:${PORT}/health`);
+async function isPortAvailable(port) {
+  return await new Promise((resolve) => {
+    const tester = net.createServer()
+      .once('error', () => resolve(false))
+      .once('listening', () => tester.close(() => resolve(true)))
+      .listen(port);
   });
+}
+
+async function choosePort(preferred) {
+  const base = Number(preferred);
+  for (let i = 0; i < 20; i++) {
+    const candidate = base + i;
+    if (await isPortAvailable(candidate)) return candidate;
+  }
+  return 0;
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  (async () => {
+    const chosen = await choosePort(PORT);
+    const server = app.listen(chosen, () => {
+      const p = server.address().port;
+      console.log(`12306购票系统后端服务启动成功`);
+      console.log(`服务地址: http://localhost:${p}`);
+      console.log(`健康检查: http://localhost:${p}/health`);
+    });
+    server.on('error', (err) => {
+      console.error('服务器启动失败:', err);
+      process.exit(1);
+    });
+  })();
 }
 
 module.exports = app;

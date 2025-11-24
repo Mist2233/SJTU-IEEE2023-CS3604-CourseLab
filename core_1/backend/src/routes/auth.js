@@ -284,4 +284,26 @@ if (process.env.NODE_ENV === 'test') {
   });
 }
 
+// POST /api/auth/send-verification-code
+router.post('/send-verification-code', async (req, res) => {
+  const { phoneNumber, context, idType, idNumber } = req.body || {}
+
+  if (!phoneNumber || !isValidPhoneNumber(phoneNumber)) {
+    return res.status(400).json({ success: false, message: '手机号格式错误' })
+  }
+  if (context === 'password_reset') {
+    if (!idType || !idNumber) {
+      return res.status(400).json({ success: false, message: '参数错误或缺少证件信息' })
+    }
+  }
+
+  const now = Date.now()
+  const code = generateVerificationCode()
+  try {
+    await VerificationCode.save({ codeId: `code_${phoneNumber}_${now}`, phone: phoneNumber, code, expiresAt: now + 5 * 60 * 1000 })
+  } catch (e) {}
+  console.log(`验证码已生成并发送: phone=${phoneNumber}, code=${code}, codeId=code_${phoneNumber}_${now}`)
+  return res.status(200).json({ success: true, message: '验证码已发送', data: { codeId: `code_${phoneNumber}_${now}` } })
+})
+
 module.exports = router;

@@ -108,6 +108,7 @@ class VerificationCode {
           if (err) {
             reject(err);
           } else if (row) {
+            console.log('验证码校验命中记录:', { id: row.id, phone: row.phone, code: row.code, expiresAt: row.expires_at });
             // 标记验证码为已使用
             db.run(
               `UPDATE verification_codes SET used = 1 WHERE id = ?`,
@@ -121,6 +122,7 @@ class VerificationCode {
               }
             );
           } else {
+            console.log('验证码校验未命中:', { phone, code, now });
             resolve(false);
           }
         }

@@ -62,7 +62,7 @@ const Header = () => {
             <span className="language">English</span>
           </div>
           <div className="top-right">
-            <span className="top-link">我的12306</span>
+            <Link to={user ? "/my" : "/login"} className="top-link">我的12306</Link>
             <span className="separator">|</span>
             {user ? (
               <span className="user-greeting">
@@ -102,7 +102,7 @@ const Header = () => {
       {/* 3. 主导航栏 - 蓝色背景 */}
       <nav className="main-nav-bar">
         <div className="container nav-container">
-          <Link to="/" className={`nav-item ${location.pathname === '/' ? 'active' : ''}`}>首页</Link>
+          <Link to="/" className="nav-item">首页</Link>
 
           <div className="nav-item-group">
             <Link to="/search" className="nav-item">车票 <span className="arrow">⌄</span></Link>
@@ -110,27 +110,27 @@ const Header = () => {
           </div>
 
           <div className="nav-item-group">
-            <Link to="/groups" className="nav-item">团购服务 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">团购服务 <span className="arrow">⌄</span></div>
           </div>
 
           <div className="nav-item-group">
-            <Link to="/members" className="nav-item">会员服务 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">会员服务 <span className="arrow">⌄</span></div>
           </div>
 
           <div className="nav-item-group">
-            <Link to="/stations" className="nav-item">站车服务 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">站车服务 <span className="arrow">⌄</span></div>
           </div>
 
           <div className="nav-item-group">
-            <Link to="/business" className="nav-item">商旅服务 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">商旅服务 <span className="arrow">⌄</span></div>
           </div>
 
           <div className="nav-item-group">
-            <Link to="/guide" className="nav-item">出行指南 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">出行指南 <span className="arrow">⌄</span></div>
           </div>
 
           <div className="nav-item-group">
-            <Link to="/info" className="nav-item">信息查询 <span className="arrow">⌄</span></Link>
+            <div className="nav-item">信息查询 <span className="arrow">⌄</span></div>
           </div>
         </div>
       </nav>

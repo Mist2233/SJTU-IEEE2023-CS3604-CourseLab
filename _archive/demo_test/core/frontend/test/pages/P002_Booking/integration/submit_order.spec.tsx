@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { vi } from 'vitest'
 import * as api from '../../../../src/services/api'
-import BookingPage from '../../../../src/pages/P002/BookingPage.jsx'
+import BookingPage from '../../../../src/pages/P005/BookingPage.jsx'
 
 const mockedNavigate = vi.fn()
 vi.mock('react-router-dom', async () => {
@@ -23,7 +23,7 @@ describe('P002_Booking 集成测试 - 提单全流程', () => {
       </MemoryRouter>
     )
     await user.type(screen.getByPlaceholderText('请输入乘客姓名'), '王五')
-    await user.type(screen.getByPlaceholderText('请输入身份证号'), '123456789012345678')
+    await user.type(screen.getByPlaceholderText('请输入身份证号'), '110101199001011234')
     await user.click(screen.getByText('提交订单'))
     expect(mockedNavigate).toHaveBeenCalledWith('/my-orders')
   })
@@ -38,7 +38,7 @@ describe('P002_Booking 集成测试 - 提单全流程', () => {
       </MemoryRouter>
     )
     await user.type(screen.getByPlaceholderText('请输入乘客姓名'), '王五')
-    await user.type(screen.getByPlaceholderText('请输入身份证号'), '123456789012345678')
+    await user.type(screen.getByPlaceholderText('请输入身份证号'), '110101199001011234')
     await user.click(screen.getByText('提交订单'))
     expect(await screen.findByText('创建订单失败')).toBeInTheDocument()
   })

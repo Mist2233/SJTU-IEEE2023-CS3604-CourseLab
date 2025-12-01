@@ -7,10 +7,9 @@ import * as api from '../../../../src/services/api'
 import RegisterPage from '../../../../src/pages/P004/RegisterPage.jsx'
 
 describe('P004_Register 单元测试 - 注册参数构造（基于实际行为）', () => {
-  it('调用 register 原样传递包含 confirmPassword 在内的表单数据', async () => {
+  it('调用 register 传递精简后的表单数据并显示成功弹窗', async () => {
     const user = userEvent.setup()
     const registerMock = vi.spyOn(api, 'register').mockResolvedValue({} as any)
-    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {})
     const { container } = render(
       <MemoryRouter>
         <RegisterPage />
@@ -18,16 +17,23 @@ describe('P004_Register 单元测试 - 注册参数构造（基于实际行为�
     )
     await user.type(screen.getByPlaceholderText('用户名设置成功后不可修改'), 'user_abc')
     await user.type(container.querySelector('.phone-input') as HTMLInputElement, '13800138000')
+    await user.type(screen.getByPlaceholderText('请输入短信验证码'), '123456')
     await user.type(screen.getByPlaceholderText('请输入姓名'), '张三')
-    await user.type(screen.getByPlaceholderText('请输入您的证件号码'), '12345678901234567X')
+    await user.type(screen.getByPlaceholderText('请输入您的证件号码'), '110101199001011234')
     const pwd = container.querySelector('input[name="password"]') as HTMLInputElement
     await user.type(pwd, 'Abc123!')
     await user.type(screen.getByPlaceholderText('再次输入您的登录密码'), 'Abc123!')
     await user.click(screen.getByRole('checkbox'))
     await user.click(screen.getByRole('button', { name: '下一步' }))
-    expect(alertMock).toHaveBeenCalledWith('注册成功')
     expect(registerMock).toHaveBeenCalled()
     const arg = registerMock.mock.calls[0][0]
-    expect(arg.confirmPassword).toBe('Abc123!')
+    expect(arg).toMatchObject({
+      username: 'user_abc',
+      phone: '13800138000',
+      password: 'Abc123!',
+      realName: '张三',
+      idNumber: '110101199001011234'
+    })
+    expect(screen.getByText('注册成功')).toBeInTheDocument()
   })
 })

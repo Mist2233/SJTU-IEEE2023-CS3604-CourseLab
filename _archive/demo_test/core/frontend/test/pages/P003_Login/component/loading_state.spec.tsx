@@ -19,7 +19,7 @@ describe('P003_Login 组件测试 - 加载状态反馈', () => {
     await user.type(screen.getByPlaceholderText('用户名/邮箱/手机号'), '13800138000')
     await user.type(screen.getByPlaceholderText('密码'), 'abc12345')
     await user.click(screen.getByRole('button', { name: '立即登录' }))
-    const btn = screen.getByRole('button') as HTMLButtonElement
+    const btn = screen.getByRole('button', { name: '登录中...' }) as HTMLButtonElement
     expect(btn).toBeDisabled()
     expect(btn).toHaveTextContent('登录中...')
   })

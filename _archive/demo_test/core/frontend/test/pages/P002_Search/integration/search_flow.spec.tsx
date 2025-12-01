@@ -10,7 +10,7 @@ describe('P002_Search 集成测试 - 搜索联动与错误处理', () => {
     const searchMock = vi.spyOn(api, 'searchTrains')
     searchMock.mockResolvedValue([{ trainNumber: 'G1' }] as any)
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/search' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/search', search: '?from=北京南&to=上海虹桥' }] as any}>
         <SearchResultsPage />
       </MemoryRouter>
     )
@@ -28,7 +28,7 @@ describe('P002_Search 集成测试 - 搜索联动与错误处理', () => {
     const searchMock = vi.spyOn(api, 'searchTrains')
     searchMock.mockRejectedValue(new Error('500'))
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/search' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/search', search: '?from=北京南&to=上海虹桥' }] as any}>
         <SearchResultsPage />
       </MemoryRouter>
     )

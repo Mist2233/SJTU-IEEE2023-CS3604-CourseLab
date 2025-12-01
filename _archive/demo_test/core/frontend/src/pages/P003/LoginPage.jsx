@@ -9,7 +9,7 @@ const LoginPage = () => {
   const [loginType, setLoginType] = useState('account')
 
   const [formData, setFormData] = useState({
-    phone: '',
+    identifier: '',
     password: ''
   })
   const [loading, setLoading] = useState(false)
@@ -17,10 +17,10 @@ const LoginPage = () => {
   const [fieldErrors, setFieldErrors] = useState({})
   const [rememberMe, setRememberMe] = useState(false)
   const [loginAttempts, setLoginAttempts] = useState(0)
+  const [showPassword, setShowPassword] = useState(false)
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^1[3-9]\d{9}$/
-    return phoneRegex.test(phone)
+  const validateIdentifier = (id) => {
+    return !!String(id || '').trim()
   }
 
   const handleInputChange = (e) => {
@@ -45,8 +45,7 @@ const LoginPage = () => {
     }
 
     const errors = {}
-    if (!formData.phone) errors.phone = '请输入手机号'
-    else if (!validatePhone(formData.phone)) errors.phone = '请输入正确的手机号'
+    if (!validateIdentifier(formData.identifier)) errors.identifier = '请输入用户名/邮箱/手机号'
     if (!formData.password) errors.password = '请输入密码'
 
     if (Object.keys(errors).length > 0) {
@@ -56,7 +55,7 @@ const LoginPage = () => {
 
     setLoading(true)
     try {
-      const data = await login(formData)
+      const data = await login({ identifier: formData.identifier, password: formData.password })
 
       if (data.success) {
         const token = data.token ?? data.data?.token
@@ -165,26 +164,39 @@ const LoginPage = () => {
                 <form onSubmit={handleSubmit} className="account-login-form">
                   {error && <div className="login-error-banner">{error}</div>}
 
-                  <div className={`input-row ${fieldErrors.phone ? 'has-error' : ''}`}>
+                  <div className={`input-row ${fieldErrors.identifier ? 'has-error' : ''}`}>
                     <span className="input-icon">👤</span>
                     <input
                       type="text"
-                      name="phone"
+                      name="identifier"
                       placeholder="用户名/邮箱/手机号"
-                      value={formData.phone}
+                      value={formData.identifier}
                       onChange={handleInputChange}
                     />
+                    {fieldErrors.identifier && (
+                      <span style={{ padding: '0 10px', color: '#ff4d4f' }}>{fieldErrors.identifier}</span>
+                    )}
                   </div>
 
                   <div className={`input-row ${fieldErrors.password ? 'has-error' : ''}`}>
                     <span className="input-icon">🔒</span>
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       name="password"
                       placeholder="密码"
                       value={formData.password}
                       onChange={handleInputChange}
                     />
+                    <button type="button" className="toggle-eye" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/></svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/><line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" strokeWidth="2"/></svg>
+                      )}
+                    </button>
+                    {fieldErrors.password && (
+                      <span style={{ padding: '0 10px', color: '#ff4d4f' }}>{fieldErrors.password}</span>
+                    )}
                   </div>
 
                   <div className="form-options">

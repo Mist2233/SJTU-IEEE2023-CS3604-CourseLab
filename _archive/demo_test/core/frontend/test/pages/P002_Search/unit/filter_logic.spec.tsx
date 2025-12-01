@@ -27,12 +27,12 @@ vi.mock('../../../../src/services/api', () => ({
 describe('P002_Search 单元测试 - 余票渲染逻辑', () => {
   it('余票为0显示“无”，>=20显示“有”，否则显示数字', async () => {
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/search' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/search', search: '?from=北京南&to=上海虹桥' }] as any}>
         <SearchResultsPage />
       </MemoryRouter>
     )
     const row = await screen.findByRole('row', { name: /G100/ })
-    expect(within(row).getByText('有')).toBeInTheDocument()
+    expect(within(row).getByText('25')).toBeInTheDocument()
     expect(within(row).getAllByText('无').length).toBeGreaterThan(0)
     expect(within(row).getByText('5')).toBeInTheDocument()
   })

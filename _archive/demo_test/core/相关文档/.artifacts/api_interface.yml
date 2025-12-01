@@ -1,0 +1,689 @@
+# ==============================================================================
+# MODULE: F001 - 导航栏访问
+# ==============================================================================
+- type: Backend
+  id: API-GET-UserProfile
+  route: GET /api/v1/user/profile
+  description: 获取当前登录用户基本资料（用户名、头像、等级）
+  implements:
+    - F001
+  input:
+    type: Query
+    body: {}
+  output:
+    success: { statusCode: 200, body: [uid, nick, avatar, vip] }
+    error:
+      - { statusCode: 401, body: [error: "未登录或登录态失效"] }
+  dependencies:
+    - DB-GetUserById
+  acceptanceCriteria:
+    - req_id: F001-S03
+      case: "已登录用户返回用户名与头像信息"
+
+- type: Backend
+  id: API-POST-Logout
+  route: POST /api/v1/auth/logout
+  description: 用户退出登录，服务端失效 token
+  implements:
+    - F001
+    - F016
+  input:
+    type: JSON
+    body: { reason: string(optional) }
+  output:
+    success: { statusCode: 200, body: [message: "已退出"] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-InvalidateSession
+  acceptanceCriteria:
+    - req_id: F016-S06
+      case: "记录登出日志并服务端失效 token"
+
+# ==============================================================================
+# MODULE: F002 - 快捷入口访问
+# ==============================================================================
+- type: Backend
+  id: API-GET-QuickEntries
+  route: GET /api/v1/home/quick-entries
+  description: 获取首页快捷入口配置与个性化推荐
+  implements:
+    - F002
+  input:
+    type: Query
+    body: { userId: string(optional) }
+  output:
+    success: { statusCode: 200, body: [entries: array<QuickEntry>] }
+    error:
+      - { statusCode: 500, body: [error: "配置加载失败"] }
+  dependencies:
+    - DB-GetQuickEntries
+  acceptanceCriteria:
+    - req_id: F002-S09
+      case: "加载失败时返回默认入口集合"
+
+- type: Backend
+  id: API-GET-QueryHistory
+  route: GET /api/v1/query/history
+  description: 获取用户最近查询历史（最多5条）
+  implements:
+    - F002
+  input:
+    type: Query
+    body: { userId: string(required) }
+  output:
+    success: { statusCode: 200, body: [history: array<QueryHistory>] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-GetQueryHistory
+  acceptanceCriteria:
+    - req_id: F002-S03
+      case: "返回最多5条查询历史"
+
+- type: Backend
+  id: API-DELETE-QueryHistory
+  route: DELETE /api/v1/query/history
+  description: 清空用户查询历史
+  implements:
+    - F002
+  input:
+    type: JSON
+    body: { userId: string(required) }
+  output:
+    success: { statusCode: 200, body: [message: "已清空"] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-ClearQueryHistory
+  acceptanceCriteria:
+    - req_id: F002-S07
+      case: "清除历史记录需确认并成功清空"
+
+# ==============================================================================
+# MODULE: F003 - 车票查询
+# ==============================================================================
+- type: Backend
+  id: API-GET-StationSuggest
+  route: GET /api/v1/stations/suggest
+  description: 站点模糊搜索（拼音/中文）
+  implements:
+    - F003
+  input:
+    type: Query
+    body: { q: string(required) }
+  output:
+    success: { statusCode: 200, body: [stations: array<string>] }
+    error:
+      - { statusCode: 400, body: [error: "输入非法"] }
+  dependencies:
+    - DB-SearchStations
+  acceptanceCriteria:
+    - req_id: F003-S01
+      case: "支持拼音/中文模糊匹配"
+
+- type: Backend
+  id: API-GET-TrainQuery
+  route: GET /api/v1/tickets/trains
+  description: 查询车次与票价信息，支持筛选
+  implements:
+    - F003
+    - F004
+  input:
+    type: Query
+    body:
+      fromStation: string(required)
+      toStation: string(required)
+      departDate: string(YYYY-MM-DD, required)
+      trainType: string(optional)
+      departWindow: string(optional)
+      onlyAvailable: boolean(optional)
+  output:
+    success:
+      statusCode: 200
+      body: [trains]
+    error:
+      - { statusCode: 400, body: [error: "查询参数错误"] }
+      - { statusCode: 404, body: [error: "无符合条件的车次"] }
+      - { statusCode: 500, body: [error: "服务异常"] }
+  dependencies:
+    - DB-QueryTrainSchedule
+    - DB-QueryTicketInventory
+  acceptanceCriteria:
+    - req_id: F003-S12
+      case: "校验必填项完整"
+    - req_id: F003-S17
+      case: "返回各席别余票数量"
+
+# ==============================================================================
+# MODULE: F004 - 车次筛选
+# ==============================================================================
+- type: Backend
+  id: API-GET-TrainQuery
+  route: GET /api/v1/tickets/trains
+  description: 与 F003 复用：同一路由支持筛选参数
+  implements:
+    - F004
+  input:
+    type: Query
+    body: { trainType: string(optional), departWindow: string(optional), onlyAvailable: boolean(optional) }
+  output:
+    success: { statusCode: 200, body: [trains] }
+    error:
+      - { statusCode: 400, body: [error: "筛选参数错误"] }
+  dependencies:
+    - DB-QueryTrainSchedule
+    - DB-QueryTicketInventory
+  acceptanceCriteria:
+    - req_id: F004-S15
+      case: "实时过滤并返回结果数量"
+
+# ==============================================================================
+# MODULE: F005 - 车票预订
+# ==============================================================================
+- type: Backend
+  id: API-POST-PrelockSeat
+  route: POST /api/v1/orders/prelock
+  description: 预锁座位并校验乘车人与余票
+  implements:
+    - F005
+  input:
+    type: JSON
+    body:
+      trainNumber: string
+      departDate: string(YYYY-MM-DD)
+      seatType: string
+      count: number
+      passengers: array<object>
+  output:
+    success: { statusCode: 200, body: [lockId: string, expireIn: number] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+      - { statusCode: 409, body: [error: "余票不足"] }
+  dependencies:
+    - DB-QueryTicketInventory
+    - DB-LockTicketInventory
+  acceptanceCriteria:
+    - req_id: F005-S02
+      case: "检查并返回余票校验结果"
+    - req_id: F005-S16
+      case: "锁票成功返回锁定信息"
+
+# ==============================================================================
+# MODULE: F006 - 中转换乘查询
+# ==============================================================================
+- type: Backend
+  id: API-GET-TransferPlans
+  route: GET /api/v1/tickets/transfer-plans
+  description: 生成中转方案并排序
+  implements:
+    - F006
+  input:
+    type: Query
+    body:
+      fromStation: string(required)
+      toStation: string(required)
+      departDate: string(required)
+  output:
+    success: { statusCode: 200, body: [plans] }
+    error:
+      - { statusCode: 404, body: [error: "无可用中转方案"] }
+  dependencies:
+    - DB-QueryTransferStations
+    - DB-QueryTrainSchedule
+  acceptanceCriteria:
+    - req_id: F006-S06
+      case: "返回≤5个方案并按总历时/总价排序"
+
+# ==============================================================================
+# MODULE: F007 - 用户登录
+# ==============================================================================
+- type: Backend
+  id: API-POST-SendVerificationCode
+  route: POST /api/v1/auth/send-code
+  description: 发送手机验证码（60秒限流）
+  implements:
+    - F007
+    - F008
+  input:
+    type: JSON
+    body: { phoneNumber: string }
+  output:
+    success: { statusCode: 200, body: [message: "验证码已发送", codeId: string] }
+    error:
+      - { statusCode: 400, body: [error: "手机号格式错误"] }
+      - { statusCode: 429, body: [error: "发送频率过快"] }
+  dependencies:
+    - DB-CreateVerificationCode
+  acceptanceCriteria:
+    - req_id: F007-S06
+      case: "验证码发送并触发60秒倒计时"
+
+- type: Backend
+  id: API-POST-LoginPassword
+  route: POST /api/v1/auth/login/password
+  description: 账号密码登录
+  implements:
+    - F007
+  input:
+    type: JSON
+    body: { account: string, password: string }
+  output:
+    success: { statusCode: 200, body: [token: string, userId: string] }
+    error:
+      - { statusCode: 400, body: [error: "参数错误"] }
+      - { statusCode: 401, body: [error: "用户名或密码错误"] }
+  dependencies:
+    - DB-FindUser
+    - DB-VerifyPassword
+    - DB-CreateSession
+    - DB-CreateLoginLog
+  acceptanceCriteria:
+    - req_id: F007-S12
+      case: "后端校验凭证并返回 token"
+
+- type: Backend
+  id: API-POST-LoginSMS
+  route: POST /api/v1/auth/login/sms
+  description: 手机验证码登录
+  implements:
+    - F007
+  input:
+    type: JSON
+    body: { phoneNumber: string, code: string }
+  output:
+    success: { statusCode: 200, body: [token: string, userId: string] }
+    error:
+      - { statusCode: 400, body: [error: "验证码错误或过期"] }
+  dependencies:
+    - DB-VerifyCode
+    - DB-CreateSession
+  acceptanceCriteria:
+    - req_id: F007-S08
+      case: "验证码5分钟有效校验通过登录"
+
+# ==============================================================================
+# MODULE: F008 - 用户注册
+# ==============================================================================
+- type: Backend
+  id: API-POST-Register
+  route: POST /api/v1/auth/register
+  description: 新用户注册并创建账户
+  implements:
+    - F008
+  input:
+    type: JSON
+    body: { phoneNumber: string, code: string, password: string }
+  output:
+    success: { statusCode: 201, body: [userId: string, token: string] }
+    error:
+      - { statusCode: 400, body: [error: "参数错误或验证码无效"] }
+      - { statusCode: 409, body: [error: "用户已存在"] }
+  dependencies:
+    - DB-FindUserByPhone
+    - DB-VerifyCode
+    - DB-CreateUser
+  acceptanceCriteria:
+    - req_id: F008-S17
+      case: "后端创建账户并返回 token"
+
+# ==============================================================================
+# MODULE: F009 - 订单填写
+# ==============================================================================
+- type: Backend
+  id: API-GET-OrderDetail
+  route: GET /api/v1/orders/{orderId}
+  description: 获取订单详情信息
+  implements:
+    - F009
+    - F013
+  input:
+    type: Param
+    body: { orderId: string }
+  output:
+    success: { statusCode: 200, body: [orderId, trainInfo, passengers, totalAmount, status, paymentDeadline] }
+    error:
+      - { statusCode: 404, body: [error: "订单不存在"] }
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-GetOrderDetail
+  acceptanceCriteria:
+    - req_id: F009-S04
+      case: "返回支付倒计时信息"
+
+- type: Backend
+  id: API-POST-CancelOrder
+  route: POST /api/v1/orders/{orderId}/cancel
+  description: 取消订单并释放库存
+  implements:
+    - F009
+    - F013
+  input:
+    type: Param
+    body: { orderId: string }
+  output:
+    success: { statusCode: 200, body: [message: "订单已取消"] }
+    error:
+      - { statusCode: 400, body: [error: "订单无法取消"] }
+      - { statusCode: 404, body: [error: "订单不存在"] }
+  dependencies:
+    - DB-UpdateOrderStatus
+    - DB-ReleaseTicketInventory
+  acceptanceCriteria:
+    - req_id: F013-S24
+      case: "待支付状态订单可取消并释放库存"
+
+# ==============================================================================
+# MODULE: F010 - 提交订单
+# ==============================================================================
+- type: Backend
+  id: API-POST-CreateOrder
+  route: POST /api/v1/orders/create
+  description: 创建订单、锁定座位并设置支付超时
+  implements:
+    - F010
+  input:
+    type: JSON
+    body: { trainNumber: string, departDate: string, seatType: string, passengers: array<object>, contactPhone: string }
+  output:
+    success: { statusCode: 201, body: [orderId: string, totalAmount: number, paymentDeadline: string] }
+    error:
+      - { statusCode: 400, body: [error: "订单信息错误"] }
+      - { statusCode: 409, body: [error: "余票不足"] }
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-QueryTicketInventory
+    - DB-LockTicketInventory
+    - DB-CreateOrder
+  acceptanceCriteria:
+    - req_id: F010-S09
+      case: "设置30分钟支付超时"
+
+# ==============================================================================
+# MODULE: F011 - 个人信息管理
+# ==============================================================================
+- type: Backend
+  id: API-PATCH-UpdatePhone
+  route: PATCH /api/v1/user/phone
+  description: 修改用户手机号
+  implements:
+    - F011
+  input:
+    type: JSON
+    body: { oldPhoneCode: string, newPhone: string, newPhoneCode: string }
+  output:
+    success: { statusCode: 200, body: [message: "手机号已更新"] }
+    error:
+      - { statusCode: 400, body: [error: "验证码错误"] }
+  dependencies:
+    - DB-UpdateUserPhone
+  acceptanceCriteria:
+    - req_id: F011-S12
+      case: "验证码通过后更新手机号"
+
+- type: Backend
+  id: API-PATCH-UpdateEmail
+  route: PATCH /api/v1/user/email
+  description: 修改用户邮箱并邮件验证
+  implements:
+    - F011
+  input:
+    type: JSON
+    body: { newEmail: string }
+  output:
+    success: { statusCode: 200, body: [message: "邮箱已更新"] }
+    error:
+      - { statusCode: 400, body: [error: "邮箱格式错误"] }
+  dependencies:
+    - DB-UpdateUserEmail
+  acceptanceCriteria:
+    - req_id: F011-S15
+      case: "验证后确认修改"
+
+- type: Backend
+  id: API-PATCH-UpdatePassword
+  route: PATCH /api/v1/user/password
+  description: 修改用户密码并要求重新登录
+  implements:
+    - F011
+  input:
+    type: JSON
+    body: { oldPassword: string, newPassword: string }
+  output:
+    success: { statusCode: 200, body: [message: "密码已更新"] }
+    error:
+      - { statusCode: 400, body: [error: "旧密码错误"] }
+  dependencies:
+    - DB-UpdateUserPassword
+  acceptanceCriteria:
+    - req_id: F011-S18
+      case: "修改后强制重新登录"
+
+- type: Backend
+  id: API-PATCH-UpdateAvatar
+  route: PATCH /api/v1/user/avatar
+  description: 上传并更新头像
+  implements:
+    - F011
+  input:
+    type: JSON
+    body: { avatarUrl: string }
+  output:
+    success: { statusCode: 200, body: [message: "头像已更新"] }
+    error:
+      - { statusCode: 400, body: [error: "文件不符合要求"] }
+  dependencies:
+    - DB-UpdateUserAvatar
+  acceptanceCriteria:
+    - req_id: F011-S19
+      case: "限制格式与大小并成功更新"
+
+# ==============================================================================
+# MODULE: F012 - 乘客管理
+# ==============================================================================
+- type: Backend
+  id: API-GET-Passengers
+  route: GET /api/v1/passengers
+  description: 获取当前用户的乘车人列表
+  implements:
+    - F012
+  input:
+    type: Query
+    body: { userId: string(required), page: number(optional), limit: number(optional) }
+  output:
+    success: { statusCode: 200, body: [passengers] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-ListPassengers
+  acceptanceCriteria:
+    - req_id: F012-S01
+      case: "返回乘车人列表"
+
+- type: Backend
+  id: API-POST-AddPassenger
+  route: POST /api/v1/passengers
+  description: 添加乘车人
+  implements:
+    - F012
+  input:
+    type: JSON
+    body: { name: string, idType: string, idNumber: string, phoneNumber: string(optional), passengerType: string }
+  output:
+    success: { statusCode: 201, body: [passengerId: string] }
+    error:
+      - { statusCode: 400, body: [error: "参数或证件错误"] }
+  dependencies:
+    - DB-CreatePassenger
+  acceptanceCriteria:
+    - req_id: F012-S12
+      case: "身份证校验位通过方可创建"
+
+- type: Backend
+  id: API-PATCH-UpdatePassenger
+  route: PATCH /api/v1/passengers/{passengerId}
+  description: 更新乘车人信息（证件一般不可改）
+  implements:
+    - F012
+  input:
+    type: Param
+    body: { passengerId: string }
+  output:
+    success: { statusCode: 200, body: [message: "乘车人已更新"] }
+    error:
+      - { statusCode: 404, body: [error: "乘车人不存在"] }
+  dependencies:
+    - DB-UpdatePassenger
+  acceptanceCriteria:
+    - req_id: F012-S21
+      case: "证件信息不可改，其他字段可改"
+
+- type: Backend
+  id: API-DELETE-DeletePassenger
+  route: DELETE /api/v1/passengers/{passengerId}
+  description: 删除乘车人
+  implements:
+    - F012
+  input:
+    type: Param
+    body: { passengerId: string }
+  output:
+    success: { statusCode: 200, body: [message: "乘车人已删除"] }
+    error:
+      - { statusCode: 404, body: [error: "乘车人不存在"] }
+  dependencies:
+    - DB-DeletePassenger
+  acceptanceCriteria:
+    - req_id: F012-S22
+      case: "删除需确认，成功后不可恢复"
+
+# ==============================================================================
+# MODULE: F013 - 订单管理
+# ==============================================================================
+- type: Backend
+  id: API-GET-UserOrders
+  route: GET /api/v1/users/{userId}/orders
+  description: 获取用户订单列表（分页与筛选）
+  implements:
+    - F013
+  input:
+    type: Param
+    body: { userId: string, page: number(optional), limit: number(optional), status: string(optional) }
+  output:
+    success: { statusCode: 200, body: [orders, total, page, limit] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-QueryOrdersByUser
+  acceptanceCriteria:
+    - req_id: F013-S01
+      case: "支持状态筛选与分页"
+
+# ==============================================================================
+# MODULE: F014 - 订单支付
+# ==============================================================================
+- type: Backend
+  id: API-POST-InitiatePayment
+  route: POST /api/v1/payments/initiate
+  description: 发起支付并返回支付链接或二维码
+  implements:
+    - F014
+  input:
+    type: JSON
+    body: { orderId: string, paymentMethod: string, returnUrl: string }
+  output:
+    success: { statusCode: 200, body: [paymentId: string, paymentUrl: string, qrCode: string(optional)] }
+    error:
+      - { statusCode: 400, body: [error: "支付参数错误"] }
+      - { statusCode: 404, body: [error: "订单不存在或已过期"] }
+  dependencies:
+    - DB-CreatePaymentRecord
+  acceptanceCriteria:
+    - req_id: F014-S13
+      case: "创建支付订单并返回支付链接"
+
+- type: Backend
+  id: API-GET-PaymentStatus
+  route: GET /api/v1/payments/{paymentId}/status
+  description: 查询支付状态（轮询）
+  implements:
+    - F014
+  input:
+    type: Param
+    body: { paymentId: string }
+  output:
+    success: { statusCode: 200, body: [status] }
+    error:
+      - { statusCode: 404, body: [error: "支付订单不存在"] }
+  dependencies:
+    - DB-UpdateOrderStatus
+  acceptanceCriteria:
+    - req_id: F014-S16
+      case: "轮询最多3分钟，成功更新订单状态"
+
+- type: Backend
+  id: API-POST-PaymentCallback
+  route: POST /api/v1/payments/callback
+  description: 处理第三方支付回调并验签
+  implements:
+    - F014
+  input:
+    type: JSON
+    body: { paymentId: string, orderId: string, status: string, transactionId: string, amount: number, signature: string }
+  output:
+    success: { statusCode: 200, body: [message: "success"] }
+    error:
+      - { statusCode: 400, body: [error: "回调数据验证失败"] }
+  dependencies:
+    - DB-UpdateOrderStatus
+    - DB-CreatePaymentRecord
+  acceptanceCriteria:
+    - req_id: F014-S18
+      case: "验证签名成功更新订单状态并通知"
+
+# ==============================================================================
+# MODULE: F015 - 车票改签
+# ==============================================================================
+- type: Backend
+  id: API-POST-ChangeTicket
+  route: POST /api/v1/orders/change
+  description: 改签请求，校验资格并生成新订单/退差/补差
+  implements:
+    - F015
+  input:
+    type: JSON
+    body: { originalOrderId: string, newTrainNumber: string, newDepartDate: string, seatType: string }
+  output:
+    success: { statusCode: 200, body: [newOrderId: string, diffAmount: number] }
+    error:
+      - { statusCode: 400, body: [error: "改签不符合规则"] }
+      - { statusCode: 409, body: [error: "新车次余票不足"] }
+  dependencies:
+    - DB-CheckChangeEligibility
+    - DB-CreateOrder
+    - DB-UpdateOrderStatus
+  acceptanceCriteria:
+    - req_id: F015-S12
+      case: "正确计算差价并返回结果"
+
+# ==============================================================================
+# MODULE: F016 - 用户登出
+# ==============================================================================
+- type: Backend
+  id: API-POST-Logout
+  route: POST /api/v1/auth/logout
+  description: 退出登录（复用）
+  implements:
+    - F016
+  input:
+    type: JSON
+    body: {}
+  output:
+    success: { statusCode: 200, body: [message: "已退出"] }
+    error:
+      - { statusCode: 401, body: [error: "未登录"] }
+  dependencies:
+    - DB-InvalidateSession
+  acceptanceCriteria:
+    - req_id: F016-S04
+      case: "清除本地/服务端会话信息"

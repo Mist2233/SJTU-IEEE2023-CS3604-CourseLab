@@ -44,7 +44,7 @@ const OrderConfirmationPage = () => {
     // TODO: 调用取消订单API
     // TODO: 确认取消操作
     if (window.confirm('确定要取消订单吗？')) {
-      navigate('/my-orders')
+      navigate('/my#orders')
     }
   }
 

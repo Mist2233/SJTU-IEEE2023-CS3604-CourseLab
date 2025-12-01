@@ -1,9 +1,5 @@
-/* 我的订单页面样式 */
-.orders-page {
-  min-height: 100vh;
-  background: #f5f7fa;
-  padding-top: 80px;
-}
+/* 我的订单页面样式（适配个人中心内容区） */
+.orders-inner { }
 
 /* 页面头部 */
 .orders-header {
@@ -584,3 +580,12 @@
     font-size: 20px;
   }
 }
+.order-detail-collapsible { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+.order-detail-collapsible.open { max-height: 300px; }
+
+/* Overrides for embedding within PersonalCenter content area */
+.orders-inner { background: #fff; }
+.orders-header { margin-bottom: 16px; }
+.header-content, .tabs-container, .orders-content { max-width: 100%; margin: 0; padding: 0; }
+.orders-tabs { margin-bottom: 16px; padding-top: 8px; }
+.order-body { padding: 16px; gap: 16px; }

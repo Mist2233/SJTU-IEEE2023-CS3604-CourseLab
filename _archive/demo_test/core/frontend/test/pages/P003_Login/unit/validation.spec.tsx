@@ -19,7 +19,7 @@ describe('P003_Login 单元测试 - 表单字段校验逻辑', () => {
     expect(pwdRow?.classList.contains('has-error')).toBe(true)
   })
 
-  it('手机号格式错误时标记错误', async () => {
+  it('任意标识符均可，非空不标记错误', async () => {
     const user = userEvent.setup()
     const { container } = render(
       <MemoryRouter>
@@ -32,6 +32,6 @@ describe('P003_Login 单元测试 - 表单字段校验逻辑', () => {
     await user.type(pwdInput, 'abcdef')
     await user.click(screen.getByRole('button', { name: '立即登录' }))
     const phoneRow = container.querySelector('.input-row:nth-of-type(1)')
-    expect(phoneRow?.classList.contains('has-error')).toBe(true)
+    expect(phoneRow?.classList.contains('has-error')).toBe(false)
   })
 })

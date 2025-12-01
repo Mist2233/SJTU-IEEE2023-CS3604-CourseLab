@@ -25,6 +25,14 @@ function isValidIdNumber(idNumber) {
   return /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/.test(idNumber);
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidUsername(username) {
+  return /^[A-Za-z][A-Za-z0-9_]{5,29}$/.test(username);
+}
+
 // POST /api/auth/send-code
 router.post('/send-code', async (req, res) => {
   const { phone } = req.body;
@@ -48,6 +56,9 @@ router.post('/send-code', async (req, res) => {
   }
 
   try {
+    // 失效旧验证码
+    await VerificationCode.invalidateByPhone(phone);
+
     // 生成验证码
     const code = generateVerificationCode();
     const codeId = `code_${phone}_${now}`;
@@ -66,10 +77,14 @@ router.post('/send-code', async (req, res) => {
     // 模拟发送短信（实际应调用短信服务）
     console.log(`发送验证码到 ${phone}: ${code}`);
 
+    const data = { codeId };
+    if (process.env.NODE_ENV !== 'production') {
+      data.code = code;
+    }
     res.json({ 
       success: true,
       message: '验证码发送成功', 
-      data: { codeId }
+      data
     });
   } catch (error) {
     console.error('发送验证码失败:', error);
@@ -82,15 +97,23 @@ router.post('/send-code', async (req, res) => {
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
-  const { phone, verificationCode, password, realName, idNumber } = req.body;
+  const { username, email, phone, verificationCode, password, realName, idNumber } = req.body;
 
   // 验证参数
-  if (!phone || !verificationCode || !password || !realName || !idNumber) {
+  if (!username || !email || !phone || !verificationCode || !password || !realName || !idNumber) {
     console.log('注册失败: 参数缺失');
     return res.status(400).json({ 
       success: false, 
       message: '参数错误或验证码无效' 
     });
+  }
+
+  if (!isValidUsername(username)) {
+    return res.status(400).json({ success: false, message: '用户名格式不正确' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ success: false, message: '邮箱格式不正确' });
   }
 
   if (!isValidPhoneNumber(phone)) {
@@ -128,24 +151,28 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // 检查用户是否已存在
-    const existingUser = await User.findByPhone(phone);
-    if (existingUser) {
-      console.log('注册失败: 手机号已存在');
-      return res.status(400).json({ 
-        success: false,
-        message: '手机号已存在'
-      });
-    }
+    // 检查用户是否已存在（手机号、身份证、邮箱、用户名）
+    const byPhone = await User.findByPhone(phone);
+    if (byPhone) return res.status(400).json({ success: false, message: '手机号已存在' });
 
-    // 创建新用户
-    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const byId = await User.findByIdNumber(idNumber);
+    if (byId) return res.status(400).json({ success: false, message: '身份证已存在' });
+
+    const byEmail = await User.findByEmail(email);
+    if (byEmail) return res.status(400).json({ success: false, message: '邮箱已存在' });
+
+    const byUserId = await User.findByUserId(username);
+    if (byUserId) return res.status(400).json({ success: false, message: '用户名已存在' });
+
+    // 创建新用户（使用前端用户名作为 user_id）
+    const userId = username;
     await User.create({
       userId,
       phone,
       password,
       realName,
-      idNumber
+      idNumber,
+      email
     });
 
     const token = generateToken(userId);
@@ -169,50 +196,39 @@ router.post('/register', async (req, res) => {
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
-  const { phone, password } = req.body;
+  const { identifier, password } = req.body;
 
-  // 验证参数
-  if (!phone || !password) {
-    return res.status(400).json({
-      success: false,
-      message: '手机号和密码不能为空'
-    });
-  }
-
-  // 验证手机号格式
-  if (!isValidPhoneNumber(phone)) {
-    return res.status(400).json({
-      success: false,
-      message: '手机号格式不正确'
-    });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, message: '账号和密码不能为空' });
   }
 
   try {
-    // 检查登录频率限制
-    const loginKey = `login_${phone}`;
+    const loginKey = `login_${identifier}`;
     const loginAttempts = phoneCodeTimestamps.get(loginKey) || 0;
-    
     if (loginAttempts >= 5) {
-      return res.status(429).json({
-        success: false,
-        message: '登录尝试过于频繁，请稍后再试'
-      });
+      return res.status(429).json({ success: false, message: '登录尝试过于频繁，请稍后再试' });
     }
 
-    // 查找用户并验证密码
-    const user = await User.findByPhone(phone);
-    
-    if (!user || user.password !== password) {
-      // 增加失败次数
+    let user = null;
+    if (isValidPhoneNumber(identifier)) {
+      user = await User.findByPhone(identifier);
+    } else if (isValidEmail(identifier)) {
+      user = await User.findByEmail(identifier);
+    } else {
+      user = await User.findByUserId(identifier);
+    }
+
+    if (!user) {
       phoneCodeTimestamps.set(loginKey, loginAttempts + 1);
-      return res.status(401).json({
-        success: false,
-        message: '手机号或密码错误'
-      });
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+    if (user.password !== password) {
+      phoneCodeTimestamps.set(loginKey, loginAttempts + 1);
+      return res.status(401).json({ success: false, message: '账号或密码错误' });
     }
 
     const token = generateToken(user.user_id);
-
+    try { await User.updateLastLogin(user.user_id) } catch (_) {}
     res.json({
       success: true,
       message: '登录成功',
@@ -222,16 +238,84 @@ router.post('/login', async (req, res) => {
         user: {
           phone: user.phone,
           realName: user.real_name,
-          idNumber: user.id_number
+          idNumber: user.id_number,
+          email: user.email
         }
       }
     });
   } catch (error) {
     console.error('登录失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '登录失败，请稍后重试'
-    });
+    res.status(500).json({ success: false, message: '登录失败，请稍后重试' });
+  }
+});
+
+// 忘记密码：发送验证码（2分钟有效，重发立即失效旧码）
+router.post('/forgot/send-code', async (req, res) => {
+  const { recipient, idNumber } = req.body; // recipient 可为手机号或邮箱
+  if (!recipient || !idNumber) {
+    return res.status(400).json({ success: false, message: '参数缺失' });
+  }
+  const isPhone = isValidPhoneNumber(recipient);
+  const isMail = isValidEmail(recipient);
+  if (!isPhone && !isMail) {
+    return res.status(400).json({ success: false, message: '账号格式不正确' });
+  }
+  if (!isValidIdNumber(idNumber)) {
+    return res.status(400).json({ success: false, message: '身份证号格式不正确' });
+  }
+  try {
+    let user = null;
+    if (isPhone) user = await User.findByPhone(recipient);
+    else user = await User.findByEmail(recipient);
+    if (!user || user.id_number !== idNumber) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+
+    await VerificationCode.invalidateByRecipient(recipient);
+    const now = Date.now();
+    const code = generateVerificationCode();
+    const codeId = `fp_${recipient}_${now}`;
+    await VerificationCode.save({ codeId, phone: recipient, code, expiresAt: now + 2 * 60 * 1000 });
+    console.log(`忘记密码验证码发送至 ${recipient}: ${code}`);
+    const data = { codeId };
+    if (process.env.NODE_ENV !== 'production') data.code = code;
+    res.json({ success: true, message: '验证码发送成功', data });
+  } catch (e) {
+    console.error('忘记密码发送验证码失败:', e);
+    res.status(500).json({ success: false, message: '发送验证码失败，请稍后重试' });
+  }
+});
+
+// 忘记密码：重置密码
+router.post('/forgot/reset', async (req, res) => {
+  const { recipient, idNumber, verificationCode, newPassword } = req.body;
+  if (!recipient || !idNumber || !verificationCode || !newPassword) {
+    return res.status(400).json({ success: false, message: '参数缺失' });
+  }
+  const isPhone = isValidPhoneNumber(recipient);
+  const isMail = isValidEmail(recipient);
+  if (!isPhone && !isMail) {
+    return res.status(400).json({ success: false, message: '账号格式不正确' });
+  }
+  if (!isValidIdNumber(idNumber)) {
+    return res.status(400).json({ success: false, message: '身份证号格式不正确' });
+  }
+  try {
+    let user = null;
+    if (isPhone) user = await User.findByPhone(recipient);
+    else user = await User.findByEmail(recipient);
+    if (!user || user.id_number !== idNumber) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+    const ok = await VerificationCode.verifyRecipient(recipient, verificationCode);
+    if (!ok) {
+      return res.status(400).json({ success: false, message: '验证码错误或已过期' });
+    }
+    await User.updatePasswordByUserId(user.user_id, newPassword);
+    res.json({ success: true, message: '密码重置成功' });
+  } catch (e) {
+    console.error('忘记密码重置失败:', e);
+    res.status(500).json({ success: false, message: '重置失败，请稍后重试' });
   }
 });
 
@@ -285,3 +369,51 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 module.exports = router;
+// 获取当前用户信息
+router.get('/me', async (req, res) => {
+  try {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.substring(7) : '';
+    if (!token) return res.status(401).json({ success: false, message: '未授权' });
+    let payload;
+    try { payload = jwt.verify(token, process.env.JWT_SECRET || 'test-jwt-secret') } catch (_) {
+      return res.status(401).json({ success: false, message: '未授权' });
+    }
+    const user = await User.findByUserId(payload.userId);
+    if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+    res.json({ success: true, data: {
+      userId: user.user_id,
+      phone: user.phone,
+      realName: user.real_name,
+      idNumber: user.id_number,
+      email: user.email,
+      createdAt: user.created_at,
+      lastLogin: user.last_login
+    } });
+  } catch (e) {
+    res.status(500).json({ success: false, message: '获取用户信息失败' });
+  }
+});
+
+// 修改密码
+router.post('/change-password', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.substring(7) : '';
+  if (!token) return res.status(401).json({ success: false, message: '未授权' });
+  let payload;
+  try { payload = jwt.verify(token, process.env.JWT_SECRET || 'test-jwt-secret') } catch (_) {
+    return res.status(401).json({ success: false, message: '未授权' });
+  }
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) return res.status(400).json({ success: false, message: '参数缺失' });
+  if (newPassword.length < 6 || newPassword.length > 20) return res.status(400).json({ success: false, message: '新密码长度需为6-20位' });
+  try {
+    const user = await User.findByUserId(payload.userId);
+    if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+  if (user.password !== oldPassword) return res.status(400).json({ success: false, message: '旧密码不正确' });
+    await User.updatePasswordByUserId(payload.userId, newPassword);
+    res.json({ success: true, message: '密码修改成功' });
+  } catch (e) {
+    res.status(500).json({ success: false, message: '密码修改失败' });
+  }
+});

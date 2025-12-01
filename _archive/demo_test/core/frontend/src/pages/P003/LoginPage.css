@@ -205,9 +205,25 @@
 .input-row input {
   flex: 1;
   border: none;
-  padding: 12px 10px 12px 0;
+  padding: 12px 34px 12px 0;
   outline: none;
   font-size: 14px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #0077FF;
+  cursor: pointer;
 }
 
 .form-options {

@@ -32,6 +32,8 @@ const UserOrdersPage = () => {
             date: o.date,
             from: o.from,
             to: o.to,
+            departureTime: o.departureTime || '',
+            arrivalTime: o.arrivalTime || '',
             passengers: (o.ticketInfo?.passengers && o.status === 'PAID' ? o.ticketInfo.passengers : (o.passengers || [])).map(p => ({
               name: p.name,
               seatType: p.seatType,
@@ -91,7 +93,7 @@ const UserOrdersPage = () => {
   }
 
   return (
-    <div className="orders-page">
+    <div className="orders-inner">
       {/* 页面头部 */}
       <div className="orders-header">
         <div className="header-content">
@@ -174,7 +176,7 @@ const UserOrdersPage = () => {
                       </div>
                       <div className="route-line">
                         <div className="line"></div>
-                        <div className="duration">4小时18分</div>
+                        <div className="duration">{order.departureTime && order.arrivalTime ? '' : ''}</div>
                       </div>
                       <div className="station-time">
                         <div className="time">{order.arrivalTime}</div>
@@ -203,9 +205,9 @@ const UserOrdersPage = () => {
                 <div className="order-actions">
                   <button 
                     className="action-btn secondary"
-                    onClick={() => navigate(`/order-detail/${order.id}`)}
+                    onClick={() => { const el = document.getElementById(`detail-${order.id}`); if (el) el.classList.toggle('open'); }}
                   >
-                    订单详情
+                    展开详情
                   </button>
                   
                   {order.status === 'PENDING_PAYMENT' && (
@@ -246,6 +248,17 @@ const UserOrdersPage = () => {
                     </button>
                   )}
                 </div>
+                <div id={`detail-${order.id}`} className="order-detail-collapsible">
+                  <div className="passenger-info">
+                    <h4>乘车人</h4>
+                    {order.passengers.map((passenger, index) => (
+                      <div key={index} className="passenger-item">
+                        <span className="passenger-name">{passenger.name}</span>
+                        <span className="seat-info">{passenger.seatType} {passenger.seatNumber}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -274,7 +287,7 @@ const UserOrdersPage = () => {
                     }
                     window.location.reload()
                   } catch (e) {
-                    setConfirmModal({ ...confirmModal, submitting: false, error: (e?.toString?.() || '操作失败') })
+                    setConfirmModal({ ...confirmModal, submitting: false, error: (e?.message || '操作失败') })
                   }
                 }}
               >

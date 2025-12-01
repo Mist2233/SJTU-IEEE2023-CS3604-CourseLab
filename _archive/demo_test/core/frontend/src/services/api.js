@@ -26,11 +26,12 @@ api.interceptors.response.use(
     return response.data
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status
+    const message = error.response?.data?.message || error.message || '请求失败'
+    if (status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
     }
-    return Promise.reject(error.response?.data?.message || error.message)
+    return Promise.reject({ message, status, code: status === 401 ? 'UNAUTHORIZED' : undefined })
   }
 )
 
@@ -55,9 +56,9 @@ export const register = async (userData) => {
   }
 }
 
-export const login = async (credentials) => {
+export const login = async ({ identifier, password }) => {
   try {
-    const response = await api.post('/auth/login', credentials)
+    const response = await api.post('/auth/login', { identifier, password })
     return response
   } catch (error) {
     console.error('登录失败:', error)
@@ -105,6 +106,27 @@ export const initiatePayment = async (paymentData) => {
 export const handlePaymentCallback = async (callbackData) => {
   // TODO: 实现支付回调处理API调用
   return api.post('/payments/callback', callbackData)
+}
+
+// 忘记密码相关API
+export const sendForgotCode = async ({ recipient, idNumber }) => {
+  try {
+    const response = await api.post('/auth/forgot/send-code', { recipient, idNumber })
+    return response
+  } catch (error) {
+    console.error('忘记密码发送验证码失败:', error)
+    throw error
+  }
+}
+
+export const resetPassword = async ({ recipient, idNumber, verificationCode, newPassword }) => {
+  try {
+    const response = await api.post('/auth/forgot/reset', { recipient, idNumber, verificationCode, newPassword })
+    return response
+  } catch (error) {
+    console.error('忘记密码重置失败:', error)
+    throw error
+  }
 }
 
 export default api

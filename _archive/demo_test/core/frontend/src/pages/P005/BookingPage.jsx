@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createOrder } from '../../services/api'
+import api from '../../services/api'
 import './BookingPage.css'
 
 const BookingPage = () => {
@@ -10,13 +11,30 @@ const BookingPage = () => {
   const sp = searchParams || searchConditions
   
   const [passengers, setPassengers] = useState([
-    {
-      name: '',
-      idNumber: '',
-      seatType: 'second'
-    }
+    { name: '', idNumber: '', seatType: 'second' }
   ])
+  const [savedPassengers, setSavedPassengers] = useState([])
+  const [selectedSavedIds, setSelectedSavedIds] = useState([])
   const [errorModal, setErrorModal] = useState('')
+
+  useEffect(() => {
+    const fetchSaved = async () => {
+      try {
+        const res = await api.get('/passengers')
+        const data = res?.data?.passengers || []
+        setSavedPassengers(data)
+      } catch (_) {}
+    }
+    fetchSaved()
+  }, [])
+
+  useEffect(() => {
+    if (selectedSavedIds.length > 0) {
+      const selected = savedPassengers.filter(p => selectedSavedIds.includes(p.id))
+      const mapped = selected.map(p => ({ name: p.name, idNumber: p.id_number, seatType: 'second' }))
+      setPassengers(mapped.length > 0 ? mapped : [{ name: '', idNumber: '', seatType: 'second' }])
+    }
+  }, [selectedSavedIds, savedPassengers])
 
   const seatOptions = useMemo(() => {
     const seats = train?.seats || {}
@@ -35,36 +53,28 @@ const BookingPage = () => {
   }, [passengers, seatOptions])
 
   const handlePassengerChange = (index, field, value) => {
-    // TODO: 实现乘客信息修改逻辑
     const updatedPassengers = [...passengers]
     updatedPassengers[index][field] = value
     setPassengers(updatedPassengers)
   }
 
   const addPassenger = () => {
-    // TODO: 实现添加乘客逻辑
-    setPassengers([...passengers, {
-      name: '',
-      idNumber: '',
-      seatType: 'second'
-    }])
+    setPassengers([...passengers, { name: '', idNumber: '', seatType: 'second' }])
   }
 
   const removePassenger = (index) => {
-    // TODO: 实现删除乘客逻辑
     if (passengers.length > 1) {
       setPassengers(passengers.filter((_, i) => i !== index))
     }
   }
 
   const handleSubmit = async () => {
-    // 简单校验
     for (const p of passengers) {
       if (!p.name || !p.idNumber || !p.seatType) {
         setErrorModal('请完整填写乘客信息')
         return
       }
-      const idPattern = /^[0-9]{17}[0-9Xx]$/
+      const idPattern = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[0-9Xx]$/
       if (!idPattern.test(p.idNumber)) {
         setErrorModal('身份证号格式不正确')
         return
@@ -87,8 +97,21 @@ const BookingPage = () => {
         setErrorModal(res?.message || '创建订单失败')
       }
     } catch (e) {
-      setErrorModal(e?.toString?.() || '创建订单失败')
+      setErrorModal(e?.message || '创建订单失败')
     }
+  }
+
+  const toggleSaved = (id, checked) => {
+    setSelectedSavedIds(prev => {
+      const set = new Set(prev)
+      if (checked) set.add(id); else set.delete(id)
+      return Array.from(set)
+    })
+  }
+
+  const maskId = (v) => {
+    if (!v) return ''
+    return v.replace(/^(\w{3})\w+(\w{3})$/, '$1**********$2')
   }
 
   return (
@@ -111,6 +134,24 @@ const BookingPage = () => {
 
       <div className="passenger-section">
         <div className="section-title">乘客信息</div>
+
+        {/* 已保存乘车人选择栏 */}
+        <div className="saved-select-bar">
+          <div style={{ fontWeight: 600, color: '#004499' }}>选择常用乘车人</div>
+          <div className="saved-list">
+            {savedPassengers.length === 0 ? (
+              <div style={{ color:'#666' }}>暂无常用乘车人，您可以在“个人中心-常用乘车人管理”添加。</div>
+            ) : (
+              savedPassengers.map(p => (
+                <label key={p.id} className="saved-item">
+                  <input type="checkbox" checked={selectedSavedIds.includes(p.id)} onChange={(e) => toggleSaved(p.id, e.target.checked)} />
+                  <span>{p.name}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+
         {passengers.map((passenger, index) => (
           <div key={index} className="passenger-form">
             <div className="form-row">
@@ -135,13 +176,7 @@ const BookingPage = () => {
               </div>
               <div className="form-group large">
                 <label>姓名</label>
-                <input
-                  type="text"
-                  value={passenger.name}
-                  onChange={(e) => handlePassengerChange(index, 'name', e.target.value)}
-                  placeholder="请输入乘客姓名"
-                  required
-                />
+                <input type="text" value={passenger.name} onChange={(e) => handlePassengerChange(index, 'name', e.target.value)} placeholder="请输入乘客姓名" required />
               </div>
               <div className="form-group large">
                 <label>证件类型</label>
@@ -151,13 +186,7 @@ const BookingPage = () => {
               </div>
               <div className="form-group xlarge">
                 <label>证件号码</label>
-                <input
-                  type="text"
-                  value={passenger.idNumber}
-                  onChange={(e) => handlePassengerChange(index, 'idNumber', e.target.value)}
-                  placeholder="请输入身份证号"
-                  required
-                />
+                <input type="text" value={passenger.idNumber} onChange={(e) => handlePassengerChange(index, 'idNumber', e.target.value)} placeholder="请输入身份证号" required />
               </div>
               {passengers.length > 1 && (
                 <button type="button" onClick={() => removePassenger(index)} className="remove-passenger-btn">删除</button>

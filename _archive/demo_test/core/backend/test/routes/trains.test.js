@@ -1,170 +1,89 @@
 const request = require('supertest');
 const app = require('../../src/app');
 
-describe('Trains API', () => {
-  describe('GET /api/trains/search', () => {
-    it('应该成功查询车次信息', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: '2024-10-20'
-        });
+beforeEach(async () => {
+  await request(app).post('/api/auth/clear-test-data');
+});
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('trains');
-      expect(Array.isArray(response.body.data.trains)).toBe(true);
-    });
+test('trains required params', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '', date: '' });
+  expect(r.status).toBe(400);
+});
 
-    it('应该返回正确的车次信息格式', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: '2024-10-20'
-        });
+test('trains invalid date', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2025-13-01' });
+  expect(r.status).toBe(400);
+});
 
-      expect(response.status).toBe(200);
-      
-      if (response.body.data.trains.length > 0) {
-        const train = response.body.data.trains[0];
-        expect(train).toHaveProperty('trainNumber');
-        expect(train).toHaveProperty('from');
-        expect(train).toHaveProperty('to');
-        expect(train).toHaveProperty('departureTime');
-        expect(train).toHaveProperty('arrivalTime');
-        expect(train).toHaveProperty('duration');
-        expect(train).toHaveProperty('seatTypes');
-        expect(Array.isArray(train.seatTypes)).toBe(true);
-      }
-    });
+test('trains past date', async () => {
+  const d = new Date(Date.now() - 24*3600*1000);
+  const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: ds });
+  expect(r.status).toBe(400);
+});
 
-    it('应该验证必需的查询参数', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南'
-          // 缺少 to 和 date 参数
-        });
+test('trains normal query', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01' });
+  expect(r.status).toBe(200);
+  expect(r.body.success).toBe(true);
+  expect(Array.isArray(r.body.data.trains)).toBe(true);
+  expect(r.body.data.pagination).toBeDefined();
+});
 
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('缺少必需参数');
-    });
+test('train search returns correct seat prices', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01' });
+  expect(r.status).toBe(200);
+  const seatTypes = r.body.data.trains[0].seatTypes;
+  const second = seatTypes.find(s => s.type === 'secondClass');
+  const hardSleeper = seatTypes.find(s => s.type === 'hardSleeper');
+  expect(second && second.price).toBe(553);
+  expect(hardSleeper && hardSleeper.price).toBe(156);
+});
 
-    it('应该验证日期格式', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: 'invalid-date'
-        });
+test('trains filter by type prefix', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01', trainType: 'G' });
+  expect(r.status).toBe(200);
+  const list = r.body.data.trains;
+  expect(list.length).toBeGreaterThan(0);
+  expect(list.every(t => String(t.trainNumber).startsWith('G'))).toBe(true);
+});
 
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('日期格式不正确');
-    });
+test('trains departure time range and sort', async () => {
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01', departureTime: '06-09', sortBy: 'departure', page: 1, pageSize: 5 });
+  expect(r.status).toBe(200);
+  const list = r.body.data.trains;
+  expect(list.length).toBeGreaterThan(0);
+});
 
-    it('应该拒绝过去的日期', async () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const pastDate = yesterday.toISOString().split('T')[0];
+test('trains pagination', async () => {
+  const r1 = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01', page: 1, pageSize: 2 });
+  expect(r1.status).toBe(200);
+  const p1 = r1.body.data.pagination;
+  const r2 = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01', page: 2, pageSize: 2 });
+  const p2 = r2.body.data.pagination;
+  expect(p1.total).toBeGreaterThan(0);
+  expect(p1.pageSize).toBe(2);
+  expect(p2.page).toBe(2);
+});
 
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: pastDate
-        });
+test('trains fallback to mock data when DB fails', async () => {
+  const { db } = require('../../src/database/init');
+  const orig = db.all;
+  db.all = (sql, params, cb) => cb(new Error('forced fail'));
+  const r = await request(app).get('/api/trains/search').query({ from: '北京', to: '上海', date: '2030-01-01' });
+  db.all = orig;
+  expect(r.status).toBe(200);
+  expect(Array.isArray(r.body.data.trains)).toBe(true);
+});
 
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('不能查询过去的日期');
-    });
+test('global health endpoint works', async () => {
+  const r = await request(app).get('/health');
+  expect(r.status).toBe(200);
+  expect(r.body.status).toBe('ok');
+});
 
-    it('应该支持车次类型筛选', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: '2024-10-20',
-          trainType: 'G'
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      
-      // 如果有返回结果，验证车次类型
-      if (response.body.data.trains.length > 0) {
-        response.body.data.trains.forEach(train => {
-          expect(train.trainNumber).toMatch(/^G/);
-        });
-      }
-    });
-
-    it('应该返回座位类型和余票信息', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: '2024-10-20'
-        });
-
-      expect(response.status).toBe(200);
-      
-      if (response.body.data.trains.length > 0) {
-        const train = response.body.data.trains[0];
-        expect(train.seatTypes).toBeDefined();
-        
-        if (train.seatTypes.length > 0) {
-          const seatType = train.seatTypes[0];
-          expect(seatType).toHaveProperty('type');
-          expect(seatType).toHaveProperty('price');
-          expect(seatType).toHaveProperty('available');
-          expect(typeof seatType.price).toBe('number');
-          expect(typeof seatType.available).toBe('number');
-        }
-      }
-    });
-
-    it('应该处理无结果的查询', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '不存在的城市',
-          to: '另一个不存在的城市',
-          date: '2024-12-31'
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.trains).toEqual([]);
-    });
-
-    it('应该支持分页查询', async () => {
-      const response = await request(app)
-        .get('/api/trains/search')
-        .query({
-          from: '北京南',
-          to: '上海虹桥',
-          date: '2024-10-20',
-          page: 1,
-          pageSize: 10
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('pagination');
-      expect(response.body.data.pagination).toHaveProperty('page');
-      expect(response.body.data.pagination).toHaveProperty('pageSize');
-      expect(response.body.data.pagination).toHaveProperty('total');
-    });
-  });
+test('global unknown route returns 404', async () => {
+  const r = await request(app).get('/__unknown__');
+  expect(r.status).toBe(404);
+  expect(r.body.error).toBe('接口不存在');
 });

@@ -80,7 +80,7 @@
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  overflow: visible;
   margin-top: 20px;
 }
 
@@ -121,6 +121,19 @@
   display: flex;
   flex-direction: column;
 }
+
+/* 站点选择下拉（提升层级并完善样式） */
+.stations-line .input-group { position: relative; }
+.station-dropdown { position: absolute; top: calc(100% + 6px); left: 0; z-index: 2000; }
+.station-panel { width: 520px; background: #ffffff; border: 1px solid #cfe3ff; box-shadow: 0 6px 16px rgba(0,0,0,0.12); border-radius: 4px; }
+.station-tabs { display: flex; gap: 6px; padding: 8px 12px; background: #f2f7ff; border-bottom: 1px solid #e6efff; }
+.station-tab { background: #eaf3ff; border: 1px solid #d7e7ff; color: #3a6fd9; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+.station-tab.active { background: #3a79f2; border-color: #3a79f2; color: #fff; }
+.station-body { padding: 12px; }
+.station-group { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.station-item { background: #f7fbff; border: 1px solid #e3efff; color: #333; padding: 6px 8px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+.station-item:hover { background: #eaf3ff; border-color: #c9e0ff; }
+.station-close { position: absolute; right: 8px; top: 8px; background: none; border: none; color: #888; cursor: pointer; font-size: 16px; }
 
 .input-group label {
   font-size: 12px;

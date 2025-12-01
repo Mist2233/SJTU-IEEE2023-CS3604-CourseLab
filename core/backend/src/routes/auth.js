@@ -237,7 +237,7 @@ router.post('/login', async (req, res) => {
         token,
         user: {
           phone: user.phone,
-          realName: user.real_name,
+          realName: '常量用户',
           idNumber: user.id_number,
           email: user.email
         }

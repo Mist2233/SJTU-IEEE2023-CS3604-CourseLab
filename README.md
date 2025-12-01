@@ -177,10 +177,11 @@ git pull
 ### ⚠️ 注意事项
 - 禁止非 owner 向 `main` push；PR 请选择 `develop`
 
----
+-----
 
 ## 📝 常用命令速查
 
 - **查看当前分支**：`git branch`
 - **查看状态**（有没有没保存的文件）：`git status`
 - **放弃本地修改**（慎用）：`git checkout .`
+  

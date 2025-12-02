@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import api from '../../services/api'
 
 const ChangePasswordPage = () => {
@@ -31,7 +31,6 @@ const ChangePasswordPage = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <div style={{ marginBottom: 10 }}><Link to="/my">← 返回个人中心</Link></div>
       <h2>修改密码</h2>
       {error && <div style={{ color:'#ff4d4f', marginBottom:8 }}>{error}</div>}
       <div className="input-row" style={{ position:'relative', border:'1px solid #ddd', borderRadius:4, marginBottom:10 }}>

@@ -1,0 +1,200 @@
+/* Reset & Base */
+.user-center-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 20px auto;
+  min-height: 600px;
+  font-family: "Microsoft YaHei", "SimHei", "Arial", sans-serif;
+}
+
+.user-center-sidebar {
+  width: 200px; /* Adjust width to match 12306 */
+  flex-shrink: 0; /* Ensure sidebar is never compressed */
+  margin-right: 20px;
+  background-color: transparent; /* Sidebar itself is transparent, box has bg */
+}
+
+.user-center-content {
+  flex: 1;
+  min-width: 0; /* Prevent content from overflowing flex container */
+  background-color: #fff;
+  border: 1px solid #dedede; /* Content box border */
+  padding: 20px;
+  min-height: 600px;
+}
+
+/* Sidebar Container & Breadcrumb */
+.sidebar-container {
+  width: 100%;
+}
+
+.sidebar-breadcrumb {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+  padding-left: 0;
+}
+
+/* Sidebar Box */
+.sidebar-box {
+  border: 1px solid #dedede;
+  background-color: #fff;
+  padding-bottom: 10px;
+}
+
+/* Main Header: "个人中心" (Blue) */
+.sidebar-main-header {
+  background-color: #3B99FC; /* 12306 Blue */
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+}
+
+.sidebar-main-header a {
+  display: block;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Menu List Container */
+.sidebar-menu-list {
+  padding: 10px 0;
+}
+
+/* Sidebar Item Wrapper */
+.sidebar-item-wrapper {
+  margin-bottom: 0;
+}
+
+/* Group Header */
+.sidebar-group-header {
+  padding: 10px 15px; /* 12306 spacing */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.group-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Toggle Icon (Simulated Arrow Box) */
+.group-toggle-icon {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #ccc;
+  position: relative;
+}
+
+.group-toggle-icon::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #666; /* Down arrow */
+}
+
+/* Sub Menu List */
+.sidebar-sub-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-sub-menu li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Sub Menu Links */
+.sidebar-link {
+  display: block;
+  padding: 8px 15px 8px 30px; /* Indented */
+  color: #666;
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.sidebar-link:hover {
+  color: #3B99FC;
+  background-color: #f0f7ff; /* Light blue hover bg */
+}
+
+.sidebar-link.active {
+  color: #3B99FC;
+  background-color: #f0f7ff; /* Active state same as hover often */
+  font-weight: bold; /* Optional: bold active item */
+}
+
+/* Direct Links (e.g. "本人车票") */
+.sidebar-direct-link {
+  padding: 10px 15px;
+}
+
+.sidebar-group-header-link {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sidebar-group-header-link:hover {
+  color: #3B99FC;
+}
+
+/* Disabled State */
+.sidebar-link.disabled,
+.sidebar-group-header-link.disabled {
+  color: #999;
+  cursor: not-allowed;
+  position: relative;
+}
+
+.sidebar-link.disabled:hover,
+.sidebar-group-header-link.disabled:hover {
+  background-color: transparent;
+  color: #999;
+}
+
+/* Tooltip for Disabled Items */
+[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 100;
+  margin-left: 10px;
+  pointer-events: none;
+}
+
+[data-tooltip]:hover::before {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent rgba(0, 0, 0, 0.8) transparent transparent;
+  margin-left: 0px;
+}

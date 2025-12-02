@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../database/init');
+const TicketService = require('../services/TicketService');
 
 // 兼容：若数据库不可用时的兜底数据（少量）
 const mockTrains = [
@@ -420,7 +421,10 @@ router.get('/search', (req, res) => {
 
   // 转换为测试期望的数据结构
     const transformedTrains = paginatedTrains.map(train => {
-      const seatTypes = Object.entries(train.seats).map(([key, available]) => ({
+      // 获取实时库存
+      const realTimeSeats = TicketService.getTickets(train.trainNumber, date, train.seats);
+      
+      const seatTypes = Object.entries(realTimeSeats || train.seats).map(([key, available]) => ({
         type: key,
         price: priceMap[key] || 100,
         available

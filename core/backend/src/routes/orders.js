@@ -1,45 +1,12 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
+const TicketService = require('../services/TicketService');
 
 // 模拟库存仍使用内存结构，订单持久化到数据库
 const orders = new Map();
-const ticketInventory = new Map();
 const { Order } = require('../models/Order');
 const { db } = require('../database/init');
-
-// 初始化票务库存
-const initializeInventory = () => {
-  db.all('SELECT train_number, business_class, first_class, second_class, premium_sleeper, soft_sleeper, hard_sleeper, hard_seat FROM trains', [], (err, rows) => {
-    if (err || !rows || rows.length === 0) {
-      // 兜底：如果数据库不可用，则不做填充，保持已有内存初始化
-      return;
-    }
-    rows.forEach(r => {
-      const trainNumber = r.train_number;
-      const pairs = [
-        ['business', r.business_class], ['商务座', r.business_class],
-        ['first', r.first_class], ['一等座', r.first_class],
-        ['second', r.second_class], ['二等座', r.second_class],
-        ['premium_sleeper', r.premium_sleeper],
-        ['soft_sleeper', r.soft_sleeper], ['软卧', r.soft_sleeper],
-        ['hard_sleeper', r.hard_sleeper], ['硬卧', r.hard_sleeper],
-        ['hard_seat', r.hard_seat], ['硬座', r.hard_seat]
-      ];
-      pairs.forEach(([type, count]) => {
-        if (count != null && count >= 0) {
-          const key = `${trainNumber}_${type}`;
-          if (!ticketInventory.has(key)) {
-            ticketInventory.set(key, count);
-          }
-        }
-      });
-    });
-  });
-};
-
-// 初始化库存
-initializeInventory();
 
 // JWT验证中间件
 const authenticateToken = (req, res, next) => {
@@ -112,24 +79,43 @@ router.post('/', authenticateToken, async (req, res) => {
     seatRequests[seatType] = (seatRequests[seatType] || 0) + 1;
   }
 
+  // 获取列车基础座位信息以确保 TicketService 已初始化
+  const getTrainInfo = () => new Promise((resolve) => {
+    db.get('SELECT * FROM trains WHERE train_number = ?', [trainNumber], (err, row) => {
+      if (err || !row) resolve(null);
+      else resolve({
+          businessClass: row.business_class,
+          firstClass: row.first_class,
+          secondClass: row.second_class,
+          premiumSleeper: row.premium_sleeper,
+          softSleeper: row.soft_sleeper,
+          hardSleeper: row.hard_sleeper,
+          hardSeat: row.hard_seat
+      });
+    });
+  });
+
+  const baseSeats = await getTrainInfo();
+  if (!baseSeats) {
+    return res.status(404).json({ success: false, message: '车次不存在' });
+  }
+
   // 验证库存
+  const currentStock = TicketService.getTickets(trainNumber, date, baseSeats);
+  
   for (const [seatType, count] of Object.entries(seatRequests)) {
-    const inventoryKey = `${trainNumber}_${seatType}`;
-    const availableSeats = ticketInventory.get(inventoryKey) || 0;
-    
-    if (availableSeats < count) {
+    const normalizedKey = TicketService.normalizeSeatType(seatType);
+    if (currentStock[normalizedKey] === undefined || currentStock[normalizedKey] < count) {
       return res.status(400).json({ 
         success: false, 
-        message: '余票不足' 
+        message: `余票不足: ${seatType}` 
       });
     }
   }
 
   // 扣减库存
   for (const [seatType, count] of Object.entries(seatRequests)) {
-    const inventoryKey = `${trainNumber}_${seatType}`;
-    const availableSeats = ticketInventory.get(inventoryKey);
-    ticketInventory.set(inventoryKey, availableSeats - count);
+    TicketService.updateStock(trainNumber, date, seatType, -count);
   }
 
   // 计算总金额
@@ -264,9 +250,7 @@ router.post('/:orderId/cancel', authenticateToken, async (req, res) => {
       seatRequests[seatType] = (seatRequests[seatType] || 0) + 1;
     }
     for (const [seatType, count] of Object.entries(seatRequests)) {
-      const inventoryKey = `${order.trainNumber}_${seatType}`;
-      const currentInventory = ticketInventory.get(inventoryKey) || 0;
-      ticketInventory.set(inventoryKey, currentInventory + count);
+      TicketService.updateStock(order.trainNumber, order.date, seatType, count);
     }
 
     await Order.updateStatus(orderId, 'CANCELLED');
@@ -336,9 +320,7 @@ router.post('/:orderId/refund', authenticateToken, async (req, res) => {
       seatRequests[seatType] = (seatRequests[seatType] || 0) + 1;
     }
     for (const [seatType, count] of Object.entries(seatRequests)) {
-      const inventoryKey = `${order.trainNumber}_${seatType}`;
-      const currentInventory = ticketInventory.get(inventoryKey) || 0;
-      ticketInventory.set(inventoryKey, currentInventory + count);
+      TicketService.updateStock(order.trainNumber, order.date, seatType, count);
     }
 
     await Order.updateStatus(orderId, 'CANCELLED');

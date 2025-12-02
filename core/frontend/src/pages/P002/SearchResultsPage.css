@@ -10,7 +10,7 @@
 .quick-search-bar {
   background: #eef1f8;
   border-bottom: 1px solid #b0cceb;
-  padding: 12px 0;
+  padding: 10px 0; /* 减少垂直Padding */
 }
 
 .search-wrapper {
@@ -18,47 +18,60 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px; /* 减少元素间距 */
+  justify-content: flex-start; /* 左对齐 */
 }
 
 .input-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px; /* Label与Input间距更紧凑 */
 }
 
 .input-group label {
   font-size: 12px;
   color: #333;
+  white-space: nowrap; /* 防止换行 */
 }
 
 .input-group input {
-  border: 1px solid #999;
-  padding: 4px 8px;
+  border: 1px solid #cfcfcf;
+  padding: 5px 8px;
   width: 140px;
   font-size: 13px;
+  height: 30px; /* 统一高度 */
+  box-sizing: border-box;
+}
+
+.input-group input:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
 }
 
 .btn-swap {
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 50%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l4-4M17 20l-4-4"/></svg>') no-repeat center center;
+  border: none; /* 移除边框 */
   width: 24px;
   height: 24px;
   cursor: pointer;
-  color: #666;
+  opacity: 0.7;
 }
+.btn-swap:hover { opacity: 1; }
 
 .btn-query {
   background-color: #ff9a00;
   /* 橙色按钮 */
   color: white;
   border: 1px solid #d07d00;
-  padding: 4px 20px;
-  border-radius: 3px;
+  padding: 0 24px;
+  height: 30px; /* 与输入框等高 */
+  line-height: 28px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
+  margin-left: auto; /* 靠右（如果需要紧凑可去掉auto） */
 }
 
 .btn-query:hover {
@@ -117,19 +130,22 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white;
+  color: #333; /* 未选中黑字 */
+  background-color: #eef1f8; /* 未选中浅灰底 */
   cursor: pointer;
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
-  transition: background 0.2s;
+  border-right: 1px solid #e0e0e0; /* 浅灰分隔线 */
+  border-top: 2px solid transparent; /* 占位防止抖动 */
+  transition: all 0.2s;
 }
 
 .date-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #dfeaf7;
 }
 
 .date-item.active {
-  background-color: #3B99FC;
-  /* 选中亮蓝 */
+  background-color: #fff; /* 选中白底 */
+  color: #3B99FC; /* 选中蓝字 */
+  border-top: 2px solid #3B99FC; /* 蓝顶边框 */
   font-weight: bold;
 }
 
@@ -154,19 +170,89 @@
   margin: 0 auto 50px;
 }
 
-.adv-filter-bar { background: #f8fbff; border: 1px solid #e6efff; border-radius: 6px; padding: 10px; margin: 8px 0 12px; }
-.adv-rows { display: flex; flex-direction: column; gap: 10px; }
-.adv-line { display: flex; align-items: flex-start; gap: 10px; }
-.adv-line-label { width: 80px; font-size: 12px; color: #333; line-height: 22px; font-weight: 600; }
-.adv-item label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
-.adv-input { width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font-size: 13px; }
-.adv-select { width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font-size: 13px; }
-.adv-checks { display: flex; gap: 10px; align-items: center; }
-.adv-checks label { font-size: 12px; color: #333; }
-.adv-checklist { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; max-height: 120px; overflow: auto; padding: 6px; border: 1px dashed #e6efff; border-radius: 4px; background: #ffffff; }
-.adv-checklist.inline { display: flex; flex-wrap: nowrap; gap: 10px; max-height: none; overflow: visible; padding: 6px 0; border: none; }
-.adv-check-item { font-size: 12px; color: #333; }
-.adv-checklist.inline .adv-check-item { display: inline-flex; align-items: center; gap: 4px; }
+/* 筛选区域重构 */
+.adv-filter-bar {
+  background: #f8f8f8; /* 浅灰背景 */
+  border: 1px solid #dedede; /* 边框 */
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin: 10px 0 15px;
+  position: relative; /* 为筛选按钮定位 */
+}
+
+.adv-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* 更紧凑的行间距 */
+}
+
+.adv-line {
+  display: flex;
+  align-items: flex-start; /* 顶部对齐 */
+  gap: 15px;
+  font-size: 12px;
+}
+
+.adv-line-label {
+  width: 60px; /* 缩短标签宽度 */
+  font-weight: bold;
+  color: #333;
+  text-align: right;
+  line-height: 20px;
+  flex-shrink: 0;
+}
+
+.adv-checklist, .adv-checks, .adv-select-wrapper {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  line-height: 20px;
+}
+
+.adv-checklist.inline {
+  /* 车次类型单行展示 */
+  border: none;
+  padding: 0;
+  background: transparent;
+  gap: 20px;
+}
+
+.adv-check-item, .adv-checks label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #333;
+}
+
+.adv-check-item input, .adv-checks input {
+  margin: 0;
+}
+
+.adv-select {
+  border: 1px solid #ccc;
+  padding: 2px 5px;
+  font-size: 12px;
+  height: 22px;
+  border-radius: 2px;
+}
+
+/* 筛选折叠按钮 */
+.btn-filter-toggle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #ff9a00;
+  color: #fff;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px 0 4px 0;
+  cursor: pointer;
+  border: none;
+}
+.btn-filter-toggle:hover { background: #e68b00; }
 
 .table-header-info {
   font-size: 12px;
@@ -212,33 +298,46 @@
 }
 
 /* 列宽微调 */
-.col-train {
-  width: 90px;
-}
-
-.col-station {
-  width: 110px;
-}
-
-.col-time {
-  width: 90px;
-}
-
-.col-duration {
-  width: 80px;
-}
+.col-train { width: 90px; }
+.col-station { width: 110px; }
+.col-time { width: 90px; }
+.col-duration { width: 80px; }
 
 /* 特殊列样式 */
 .cell-train-code .code {
-  font-size: 16px;
+  font-size: 18px; /* 加大字号 */
   font-weight: bold;
   color: #333;
+  margin-bottom: 2px;
 }
+
+/* 车次标签容器 */
+.train-tags {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+.tag-icon {
+  font-size: 10px;
+  border: 1px solid;
+  padding: 0 1px;
+  border-radius: 2px;
+  line-height: 12px;
+  transform: scale(0.9);
+}
+.tag-fu { color: #ff7200; border-color: #ff7200; } /* 复兴号-橙 */
+.tag-zhi { color: #52c41a; border-color: #52c41a; } /* 智能-绿 */
 
 .cell-stations {
   text-align: left;
   padding-left: 10px !important;
-  line-height: 1.6;
+  line-height: 1.8;
+}
+
+.station-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .icon-start,
@@ -250,7 +349,6 @@
   text-align: center;
   color: white;
   border-radius: 3px;
-  margin-right: 4px;
   font-size: 11px;
 }
 
@@ -258,12 +356,9 @@
   background-color: #ff7200;
 }
 
-/* 始-橙 */
 .icon-end {
   background-color: #52c41a;
 }
-
-/* 终-绿 */
 
 .cell-times {
   font-weight: bold;
@@ -271,35 +366,42 @@
 }
 
 .time-start {
-  font-size: 16px;
+  font-size: 22px; /* 加大字号 */
+  color: #000;     /* 纯黑 */
+  font-weight: bold;
 }
 
 .time-end {
-  font-size: 14px;
-  color: #999;
+  font-size: 20px;
+  color: #000;     /* 纯黑 */
+  font-weight: bold;
 }
 
-/* 席位状态颜色 */
+.cell-duration {
+  font-weight: bold;
+}
+
+/* 席位状态颜色 - 核心视觉 */
 .cell-available {
-  color: #26a306;
-  /* 有票-绿色 */
+  color: #26a306 !important; /* 有票-绿色 */
   font-weight: bold;
   font-size: 14px;
 }
 
 .cell-number {
-  color: #333;
+  color: #333 !important; /* 余票-黑色加粗 */
   font-weight: bold;
+  font-size: 14px;
 }
 
 .cell-none {
-  color: #ccc;
-  /* 无票-灰色 */
+  color: #ccc !important; /* 无票-灰色 */
+  font-size: 12px;
 }
 
-.cell-empty {
-  color: #eee;
-  font-weight: 200;
+.cell-wait {
+  color: #ff9a00 !important; /* 候补-橙色 */
+  font-size: 12px;
 }
 
 /* 预订按钮 */
@@ -307,13 +409,18 @@
   background-color: #0077FF;
   color: white;
   border: none;
-  padding: 4px 12px;
+  padding: 4px 16px;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 13px;
 }
 
 .btn-book:hover {
   background-color: #0066cc;
+}
+.btn-book:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* 站点选择下拉 */

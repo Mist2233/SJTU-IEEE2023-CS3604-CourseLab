@@ -244,17 +244,39 @@ const SearchResultsPage = () => {
     setter(checked ? [...current, value] : current.filter(v => v !== value));
   };
 
-  // --- 辅助函数：席位渲染（仅三类展示数量，其余显示“无”） ---
+  // --- 辅助函数：席位渲染 ---
   const renderSeatCell = (train, type) => {
-    const allowed = ['businessClass', 'firstClass', 'secondClass'];
-    if (!allowed.includes(type)) {
-      return <td className="cell-none">无</td>;
-    }
     const val = train.seats?.[type];
+    // 如果该车次根本没有这个席别字段，显示 "--"
+    if (val === undefined || val === null) {
+       return <td className="cell-none" style={{ color: '#ccc' }}>--</td>;
+    }
+
     const available = typeof val === 'object' ? val?.available : val;
+
+    // 特殊处理：如果后端直接返回了“有”字样
+    if (String(available) === '有') {
+      return <td className="cell-available">有</td>;
+    }
+
     const num = Number(available) || 0;
-    if (num <= 0) return <td className="cell-none">无</td>;
-    return <td className="cell-number">{num}</td>;
+
+    if (num <= 0) {
+      return <td className="cell-wait">候补</td>;
+    } else if (num <= 20) {
+      // 余票紧张，显示黑色加粗数字
+      return <td className="cell-number">{num}</td>;
+    } else {
+      // 余票充足，显示绿色“有”
+      return <td className="cell-available">有</td>;
+    }
+  };
+
+  const getWeekDay = (dateStr) => {
+    if (!dateStr) return '';
+    const d = parseLocalDate(dateStr);
+    const weekMap = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return weekMap[d.getDay()];
   };
 
   // 站点选择下拉
@@ -311,18 +333,18 @@ const SearchResultsPage = () => {
               value={searchConditions.from}
               onChange={(e) => setSearchConditions({ ...searchConditions, from: e.target.value })}
               onFocus={() => setOpenPicker('from')}
-              placeholder="输入或选择站点"
+              placeholder="简拼/全拼/汉字"
             />
             {openPicker === 'from' && <StationDropdown field="from" />}
           </div>
-          <button className="btn-swap" onClick={handleSwap}>⇌</button>
+          <button className="btn-swap" onClick={handleSwap} title="互换出发到达地">⇌</button>
           <div className="input-group">
             <label>目的地</label>
             <input
               value={searchConditions.to}
               onChange={(e) => setSearchConditions({ ...searchConditions, to: e.target.value })}
               onFocus={() => setOpenPicker('to')}
-              placeholder="输入或选择站点"
+              placeholder="简拼/全拼/汉字"
             />
             {openPicker === 'to' && <StationDropdown field="to" />}
           </div>
@@ -334,6 +356,15 @@ const SearchResultsPage = () => {
               max={maxDateStr}
               value={searchConditions.date}
               onChange={(e) => setSearchConditions({ ...searchConditions, date: e.target.value })}
+            />
+          </div>
+          <div className="input-group">
+            <label>返程日</label>
+            <input
+              type="date"
+              disabled
+              placeholder="YYYY-MM-DD"
+              title="返程功能暂未开放"
             />
           </div>
           <button className="btn-query" onClick={() => { if (!searchConditions.from || !searchConditions.to) { setError('请输入出发地和目的地'); return; } setHasSearched(true); fetchTrains(); }}>查询</button>
@@ -364,54 +395,60 @@ const SearchResultsPage = () => {
       <div className="train-table-container">
 
         <div className="adv-filter-bar">
+          {/* 筛选开关按钮 - 绝对定位在右下角 */}
+          <button className="btn-filter-toggle" onClick={() => setShowAdv(!showAdv)}>
+            筛选 <span style={{ fontSize: '10px' }}>{showAdv ? '▲' : '▼'}</span>
+          </button>
+
+          {showAdv && (
             <div className="adv-rows">
               <div className="adv-line">
-                <div className="adv-line-label">车次</div>
+                <div className="adv-line-label">车次类型</div>
                 <div className="adv-checklist inline">
                   {(hasSearched ? uniquePrefixes : []).map(prefix => (
                     <label key={prefix} className="adv-check-item">
-                      <input type="checkbox" checked={selectedTrainPrefixes.includes(prefix)} onChange={(e)=>toggleSelect(selectedTrainPrefixes, setSelectedTrainPrefixes, prefix, e.target.checked)} /> {prefix}
+                      <input type="checkbox" checked={selectedTrainPrefixes.includes(prefix)} onChange={(e) => toggleSelect(selectedTrainPrefixes, setSelectedTrainPrefixes, prefix, e.target.checked)} /> {prefix}
                     </label>
                   ))}
                 </div>
               </div>
               <div className="adv-line">
-                <div className="adv-line-label">出发站</div>
+                <div className="adv-line-label">出发车站</div>
                 <div className="adv-checklist">
                   {(hasSearched ? uniqueDepStations : []).map(st => (
                     <label key={st} className="adv-check-item">
-                      <input type="checkbox" checked={selectedDepStations.includes(st)} onChange={(e)=>toggleSelect(selectedDepStations, setSelectedDepStations, st, e.target.checked)} /> {st}
+                      <input type="checkbox" checked={selectedDepStations.includes(st)} onChange={(e) => toggleSelect(selectedDepStations, setSelectedDepStations, st, e.target.checked)} /> {st}
                     </label>
                   ))}
                 </div>
               </div>
               <div className="adv-line">
-                <div className="adv-line-label">到达站</div>
+                <div className="adv-line-label">到达车站</div>
                 <div className="adv-checklist">
                   {(hasSearched ? uniqueArrStations : []).map(st => (
                     <label key={st} className="adv-check-item">
-                      <input type="checkbox" checked={selectedArrStations.includes(st)} onChange={(e)=>toggleSelect(selectedArrStations, setSelectedArrStations, st, e.target.checked)} /> {st}
+                      <input type="checkbox" checked={selectedArrStations.includes(st)} onChange={(e) => toggleSelect(selectedArrStations, setSelectedArrStations, st, e.target.checked)} /> {st}
                     </label>
                   ))}
                 </div>
               </div>
               <div className="adv-line">
-                <div className="adv-line-label">席位</div>
+                <div className="adv-line-label">座次类型</div>
                 <div className="adv-checks">
                   {hasSearched && (
                     <>
-                      <label><input type="checkbox" checked={filterSeat.business} onChange={(e)=>setFilterSeat({ ...filterSeat, business: e.target.checked })} /> 商务座</label>
-                      <label><input type="checkbox" checked={filterSeat.first} onChange={(e)=>setFilterSeat({ ...filterSeat, first: e.target.checked })} /> 一等座</label>
-                      <label><input type="checkbox" checked={filterSeat.second} onChange={(e)=>setFilterSeat({ ...filterSeat, second: e.target.checked })} /> 二等座</label>
+                      <label><input type="checkbox" checked={filterSeat.business} onChange={(e) => setFilterSeat({ ...filterSeat, business: e.target.checked })} /> 商务座/特等座</label>
+                      <label><input type="checkbox" checked={filterSeat.first} onChange={(e) => setFilterSeat({ ...filterSeat, first: e.target.checked })} /> 一等座</label>
+                      <label><input type="checkbox" checked={filterSeat.second} onChange={(e) => setFilterSeat({ ...filterSeat, second: e.target.checked })} /> 二等座/二等包座</label>
                     </>
                   )}
                 </div>
               </div>
               <div className="adv-line">
-                <div className="adv-line-label">发车时间</div>
+                <div className="adv-line-label">出发时间</div>
                 <div>
                   {hasSearched && (
-                    <select className="adv-select" value={filterTimeRange} onChange={(e)=>setFilterTimeRange(e.target.value)}>
+                    <select className="adv-select" value={filterTimeRange} onChange={(e) => setFilterTimeRange(e.target.value)}>
                       <option value="00-24">00:00-24:00</option>
                       <option value="00-06">00:00-06:00</option>
                       <option value="06-12">06:00-12:00</option>
@@ -422,11 +459,12 @@ const SearchResultsPage = () => {
                 </div>
               </div>
             </div>
-          </div>
+          )}
+        </div>
 
         {/* 状态提示 */}
         <div className="table-header-info">
-          {searchConditions.from} → {searchConditions.to}（{searchConditions.date}）
+          {searchConditions.from} → {searchConditions.to}（{searchConditions.date} {getWeekDay(searchConditions.date)}）
           共计 <strong>{trains.length}</strong> 个车次
         </div>
 
@@ -464,6 +502,16 @@ const SearchResultsPage = () => {
                   {/* 车次 */}
                   <td className="cell-train-code">
                     <div className="code">{train.trainNumber}</div>
+                    <div className="train-tags">
+                      {train.trainNumber.startsWith('G') && (
+                        <>
+                          <span className="tag-icon tag-fu">复</span>
+                          <span className="tag-icon tag-zhi">智</span>
+                        </>
+                      )}
+                      {train.trainNumber.startsWith('D') && <span className="tag-icon" style={{ color: '#2db7f5', borderColor: '#2db7f5' }}>动</span>}
+                      {train.trainNumber.startsWith('Z') && <span className="tag-icon" style={{ color: '#108ee9', borderColor: '#108ee9' }}>直</span>}
+                    </div>
                   </td>
 
                   {/* 车站 */}
@@ -499,7 +547,22 @@ const SearchResultsPage = () => {
 
                   {/* 预订按钮 */}
                   <td className="cell-action">
-                    <button className="btn-book" onClick={() => handleBooking(train)}>预订</button>
+                    {(() => {
+                      const hasTicket = Object.values(train.seats || {}).some(val => {
+                        const available = typeof val === 'object' ? val?.available : val;
+                        return (Number(available) || 0) > 0;
+                      });
+                      return (
+                        <button
+                          className="btn-book"
+                          onClick={() => hasTicket && handleBooking(train)}
+                          disabled={!hasTicket}
+                          style={!hasTicket ? { backgroundColor: '#ccc', cursor: 'not-allowed' } : {}}
+                        >
+                          预订
+                        </button>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}

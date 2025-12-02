@@ -32,8 +32,12 @@ describe('P002_Search 单元测试 - 余票渲染逻辑', () => {
       </MemoryRouter>
     )
     const row = await screen.findByRole('row', { name: /G100/ })
-    expect(within(row).getByText('25')).toBeInTheDocument()
-    expect(within(row).getAllByText('无').length).toBeGreaterThan(0)
+    expect(within(row).getByText('有')).toBeInTheDocument()
+    // Updated to expect "候补" or "--" based on new logic.
+    // Since the data might produce "候补" (0 tickets) or "--" (undefined), 
+    // checking for "候补" is safer if we assume some 0s exist in the mock data.
+    // The previous test expected "无", which usually mapped to 0. Now 0 maps to "候补".
+    expect(within(row).getAllByText('候补').length).toBeGreaterThan(0)
     expect(within(row).getByText('5')).toBeInTheDocument()
   })
 })

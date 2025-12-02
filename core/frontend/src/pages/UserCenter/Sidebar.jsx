@@ -42,7 +42,7 @@ const Sidebar = () => {
       type: 'group',
       children: [
         { title: '查看个人信息', path: '/user/info' },
-        { title: '账号安全', path: '/user/password' },
+        { title: '账号安全', path: '/user/security' },
         { title: '手机核验', path: '', disabled: true },
         { title: '账号注销', path: '', disabled: true },
       ]

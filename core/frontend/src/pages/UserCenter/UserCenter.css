@@ -7,6 +7,18 @@
   font-family: "Microsoft YaHei", "SimHei", "Arial", sans-serif;
 }
 
+@media (max-width: 768px) {
+  .user-center-container {
+    flex-direction: column;
+    margin: 10px;
+  }
+  .user-center-sidebar {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
 .user-center-sidebar {
   width: 200px; /* Adjust width to match 12306 */
   flex-shrink: 0; /* Ensure sidebar is never compressed */

@@ -50,6 +50,7 @@ function App() {
             <Route path="passengers" element={<PassengerPage />} />
             <Route path="security" element={<AccountSecurityPage />} />
             <Route path="security/password" element={<ChangePasswordPage />} />
+            <Route path="password" element={<ChangePasswordPage />} />
           </Route>
           <Route path="/my-orders" element={<Navigate to="/user/orders" replace />} />
           <Route path="/my" element={<Navigate to="/user" replace />} />

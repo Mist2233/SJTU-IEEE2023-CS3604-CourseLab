@@ -9,6 +9,7 @@ const ChangePasswordPage = () => {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const [strength, setStrength] = useState(0)
 
   const calcStrength = v => {
@@ -40,6 +41,7 @@ const ChangePasswordPage = () => {
       return
     }
     
+    setLoading(true)
     try {
       await api.post('/auth/change-password', { oldPassword, newPassword })
       
@@ -51,6 +53,8 @@ const ChangePasswordPage = () => {
     } catch (e) {
       console.error(e)
       setError(e?.message || '密码修改失败')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -116,7 +120,14 @@ const ChangePasswordPage = () => {
         </div>
       </div>
 
-      <button className="submit-btn-orange" onClick={submit}>确认修改</button>
+      <button 
+        className="submit-btn-orange" 
+        onClick={submit} 
+        disabled={loading}
+        style={{ opacity: loading ? 0.6 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
+      >
+        {loading ? '提交中...' : '确认修改'}
+      </button>
     </div>
   )
 }

@@ -129,4 +129,54 @@ export const resetPassword = async ({ recipient, idNumber, verificationCode, new
   }
 }
 
+// Mock Data for Passengers
+let mockPassengers = [
+  { id: 1, name: '毛天宇', certType: '居民身份证', certNo: '331003199901014419', phone: '18900008785', type: '成人', status: '已通过', isDefault: false },
+  { id: 2, name: '李晓华', certType: '居民身份证', certNo: '330302198812120842', phone: '15300001235', type: '成人', status: '已通过', isDefault: false },
+  { id: 3, name: '王建国', certType: '居民身份证', certNo: '330302197505050755', phone: '18600000226', type: '成人', status: '已通过', isDefault: false },
+  { id: 4, name: '陈小明', certType: '居民身份证', certNo: '330302201006010314', phone: '13700003810', type: '儿童', status: '已通过', isDefault: false },
+];
+
+// Mock API functions for Passengers
+export const getPassengers = async (params) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let filtered = [...mockPassengers];
+      if (params?.name) {
+        filtered = filtered.filter(p => p.name.includes(params.name));
+      }
+      resolve({ data: { passengers: filtered } });
+    }, 300);
+  });
+};
+
+export const addPassenger = async (passenger) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newId = Math.max(...mockPassengers.map(p => p.id), 0) + 1;
+      const newPassenger = { ...passenger, id: newId, status: '已通过' };
+      mockPassengers.push(newPassenger);
+      resolve({ data: newPassenger });
+    }, 300);
+  });
+};
+
+export const updatePassenger = async (id, passenger) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      mockPassengers = mockPassengers.map(p => p.id === id ? { ...p, ...passenger } : p);
+      resolve({ data: { ...passenger, id } });
+    }, 300);
+  });
+};
+
+export const deletePassenger = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      mockPassengers = mockPassengers.filter(p => p.id !== id);
+      resolve({ success: true });
+    }, 300);
+  });
+};
+
 export default api

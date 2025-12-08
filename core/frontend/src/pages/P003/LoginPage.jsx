@@ -1,12 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../../services/api'
 import './LoginPage.css'
+
+const backgroundImages = [
+  'https://www.12306.cn/index/images/pic/banner-login-20200629.jpg',
+  'https://www.12306.cn/index/images/pic/banner-login-20200924.jpg'
+]
 
 const LoginPage = () => {
   const navigate = useNavigate()
   // 登录方式：'scan' (扫码) | 'account' (账号)
   const [loginType, setLoginType] = useState('account')
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex(prev => (prev + 1) % backgroundImages.length)
+    }, 5000) // 每5秒切换一次
+    return () => clearInterval(interval)
+  }, [])
 
   const [formData, setFormData] = useState({
     identifier: '',
@@ -101,32 +114,18 @@ const LoginPage = () => {
 
       {/* 2. 主体背景区域 */}
       <div className="login-main-bg">
-        <div className="login-content-container">
+        {/* 背景轮播 */}
+        <div className="bg-carousel">
+          {backgroundImages.map((src, index) => (
+            <div
+              key={index}
+              className={`bg-slide ${index === currentImageIndex ? 'active' : ''}`}
+              style={{ backgroundImage: `url(${src})` }}
+            />
+          ))}
+        </div>
 
-          {/* 左侧：营销展示区 */}
-          <div className="marketing-area">
-            {/* 这里通常放一张大的APP宣传图，我们用CSS模拟布局 */}
-            <div className="app-promo">
-              <h1 className="promo-title">铁路12306 - 中国铁路官方APP</h1>
-              <div className="promo-features">
-                <div className="feature-item">✅ 个人行程提醒</div>
-                <div className="feature-item">✅ 积分兑换</div>
-                <div className="feature-item">✅ 餐饮·特产</div>
-                <div className="feature-item">✅ 车站大屏</div>
-              </div>
-              <div className="qr-download">
-                <div className="qr-placeholder">
-                  {/* 模拟二维码 */}
-                  <div style={{ width: '100px', height: '100px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #ddd' }}>
-                    二维码
-                  </div>
-                </div>
-                <div className="download-text">
-                  扫码下载<br />安装 铁路12306
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="login-content-container">
 
           {/* 右侧：悬浮登录框 */}
           <div className="login-box-floating">

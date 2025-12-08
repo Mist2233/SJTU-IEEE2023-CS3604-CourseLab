@@ -28,7 +28,7 @@ describe('P002_Search 组件测试 - 预订按钮交互', () => {
     const searchMock = vi.spyOn(api, 'searchTrains')
     searchMock.mockResolvedValue(mockData as any)
     render(
-      <MemoryRouter initialEntries={[{ pathname: '/search' }] as any}>
+      <MemoryRouter initialEntries={[{ pathname: '/search', search: '?from=北京南&to=上海虹桥' }] as any}>
         <SearchResultsPage />
       </MemoryRouter>
     )

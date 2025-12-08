@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-import BookingPage from '../../../../src/pages/P002/BookingPage.jsx'
+import BookingPage from '../../../../src/pages/P005/BookingPage.jsx'
 
 describe('P002_Booking 组件测试 - 订单信息回显', () => {
   it('显示上一页传递的车次与搜索信息', () => {

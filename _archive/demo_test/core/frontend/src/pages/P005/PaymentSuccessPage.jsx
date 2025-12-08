@@ -12,8 +12,7 @@ const PaymentSuccessPage = () => {
   }, [orderId])
 
   const handleViewOrder = () => {
-    // TODO: 跳转到订单详情页
-    navigate('/my-orders')
+    navigate('/my#orders')
   }
 
   const handleBackHome = () => {

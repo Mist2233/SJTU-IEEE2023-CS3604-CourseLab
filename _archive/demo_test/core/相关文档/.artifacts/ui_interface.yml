@@ -1,0 +1,761 @@
+# ==============================================================================
+# MODULE: F001 - 导航栏访问
+# ==============================================================================
+- type: Frontend
+  id: UI-Header
+  description: 顶部导航栏组件，显示登录状态与主导航
+  implements:
+    - F001 (导航栏访问)
+  properties:
+    - name: onLoginClick
+      type: function
+      description: "点击登录跳转 P003 (对应 F001-S05)"
+    - name: onRegisterClick
+      type: function
+      description: "点击注册跳转 P004 (对应 F001-S06)"
+    - name: onLogoutClick
+      type: function
+      description: "点击退出登录 (对应 F001-S07, F001-S09)"
+  state:
+    - isLoggedIn # (对应 F001-S02, F001-S03)
+    - activeMenu # (对应 F001-S04, F001-S08)
+    - userProfile # (对应 F001-S03)
+  dependencies:
+    - API-GET-UserProfile
+    - API-POST-Logout
+  acceptanceCriteria:
+    - req_id: F001-S01
+      case: "导航栏固定在页面顶部，滚动不移位"
+    - req_id: F001-S02
+      case: "未登录显示 登录/注册 入口"
+    - req_id: F001-S03
+      case: "已登录显示 用户名+头像"
+    - req_id: F001-S04
+      case: "显示：首页/查询/个人中心 主入口"
+    - req_id: F001-S05
+      case: "点击登录按钮跳转 P003"
+    - req_id: F001-S06
+      case: "点击注册按钮跳转 P004"
+    - req_id: F001-S07
+      case: "点击用户名显示下拉菜单，含个人中心/退出登录"
+    - req_id: F001-S08
+      case: "当前页面对应导航项高亮"
+    - req_id: F001-S09
+      case: "登录态过期自动跳转登录页"
+
+# ==============================================================================
+# MODULE: F002 - 快捷入口访问
+# ==============================================================================
+- type: Frontend
+  id: UI-QuickEntries
+  description: 首页快捷入口组件，展示常用功能卡片与历史记录
+  implements:
+    - F002 (快捷入口访问)
+  properties:
+    - name: entries
+      type: array
+      description: "常用功能卡片数组 (对应 F002-S01)"
+    - name: onClickQuery
+      type: function
+      description: "点击车票查询跳转 P002 (对应 F002-S04)"
+    - name: onClickOrders
+      type: function
+      description: "点击订单查询跳转 P006 (对应 F002-S05)"
+    - name: onClearHistory
+      type: function
+      description: "清除历史记录，弹出确认框 (对应 F002-S07)"
+  state:
+    - recommendedEntries # (对应 F002-S02, F002-S09)
+    - historyList # (对应 F002-S03, F002-S06)
+    - isLoggedIn # (对应 F002-S08)
+  dependencies:
+    - API-GET-QuickEntries
+    - API-GET-QueryHistory
+    - API-DELETE-QueryHistory
+  acceptanceCriteria:
+    - req_id: F002-S01
+      case: "显示车票查询/订单查询/改签退票等常用卡片"
+    - req_id: F002-S02
+      case: "已登录显示个性化推荐入口"
+    - req_id: F002-S03
+      case: "显示最多5条历史查询记录"
+    - req_id: F002-S04
+      case: "点击车票查询跳转 P002"
+    - req_id: F002-S05
+      case: "点击订单查询跳转 P006"
+    - req_id: F002-S06
+      case: "点击历史记录自动填充查询条件"
+    - req_id: F002-S07
+      case: "清除历史记录前弹出确认"
+    - req_id: F002-S08
+      case: "未登录仅显示基础功能入口"
+    - req_id: F002-S09
+      case: "推荐加载失败降级显示默认入口"
+
+# ==============================================================================
+# MODULE: F003 - 车票查询
+# ==============================================================================
+- type: Frontend
+  id: UI-TrainSearchForm
+  description: 车票查询表单与结果渲染组件
+  implements:
+    - F003 (车票查询)
+  properties:
+    - name: fromStation
+      type: string
+      description: "出发地输入 (对应 F003-S01)"
+    - name: toStation
+      type: string
+      description: "目的地输入 (对应 F003-S01)"
+    - name: departDate
+      type: date
+      description: "日期选择 (对应 F003-S05)"
+    - name: filters
+      type: object
+      description: "高级选项筛选 (对应 F003-S09 ~ F003-S11)"
+    - name: onSubmit
+      type: function
+      description: "提交查询请求 (对应 F003-S13)"
+  state:
+    - disablePastDates # (对应 F003-S08)
+    - isOnlyAvailable # (对应 F003-S11)
+    - isLoading # (对应 F003-S13)
+    - trains # (对应 F003-S16 ~ F003-S17)
+  dependencies:
+    - API-GET-StationSuggest
+    - API-GET-TrainQuery
+  acceptanceCriteria:
+    - req_id: F003-S01
+      case: "站点输入支持拼音/中文模糊搜索"
+    - req_id: F003-S05
+      case: "日期选择支持30天内"
+    - req_id: F003-S06
+      case: "快捷日期选择：今天/明天/后天"
+    - req_id: F003-S08
+      case: "禁用过去日期"
+    - req_id: F003-S09
+      case: "筛选车次类型：高铁/动车/普快"
+    - req_id: F003-S10
+      case: "筛选出发时间段"
+    - req_id: F003-S11
+      case: "仅显示有票开关"
+    - req_id: F003-S12
+      case: "校验必填项完整性"
+    - req_id: F003-S13
+      case: "提交查询显示加载状态"
+    - req_id: F003-S16
+      case: "显示车次号、发到站、时间、历时"
+    - req_id: F003-S17
+      case: "显示各席别余票数量"
+    - req_id: F003-S21
+      case: "出发地=目的地提示错误"
+
+# ==============================================================================
+# MODULE: F004 - 车次筛选
+# ==============================================================================
+- type: Frontend
+  id: UI-TrainFilterPanel
+  description: 车次筛选组件，对查询结果进行过滤与排序
+  implements:
+    - F004 (车次筛选)
+  properties:
+    - name: filters
+      type: object
+      description: "类型/时间段/席别/站点/价格/历时等 (对应 F004-S01 ~ F004-S14)"
+    - name: onFilterChange
+      type: function
+      description: "筛选条件变更事件 (对应 F004-S15)"
+  state:
+    - resultCount # (对应 F004-S16)
+    - isEmpty # (对应 F004-S18)
+  dependencies:
+    - API-GET-TrainQuery
+  acceptanceCriteria:
+    - req_id: F004-S01
+      case: "可筛选 G 类车次"
+    - req_id: F004-S02
+      case: "可筛选 D/C 类车次"
+    - req_id: F004-S04
+      case: "凌晨/上午/下午/晚上出发时间段筛选"
+    - req_id: F004-S08
+      case: "席别筛选：商务/一等/二等/卧/座"
+    - req_id: F004-S10
+      case: "出发/到达车站筛选（多站点城市）"
+    - req_id: F004-S12
+      case: "历时范围滑块筛选"
+    - req_id: F004-S13
+      case: "价格区间筛选"
+    - req_id: F004-S15
+      case: "实时过滤列表"
+    - req_id: F004-S16
+      case: "显示筛选后结果数量"
+    - req_id: F004-S18
+      case: "结果为空提示放宽条件"
+
+# ==============================================================================
+# MODULE: F005 - 车票预订
+# ==============================================================================
+- type: Frontend
+  id: UI-TicketBookingForm
+  description: 预订流程组件，席别/乘车人选择与确认
+  implements:
+    - F005 (车票预订)
+  properties:
+    - name: onPrelock
+      type: function
+      description: "提交预订请求锁票 (对应 F005-S16)"
+    - name: selectedSeat
+      type: string
+      description: "选择席别 (对应 F005-S05 ~ F005-S06)"
+    - name: passengers
+      type: array
+      description: "乘车人列表 (对应 F005-S03, F005-S09)"
+  state:
+    - isLoggedIn # (对应 F005-S01)
+    - seatList # (对应 F005-S05)
+    - price # (对应 F005-S14)
+    - agreementChecked # (对应 F005-S15)
+  dependencies:
+    - API-GET-TrainQuery
+    - API-POST-PrelockSeat
+    - API-GET-Passengers
+  acceptanceCriteria:
+    - req_id: F005-S01
+      case: "未登录跳转 P003"
+    - req_id: F005-S02
+      case: "检查余票数量"
+    - req_id: F005-S03
+      case: "验证乘车人信息完整性"
+    - req_id: F005-S05
+      case: "显示可用席别及余票"
+    - req_id: F005-S06
+      case: "选择席别及购票数量"
+    - req_id: F005-S09
+      case: "加载常用乘车人列表"
+    - req_id: F005-S14
+      case: "显示订单明细与总价"
+    - req_id: F005-S15
+      case: "勾选购票协议方可提交"
+    - req_id: F005-S16
+      case: "锁票成功跳转 P005"
+    - req_id: F005-S17
+      case: "余票不足提示更换席别或车次"
+
+# ==============================================================================
+# MODULE: F006 - 中转换乘查询
+# ==============================================================================
+- type: Frontend
+  id: UI-TransferPlans
+  description: 中转方案展示与选择组件
+  implements:
+    - F006 (中转换乘查询)
+  properties:
+    - name: onSelectPlan
+      type: function
+      description: "选择中转方案并发起两段预订 (对应 F006-S06 ~ F006-S07)"
+  state:
+    - autoRecommend # (对应 F006-S01)
+    - manualSelect # (对应 F006-S02)
+    - saveIndicators # (对应 F006-S03)
+  dependencies:
+    - API-GET-TransferPlans
+  acceptanceCriteria:
+    - req_id: F006-S01
+      case: "直达无结果时自动推荐中转"
+    - req_id: F006-S02
+      case: "支持用户主动选择中转"
+    - req_id: F006-S03
+      case: "显示节省时间/费用指标"
+    - req_id: F006-S04
+      case: "查询可用中转站"
+    - req_id: F006-S05
+      case: "计算换乘时间 30m~4h"
+    - req_id: F006-S06
+      case: "生成最多5个中转方案"
+    - req_id: F006-S07
+      case: "按总历时/总价排序"
+    - req_id: F006-S16
+      case: "换乘时间不足警告"
+
+# ==============================================================================
+# MODULE: F007 - 用户登录
+# ==============================================================================
+- type: Frontend
+  id: UI-LoginForm
+  description: 登录表单组件，支持密码与短信验证码登录
+  implements:
+    - F007 (用户登录)
+  properties:
+    - name: onLoginPassword
+      type: function
+      description: "密码登录提交 (对应 F007-S01 ~ F007-S04)"
+    - name: onSendCode
+      type: function
+      description: "发送验证码 (对应 F007-S06)"
+    - name: onLoginSMS
+      type: function
+      description: "短信验证码登录提交 (对应 F007-S05 ~ F007-S08)"
+  state:
+    - account
+    - password
+    - rememberMe # (对应 F007-S03)
+    - captchaRequired # (对应 F007-S04)
+    - countdown60s # (对应 F007-S06)
+    - code6Digits # (对应 F007-S07)
+  dependencies:
+    - API-POST-LoginPassword
+    - API-POST-SendVerificationCode
+    - API-POST-LoginSMS
+  acceptanceCriteria:
+    - req_id: F007-S01
+      case: "支持用户名/手机号/邮箱密码登录"
+    - req_id: F007-S03
+      case: "记住密码本地加密存储"
+    - req_id: F007-S04
+      case: "失败≥3次启用图形验证码"
+    - req_id: F007-S05
+      case: "手机号输入与格式验证"
+    - req_id: F007-S06
+      case: "发送验证码并显示60秒倒计时"
+    - req_id: F007-S07
+      case: "验证码输入6位数字"
+    - req_id: F007-S08
+      case: "验证码有效期5分钟"
+    - req_id: F007-S11
+      case: "前端表单验证"
+    - req_id: F007-S12
+      case: "后端凭证校验"
+    - req_id: F007-S13
+      case: "登录生成会话token"
+
+# ==============================================================================
+# MODULE: F008 - 用户注册
+# ==============================================================================
+- type: Frontend
+  id: UI-RegisterForm
+  description: 注册表单组件，含验证码与密码设置
+  implements:
+    - F008 (用户注册)
+  properties:
+    - name: onSendCode
+      type: function
+      description: "发送短信验证码 (对应 F008-S03)"
+    - name: onSubmit
+      type: function
+      description: "提交注册 (对应 F008-S17)"
+  state:
+    - phone # (对应 F008-S01 ~ F008-S02)
+    - smsCode # (对应 F008-S04 ~ F008-S05)
+    - password # (对应 F008-S06 ~ F008-S08)
+    - passwordConfirm # (对应 F008-S09)
+  dependencies:
+    - API-POST-SendVerificationCode
+    - API-POST-Register
+  acceptanceCriteria:
+    - req_id: F008-S01
+      case: "手机号11位格式验证"
+    - req_id: F008-S02
+      case: "检查手机号是否已注册"
+    - req_id: F008-S03
+      case: "发送验证码60秒倒计时"
+    - req_id: F008-S04
+      case: "验证码6位数字/5分钟有效"
+    - req_id: F008-S05
+      case: "验证码通过后方可继续"
+    - req_id: F008-S06
+      case: "密码8-20位"
+    - req_id: F008-S07
+      case: "密码必须包含字母+数字"
+    - req_id: F008-S08
+      case: "密码强度提示"
+    - req_id: F008-S09
+      case: "确认密码二次验证"
+    - req_id: F008-S17
+      case: "前端校验后后端创建账户"
+
+# ==============================================================================
+# MODULE: F009 - 订单填写
+# ==============================================================================
+- type: Frontend
+  id: UI-OrderConfirmation
+  description: 订单确认页面组件，展示明细与倒计时
+  implements:
+    - F009 (订单填写)
+  properties:
+    - name: orderId
+      type: string
+      description: "订单标识 (对应 F009-S04)"
+    - name: onCancel
+      type: function
+      description: "取消订单操作 (对应 F009-S06)"
+  state:
+    - trainInfo # (对应 F009-S01)
+    - seatAndCount # (对应 F009-S02)
+    - priceDetail # (对应 F009-S03)
+    - countdown15m # (对应 F009-S04)
+    - redWarning5m # (对应 F009-S05)
+    - autoRelease # (对应 F009-S06)
+    - passengers # (对应 F009-S07)
+    - ticketTypes # (对应 F009-S12)
+    - contact # (对应 F009-S15)
+    - draft # (对应 F009-S22)
+  dependencies:
+    - API-GET-OrderDetail
+    - API-POST-CancelOrder
+  acceptanceCriteria:
+    - req_id: F009-S01
+      case: "显示车次信息只读"
+    - req_id: F009-S02
+      case: "显示席别与数量"
+    - req_id: F009-S03
+      case: "显示票价明细"
+    - req_id: F009-S04
+      case: "显示15分钟倒计时"
+    - req_id: F009-S05
+      case: "少于5分钟红色警告"
+    - req_id: F009-S06
+      case: "超时自动释放座位并提示"
+    - req_id: F009-S07
+      case: "显示已选乘车人列表"
+    - req_id: F009-S12
+      case: "票种选择：成人/儿童/学生"
+    - req_id: F009-S15
+      case: "联系人手机号必填默认当前用户"
+    - req_id: F009-S22
+      case: "临时保存草稿"
+
+# ==============================================================================
+# MODULE: F010 - 提交订单
+# ==============================================================================
+- type: Frontend
+  id: UI-OrderSubmitPanel
+  description: 订单提交控件，统一校验并发起创建
+  implements:
+    - F010 (提交订单)
+  properties:
+    - name: onSubmit
+      type: function
+      description: "提交订单 (对应 F010-S06 ~ F010-S09)"
+  state:
+    - isValid # (对应 F010-S01 ~ F010-S05)
+    - paymentDeadline # (对应 F010-S09)
+    - submitDisabled # (对应 F010-S16)
+  dependencies:
+    - API-POST-CreateOrder
+  acceptanceCriteria:
+    - req_id: F010-S01
+      case: "检查必填项完整"
+    - req_id: F010-S02
+      case: "验证证件号格式"
+    - req_id: F010-S03
+      case: "确认订单未超时"
+    - req_id: F010-S04
+      case: "检查余票仍然充足"
+    - req_id: F010-S05
+      case: "计算总价含保险"
+    - req_id: F010-S06
+      case: "生成唯一订单号"
+    - req_id: F010-S07
+      case: "锁定座位资源"
+    - req_id: F010-S08
+      case: "创建订单记录关联乘车人"
+    - req_id: F010-S09
+      case: "设置支付超时30分钟"
+    - req_id: F010-S16
+      case: "提交后按钮防抖禁用"
+
+# ==============================================================================
+# MODULE: F011 - 个人信息管理
+# ==============================================================================
+- type: Frontend
+  id: UI-UserProfilePage
+  description: 个人信息页，支持手机号/邮箱/密码/头像修改及认证
+  implements:
+    - F011 (个人信息管理)
+  properties:
+    - name: onUpdatePhone
+      type: function
+      description: "修改手机号流程 (对应 F011-S16 ~ F011-S17)"
+    - name: onUpdateEmail
+      type: function
+      description: "修改邮箱流程 (对应 F011-S15)"
+    - name: onUpdatePassword
+      type: function
+      description: "修改密码流程 (对应 F011-S16 ~ F011-S17)"
+    - name: onUpdateAvatar
+      type: function
+      description: "上传裁剪头像 (对应 F011-S01 ~ F011-S09)"
+  state:
+    - basicInfo # (对应 F011-S01 ~ F011-S08)
+    - avatarPreview # (对应 F011-S09)
+  dependencies:
+    - API-PATCH-UpdatePhone
+    - API-PATCH-UpdateEmail
+    - API-PATCH-UpdatePassword
+    - API-PATCH-UpdateAvatar
+    - API-GET-RealnameStatus
+  acceptanceCriteria:
+    - req_id: F011-S01
+      case: "显示用户名不可修改"
+    - req_id: F011-S02
+      case: "显示真实姓名"
+    - req_id: F011-S03
+      case: "身份证号脱敏显示"
+    - req_id: F011-S04
+      case: "手机号脱敏显示"
+    - req_id: F011-S05
+      case: "邮箱脱敏显示"
+    - req_id: F011-S06
+      case: "显示注册时间/最后登录时间"
+    - req_id: F011-S07
+      case: "显示账户等级/积分"
+    - req_id: F011-S08
+      case: "显示实名认证状态"
+    - req_id: F011-S09
+      case: "显示当前头像与更换按钮"
+    - req_id: F011-S16
+      case: "输入旧密码"
+    - req_id: F011-S17
+      case: "新密码强度验证并确认"
+
+# ==============================================================================
+# MODULE: F012 - 乘客管理
+# ==============================================================================
+- type: Frontend
+  id: UI-PassengerManager
+  description: 常用乘车人管理组件，支持增删改查
+  implements:
+    - F012 (乘客管理)
+  properties:
+    - name: onAdd
+      type: function
+      description: "新增乘车人 (对应 F012-S08 ~ F012-S10)"
+    - name: onEdit
+      type: function
+      description: "编辑乘车人 (对应 F012-S21)"
+    - name: onDelete
+      type: function
+      description: "删除乘车人确认 (对应 F012-S22)"
+  state:
+    - passengers # (对应 F012-S01 ~ F012-S06)
+    - validation # (对应 F012-S12 ~ F012-S14)
+  dependencies:
+    - API-GET-Passengers
+    - API-POST-AddPassenger
+    - API-PATCH-UpdatePassenger
+    - API-DELETE-DeletePassenger
+  acceptanceCriteria:
+    - req_id: F012-S01
+      case: "显示所有常用乘车人"
+    - req_id: F012-S02
+      case: "乘车人卡片脱敏显示"
+    - req_id: F012-S03
+      case: "手机号可选"
+    - req_id: F012-S04
+      case: "旅客类型显示"
+    - req_id: F012-S05
+      case: "设为默认/编辑/删除按钮"
+    - req_id: F012-S06
+      case: "默认乘车人标识"
+    - req_id: F012-S08
+      case: "姓名支持中文/英文"
+    - req_id: F012-S09
+      case: "证件类型选择"
+    - req_id: F012-S10
+      case: "证件号码及手机号"
+    - req_id: F012-S12
+      case: "身份证校验位验证"
+    - req_id: F012-S13
+      case: "护照/通行证格式验证"
+    - req_id: F012-S14
+      case: "实时验证反馈"
+    - req_id: F012-S21
+      case: "证件信息一般不可改"
+    - req_id: F012-S22
+      case: "删除确认弹窗"
+
+# ==============================================================================
+# MODULE: F013 - 订单管理
+# ==============================================================================
+- type: Frontend
+  id: UI-OrderList
+  description: 订单列表与详情组件，支持筛选、分页和操作
+  implements:
+    - F013 (订单管理)
+  properties:
+    - name: onPay
+      type: function
+      description: "立即支付 (对应 F013-S23)"
+    - name: onCancel
+      type: function
+      description: "取消订单 (对应 F013-S24)"
+  state:
+    - filters # (对应 F013-S01 ~ F013-S03)
+    - pagination # (对应 F013-S13)
+    - detail # (对应 F013-S15)
+  dependencies:
+    - API-GET-UserOrders
+    - API-GET-OrderDetail
+    - API-POST-CancelOrder
+  acceptanceCriteria:
+    - req_id: F013-S01
+      case: "订单状态筛选"
+    - req_id: F013-S02
+      case: "时间范围筛选"
+    - req_id: F013-S03
+      case: "支持订单号/车次号搜索"
+    - req_id: F013-S04
+      case: "列表显示订单号"
+    - req_id: F013-S05
+      case: "显示车次信息"
+    - req_id: F013-S06
+      case: "显示出发时间"
+    - req_id: F013-S07
+      case: "显示乘车人人数"
+    - req_id: F013-S08
+      case: "显示金额与状态标签"
+    - req_id: F013-S09
+      case: "显示操作按钮"
+    - req_id: F013-S10
+      case: "按创建时间倒序"
+    - req_id: F013-S13
+      case: "每页10条"
+    - req_id: F013-S15
+      case: "展开订单详情"
+    - req_id: F013-S23
+      case: "待支付支持立即支付"
+    - req_id: F013-S24
+      case: "待支付支持取消订单"
+
+# ==============================================================================
+# MODULE: F014 - 订单支付
+# ==============================================================================
+- type: Frontend
+  id: UI-PaymentPage
+  description: 支付页面组件，选择支付方式并处理结果
+  implements:
+    - F014 (订单支付)
+  properties:
+    - name: onInitiatePayment
+      type: function
+      description: "发起支付并跳转第三方 (对应 F014-S13 ~ F014-S14)"
+  state:
+    - paymentMethods # (对应 F014-S01 ~ F014-S06)
+    - confirmInfo # (对应 F014-S09 ~ F014-S12)
+    - polling # (对应 F014-S16 ~ F014-S17)
+    - result # (对应 F014-S20 ~ F014-S22)
+  dependencies:
+    - API-POST-InitiatePayment
+    - API-GET-PaymentStatus
+    - API-POST-PaymentCallback
+  acceptanceCriteria:
+    - req_id: F014-S01
+      case: "微信扫码支付（PC）"
+    - req_id: F014-S02
+      case: "微信 APP 内支付（移动）"
+    - req_id: F014-S03
+      case: "支付宝扫码支付（PC）"
+    - req_id: F014-S04
+      case: "支付宝 APP 内支付（移动）"
+    - req_id: F014-S05
+      case: "银行卡快捷支付"
+    - req_id: F014-S06
+      case: "网银支付/添加新卡"
+    - req_id: F014-S09
+      case: "显示订单号"
+    - req_id: F014-S10
+      case: "显示订单金额和优惠"
+    - req_id: F014-S12
+      case: "显示支付倒计时30分钟"
+    - req_id: F014-S13
+      case: "创建支付订单"
+    - req_id: F014-S14
+      case: "调起支付接口跳转第三方"
+    - req_id: F014-S16
+      case: "轮询支付状态最多3分钟"
+    - req_id: F014-S17
+      case: "支付成功更新订单状态"
+    - req_id: F014-S20
+      case: "显示支付成功页面"
+    - req_id: F014-S22
+      case: "显示失败原因"
+
+# ==============================================================================
+# MODULE: F015 - 车票改签
+# ==============================================================================
+- type: Frontend
+  id: UI-ChangeTicketPage
+  description: 改签流程组件，选择新车次并计算差价
+  implements:
+    - F015 (车票改签)
+  properties:
+    - name: onSubmitChange
+      type: function
+      description: "提交改签请求 (对应 F015-S15)"
+  state:
+    - eligibility # (对应 F015-S01 ~ F015-S05)
+    - candidates # (对应 F015-S06 ~ F015-S09)
+    - feeCalc # (对应 F015-S12)
+    - result # (对应 F015-S16 ~ F015-S18)
+  dependencies:
+    - API-POST-ChangeTicket
+    - API-GET-TrainQuery
+  acceptanceCriteria:
+    - req_id: F015-S01
+      case: "验证订单状态已支付未使用"
+    - req_id: F015-S02
+      case: "检查车票类型是否可改签"
+    - req_id: F015-S03
+      case: "检查改签次数限制"
+    - req_id: F015-S04
+      case: "检查开车前30分钟限制"
+    - req_id: F015-S05
+      case: "显示改签规则说明"
+    - req_id: F015-S06
+      case: "默认显示同路线车次"
+    - req_id: F015-S07
+      case: "日期前后3天筛选"
+    - req_id: F015-S09
+      case: "列表显示可改签与余票"
+    - req_id: F015-S12
+      case: "差价计算补退说明"
+    - req_id: F015-S15
+      case: "协议确认后提交"
+    - req_id: F015-S16
+      case: "改签成功显示新订单信息"
+    - req_id: F015-S18
+      case: "余票不足提示"
+
+# ==============================================================================
+# MODULE: F016 - 用户登出
+# ==============================================================================
+- type: Frontend
+  id: UI-LogoutButton
+  description: 退出登录控件，触发清理与跳转
+  implements:
+    - F016 (用户登出)
+  properties:
+    - name: onConfirmLogout
+      type: function
+      description: "确认退出登录 (对应 F016-S03)"
+  state:
+    - confirmDialog # (对应 F016-S03)
+  dependencies:
+    - API-POST-Logout
+  acceptanceCriteria:
+    - req_id: F016-S01
+      case: "导航栏点击退出登录入口"
+    - req_id: F016-S02
+      case: "个人中心安全退出入口"
+    - req_id: F016-S03
+      case: "登出确认弹窗可选"
+    - req_id: F016-S04
+      case: "清除本地token"
+    - req_id: F016-S05
+      case: "清除session与缓存"
+    - req_id: F016-S06
+      case: "记录登出日志并通知后端"
+    - req_id: F016-S07
+      case: "跳转首页并更新导航栏"
+    - req_id: F016-S08
+      case: "网络异常仍可本地强制登出"

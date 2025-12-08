@@ -13,7 +13,7 @@ describe('P002_Search 单元测试 - URL参数解析', () => {
     expect(screen.getByDisplayValue('Beijing')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Shanghai')).toBeInTheDocument()
     expect(screen.getByDisplayValue('2025-11-22')).toBeInTheDocument()
-    expect(screen.getByText(/Beijing → Shanghai（2025-11-22）/)).toBeInTheDocument()
+    expect(screen.getByText(/Beijing → Shanghai（2025-11-22\s*周六）/)).toBeInTheDocument()
   })
 
   it('无Query时使用默认或state回落', () => {

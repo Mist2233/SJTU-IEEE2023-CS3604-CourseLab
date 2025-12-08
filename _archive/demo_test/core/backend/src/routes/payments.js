@@ -66,10 +66,90 @@ router.post('/initiate', authenticateToken, (req, res) => {
     return res.status(400).json({ success: false, message: '不支持的支付方式' });
   }
 
-  // 查找订单
-  const order = orders.get(orderId);
+  // 查找订单（优先内存，若不存在则回退数据库）
+  let order = orders.get(orderId);
   if (!order) {
-    return res.status(404).json({ success: false, message: '订单不存在' });
+    try {
+      const { Order } = require('../models/Order');
+      const dbOrder = Order && Order.getById ? undefined : undefined;
+    } catch (_) {}
+  }
+  if (!order) {
+    try {
+      const { Order } = require('../models/Order');
+      // 同步查询数据库订单
+      Order.getById(orderId).then(dbOrder => {
+        if (!dbOrder) {
+          return res.status(404).json({ success: false, message: '订单不存在' });
+        }
+        const normalized = {
+          orderId: dbOrder.orderId,
+          userId: dbOrder.userId,
+          trainNumber: dbOrder.trainNumber,
+          date: dbOrder.date,
+          from: dbOrder.from,
+          to: dbOrder.to,
+          passengers: dbOrder.passengers,
+          totalAmount: dbOrder.totalAmount,
+          status: dbOrder.status,
+          paymentDeadline: dbOrder.paymentDeadline
+        };
+        orders.set(orderId, normalized);
+        proceedInitiate(normalized);
+      }).catch(() => {
+        return res.status(404).json({ success: false, message: '订单不存在' });
+      });
+      return;
+    } catch (e) {
+      return res.status(404).json({ success: false, message: '订单不存在' });
+    }
+  }
+
+  // 如果内存中已找到则直接继续
+  return proceedInitiate(order);
+
+  function proceedInitiate(orderObj) {
+    // 验证用户权限
+    if (orderObj.userId !== userId) {
+      return res.status(401).json({ success: false, message: '未授权' });
+    }
+
+    // 检查订单状态
+    if (orderObj.status !== 'PENDING_PAYMENT') {
+      return res.status(400).json({ success: false, message: '订单状态不允许支付' });
+    }
+
+    // 检查订单是否过期
+    if (new Date() > new Date(orderObj.paymentDeadline)) {
+      return res.status(400).json({ success: false, message: '订单状态不允许支付' });
+    }
+
+    // 创建支付记录
+    const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const payment = {
+      paymentId,
+      orderId: orderObj.orderId,
+      userId,
+      paymentMethod,
+      amount: orderObj.totalAmount,
+      status: 'PENDING',
+      createdAt: new Date().toISOString(),
+      returnUrl
+    };
+
+    payments.set(paymentId, payment);
+
+    // 生成支付链接和二维码（模拟）
+    const responseData = { paymentId };
+    if (paymentMethod === 'alipay') {
+      responseData.paymentUrl = `https://mock-alipay.com/pay?paymentId=${paymentId}`;
+    } else if (paymentMethod === 'wechat') {
+      responseData.qrCode = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==`;
+    } else if (paymentMethod === 'bankcard') {
+      responseData.paymentUrl = `https://mock-bank.com/pay?paymentId=${paymentId}`;
+    }
+
+    return res.status(200).json({ success: true, data: responseData });
   }
 
   // 验证用户权限

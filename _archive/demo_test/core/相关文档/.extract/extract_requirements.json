@@ -1,0 +1,339 @@
+{
+    "version": "v1.0",
+    "project_name": "铁路12306",
+    "total_pages": 6,
+    "total_functions": 22,
+    "pages": [
+      {
+        "page_id": "P001",
+        "page_name": "首页",
+        "description": "系统入口,展示主要功能入口",
+        "functions": [
+          {
+            "function_id": "F001",
+            "function_name": "导航栏访问",
+            "type": "auxiliary",
+            "is_new": true,
+            "description": "顶部导航栏,包含登录/注册/个人中心入口"
+          },
+          {
+            "function_id": "F002",
+            "function_name": "快捷入口访问",
+            "type": "auxiliary",
+            "is_new": true,
+            "description": "常用功能快捷入口"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N001",
+            "target_page_id": "P002",
+            "trigger_type": "user_click",
+            "trigger_element": "查询车票按钮",
+            "description": "点击进入车票查询页"
+          },
+          {
+            "navigation_id": "N002",
+            "target_page_id": "P003",
+            "trigger_type": "user_click",
+            "trigger_element": "登录按钮",
+            "description": "点击进入登录页"
+          },
+          {
+            "navigation_id": "N003",
+            "target_page_id": "P004",
+            "trigger_type": "user_click",
+            "trigger_element": "注册按钮",
+            "description": "点击进入注册页"
+          },
+          {
+            "navigation_id": "N004",
+            "target_page_id": "P006",
+            "trigger_type": "user_click",
+            "trigger_element": "个人中心入口",
+            "description": "点击进入个人中心",
+            "pre_condition": "用户已登录"
+          }
+        ]
+      },
+      {
+        "page_id": "P002",
+        "page_name": "车票查询页",
+        "description": "查询和筛选车次信息",
+        "functions": [
+          {
+            "function_id": "F003",
+            "function_name": "车票查询",
+            "type": "core",
+            "is_new": true,
+            "description": "输入出发地、到达地、出发日期查询车次"
+          },
+          {
+            "function_id": "F004",
+            "function_name": "车次筛选",
+            "type": "core",
+            "is_new": true,
+            "description": "按车次类型、车站、席别筛选"
+          },
+          {
+            "function_id": "F005",
+            "function_name": "车票预订",
+            "type": "core",
+            "is_new": true,
+            "description": "选择车次进行预订"
+          },
+          {
+            "function_id": "F006",
+            "function_name": "中转换乘查询",
+            "type": "auxiliary",
+            "is_new": true,
+            "description": "查询中转方案"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N005",
+            "target_page_id": "P001",
+            "trigger_type": "user_click",
+            "trigger_element": "返回按钮/导航栏首页",
+            "description": "返回首页"
+          },
+          {
+            "navigation_id": "N006",
+            "target_page_id": "P005",
+            "trigger_type": "function_complete",
+            "trigger_element": "F005-车票预订",
+            "description": "选择车次预订后跳转到订单填写页",
+            "pre_condition": "用户已登录且选择了车次"
+          },
+          {
+            "navigation_id": "N007",
+            "target_page_id": "P003",
+            "trigger_type": "auto_redirect",
+            "trigger_element": "未登录拦截",
+            "description": "未登录时尝试预订,自动跳转到登录页",
+            "pre_condition": "用户未登录"
+          }
+        ]
+      },
+      {
+        "page_id": "P003",
+        "page_name": "登录页",
+        "description": "用户身份验证",
+        "functions": [
+          {
+            "function_id": "F007",
+            "function_name": "用户登录",
+            "type": "core",
+            "is_new": true,
+            "description": "通过账号密码登录"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N008",
+            "target_page_id": "P004",
+            "trigger_type": "user_click",
+            "trigger_element": "注册链接",
+            "description": "跳转到注册页"
+          },
+          {
+            "navigation_id": "N009",
+            "target_page_id": "P001",
+            "trigger_type": "function_complete",
+            "trigger_element": "F007-用户登录",
+            "description": "登录成功后返回首页",
+            "post_condition": "登录成功"
+          },
+          {
+            "navigation_id": "N010",
+            "target_page_id": "P002",
+            "trigger_type": "function_complete",
+            "trigger_element": "F007-用户登录",
+            "description": "登录成功后返回查询页",
+            "pre_condition": "从查询页跳转而来",
+            "post_condition": "登录成功"
+          },
+          {
+            "navigation_id": "N011",
+            "target_page_id": "P001",
+            "trigger_type": "user_click",
+            "trigger_element": "返回按钮/取消登录",
+            "description": "取消登录返回首页"
+          }
+        ]
+      },
+      {
+        "page_id": "P004",
+        "page_name": "注册页",
+        "description": "新用户注册",
+        "functions": [
+          {
+            "function_id": "F008",
+            "function_name": "用户注册",
+            "type": "core",
+            "is_new": true,
+            "description": "填写必要信息注册账号"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N012",
+            "target_page_id": "P003",
+            "trigger_type": "user_click",
+            "trigger_element": "登录链接",
+            "description": "跳转到登录页"
+          },
+          {
+            "navigation_id": "N013",
+            "target_page_id": "P003",
+            "trigger_type": "function_complete",
+            "trigger_element": "F008-用户注册",
+            "description": "注册成功后跳转到登录页",
+            "post_condition": "注册成功"
+          },
+          {
+            "navigation_id": "N014",
+            "target_page_id": "P001",
+            "trigger_type": "user_click",
+            "trigger_element": "返回按钮/取消注册",
+            "description": "取消注册返回首页"
+          }
+        ]
+      },
+      {
+        "page_id": "P005",
+        "page_name": "订单填写页",
+        "description": "填写乘客信息并确认订单",
+        "functions": [
+          {
+            "function_id": "F009",
+            "function_name": "订单填写",
+            "type": "core",
+            "is_new": true,
+            "description": "选择乘车人、填写购票信息"
+          },
+          {
+            "function_id": "F010",
+            "function_name": "提交订单",
+            "type": "core",
+            "is_new": true,
+            "description": "提交订单到订单管理"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N015",
+            "target_page_id": "P002",
+            "trigger_type": "user_click",
+            "trigger_element": "返回按钮/取消订单",
+            "description": "取消填写,返回查询页"
+          },
+          {
+            "navigation_id": "N016",
+            "target_page_id": "P006",
+            "trigger_type": "function_complete",
+            "trigger_element": "F010-提交订单",
+            "description": "提交订单成功后跳转到个人中心订单管理",
+            "post_condition": "订单提交成功",
+            "target_tab": "订单管理"
+          },
+          {
+            "navigation_id": "N017",
+            "target_page_id": "P005",
+            "trigger_type": "function_complete",
+            "trigger_element": "F010-提交订单",
+            "description": "提交订单失败,停留在当前页显示错误",
+            "post_condition": "订单提交失败"
+          }
+        ]
+      },
+      {
+        "page_id": "P006",
+        "page_name": "个人中心",
+        "description": "用户信息、乘客和订单管理",
+        "functions": [
+          {
+            "function_id": "F011",
+            "function_name": "个人信息管理",
+            "type": "core",
+            "is_new": true,
+            "description": "修改个人基本信息"
+          },
+          {
+            "function_id": "F012",
+            "function_name": "乘客管理",
+            "type": "core",
+            "is_new": true,
+            "description": "添加、编辑、删除乘客信息"
+          },
+          {
+            "function_id": "F013",
+            "function_name": "订单管理",
+            "type": "core",
+            "is_new": true,
+            "description": "查看、支付、取消历史订单"
+          },
+          {
+            "function_id": "F014",
+            "function_name": "订单支付",
+            "type": "core",
+            "is_new": true,
+            "description": "支付待支付订单"
+          },
+          {
+            "function_id": "F015",
+            "function_name": "车票改签",
+            "type": "auxiliary",
+            "is_new": true,
+            "description": "对已购车票进行改签"
+          },
+          {
+            "function_id": "F016",
+            "function_name": "用户登出",
+            "type": "core",
+            "is_new": true,
+            "description": "退出登录状态"
+          }
+        ],
+        "navigations": [
+          {
+            "navigation_id": "N018",
+            "target_page_id": "P001",
+            "trigger_type": "user_click",
+            "trigger_element": "导航栏首页",
+            "description": "返回首页"
+          },
+          {
+            "navigation_id": "N019",
+            "target_page_id": "P002",
+            "trigger_type": "user_click",
+            "trigger_element": "查询车票入口",
+            "description": "跳转到车票查询页"
+          },
+          {
+            "navigation_id": "N020",
+            "target_page_id": "P001",
+            "trigger_type": "function_complete",
+            "trigger_element": "F016-用户登出",
+            "description": "登出后返回首页",
+            "post_condition": "登出成功"
+          },
+          {
+            "navigation_id": "N021",
+            "target_page_id": "P002",
+            "trigger_type": "function_complete",
+            "trigger_element": "F015-车票改签",
+            "description": "改签成功后跳转到查询页重新选择",
+            "post_condition": "改签操作成功"
+          }
+        ]
+      }
+    ],
+    "statistics": {
+      "core_functions": 12,
+      "auxiliary_functions": 4,
+      "total_pages": 6,
+      "total_navigations": 21
+    }
+  }

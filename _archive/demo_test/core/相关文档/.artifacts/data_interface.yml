@@ -1,0 +1,448 @@
+# ==============================================================================
+# MODULE: F001 - 导航栏访问
+# ==============================================================================
+- type: Database
+  id: DB-GetUserById
+  description: 根据用户ID查询基本资料
+  implements:
+    - F001
+  input: [userId]
+  output: [uid, nick, avatar, vip]
+  constraints: [pk_users(id), select fields]
+  acceptanceCriteria:
+    - req_id: F001-S03
+      case: "返回用户名与头像等资料"
+
+- type: Database
+  id: DB-InvalidateSession
+  description: 失效会话/token 并记录登出日志
+  implements:
+    - F001
+    - F016
+  input: [userId, token]
+  output: [success]
+  constraints: [delete sessions(userId, token), insert logout_logs]
+  acceptanceCriteria:
+    - req_id: F016-S06
+      case: "持久化登出日志并清除会话记录"
+
+# ==============================================================================
+# MODULE: F002 - 快捷入口访问
+# ==============================================================================
+- type: Database
+  id: DB-GetQuickEntries
+  description: 获取首页快捷入口配置
+  implements:
+    - F002
+  input: [userId(optional)]
+  output: [entries]
+  constraints: [fallback defaults]
+  acceptanceCriteria:
+    - req_id: F002-S09
+      case: "配置缺失时返回默认入口"
+
+- type: Database
+  id: DB-GetQueryHistory
+  description: 查询用户历史查询记录（最多5条）
+  implements:
+    - F002
+  input: [userId]
+  output: [history]
+  constraints: [limit 5, order by created_at desc]
+  acceptanceCriteria:
+    - req_id: F002-S03
+      case: "按时间倒序返回≤5条记录"
+
+- type: Database
+  id: DB-ClearQueryHistory
+  description: 清空用户查询历史
+  implements:
+    - F002
+  input: [userId]
+  output: [deletedCount]
+  constraints: [delete from query_history where user_id=?]
+  acceptanceCriteria:
+    - req_id: F002-S07
+      case: "删除成功后返回计数"
+
+# ==============================================================================
+# MODULE: F003 - 车票查询
+# ==============================================================================
+- type: Database
+  id: DB-SearchStations
+  description: 站点模糊搜索（拼音/中文）
+  implements:
+    - F003
+  input: [q]
+  output: [stations]
+  constraints: [index stations(name_py, name_cn)]
+  acceptanceCriteria:
+    - req_id: F003-S01
+      case: "支持拼音/中文索引匹配"
+
+- type: Database
+  id: DB-QueryTrainSchedule
+  description: 查询指定日期与路线的车次信息
+  implements:
+    - F003
+    - F004
+  input: [fromStation, toStation, departDate]
+  output: [trainNumber, times, duration]
+  constraints: [covering index by route+date]
+  acceptanceCriteria:
+    - req_id: F003-S16
+      case: "返回车次号、时间、历时信息"
+
+- type: Database
+  id: DB-QueryTicketInventory
+  description: 查询各席别余票及价格
+  implements:
+    - F003
+    - F004
+  input: [trainNumber, departDate]
+  output: [seatType, price, available]
+  constraints: [row lock on inventory]
+  acceptanceCriteria:
+    - req_id: F003-S17
+      case: "返回各席别余票数量"
+
+# ==============================================================================
+# MODULE: F005 - 车票预订
+# ==============================================================================
+- type: Database
+  id: DB-LockTicketInventory
+  description: 锁定车票库存，防止超卖
+  implements:
+    - F005
+    - F010
+  input: [trainNumber, departDate, seatType, count, userId]
+  output: [lockId, expireAt]
+  constraints: [select for update, lock TTL]
+  acceptanceCriteria:
+    - req_id: F005-S02
+      case: "余票充足方可加锁"
+    - req_id: F005-S16
+      case: "返回锁定信息与过期时间"
+
+# ==============================================================================
+# MODULE: F006 - 中转换乘查询
+# ==============================================================================
+- type: Database
+  id: DB-QueryTransferStations
+  description: 查询可用中转站集合
+  implements:
+    - F006
+  input: [fromStation, toStation]
+  output: [hubs]
+  constraints: [precomputed hub graph]
+  acceptanceCriteria:
+    - req_id: F006-S04
+      case: "返回主要枢纽站集合"
+
+# ==============================================================================
+# MODULE: F007 - 用户登录
+# ==============================================================================
+- type: Database
+  id: DB-FindUser
+  description: 通过账号/手机号/邮箱查找用户
+  implements:
+    - F007
+  input: [account]
+  output: [user]
+  constraints: [unique index on phone/email/username]
+  acceptanceCriteria:
+    - req_id: F007-S12
+      case: "存在用户方可进一步校验"
+
+- type: Database
+  id: DB-VerifyPassword
+  description: 验证用户密码散列
+  implements:
+    - F007
+  input: [userId, password]
+  output: [match]
+  constraints: [bcrypt/argon2]
+  acceptanceCriteria:
+    - req_id: F007-S12
+      case: "密码正确返回匹配结果"
+
+- type: Database
+  id: DB-CreateSession
+  description: 创建会话并保存 token
+  implements:
+    - F007
+  input: [userId, token, expireAt]
+  output: [success]
+  constraints: [insert sessions(user_id, token) unique]
+  acceptanceCriteria:
+    - req_id: F007-S13
+      case: "写入会话并设置过期"
+
+- type: Database
+  id: DB-CreateLoginLog
+  description: 记录登录日志（IP、时间、设备）
+  implements:
+    - F007
+  input: [userId, ip, ua]
+  output: [success]
+  constraints: [append-only]
+  acceptanceCriteria:
+    - req_id: F007-S14
+      case: "成功记录登录日志"
+
+- type: Database
+  id: DB-CreateVerificationCode
+  description: 创建短信验证码并限流
+  implements:
+    - F007
+    - F008
+  input: [phone, code, ttl]
+  output: [codeId]
+  constraints: [unique(phone, window_60s), expire 5m]
+  acceptanceCriteria:
+    - req_id: F008-S03
+      case: "60秒内单手机号仅生成1次"
+
+- type: Database
+  id: DB-VerifyCode
+  description: 验证手机号与验证码有效性
+  implements:
+    - F007
+    - F008
+  input: [phone, code]
+  output: [valid]
+  constraints: [code not expired and unused]
+  acceptanceCriteria:
+    - req_id: F008-S04
+      case: "验证码5分钟内有效且一次性"
+
+# ==============================================================================
+# MODULE: F008 - 用户注册
+# ==============================================================================
+- type: Database
+  id: DB-FindUserByPhone
+  description: 检查手机号是否已注册
+  implements:
+    - F008
+  input: [phone]
+  output: [exists]
+  constraints: [unique index on users(phone)]
+  acceptanceCriteria:
+    - req_id: F008-S02
+      case: "已注册返回存在并阻止重复"
+
+- type: Database
+  id: DB-CreateUser
+  description: 创建新用户记录
+  implements:
+    - F008
+  input: [phone, passwordHash]
+  output: [userId]
+  constraints: [unique phone, hashed password]
+  acceptanceCriteria:
+    - req_id: F008-S17
+      case: "创建成功返回 userId"
+
+# ==============================================================================
+# MODULE: F009 - 订单填写
+# ==============================================================================
+- type: Database
+  id: DB-GetOrderDetail
+  description: 获取订单详情（含乘车人与倒计时）
+  implements:
+    - F009
+    - F013
+  input: [orderId]
+  output: [trainInfo, passengers, totalAmount, status, paymentDeadline]
+  constraints: [join orders/passengers/seats]
+  acceptanceCriteria:
+    - req_id: F009-S04
+      case: "返回支付倒计时"
+
+# ==============================================================================
+# MODULE: F010 - 提交订单
+# ==============================================================================
+- type: Database
+  id: DB-CreateOrder
+  description: 创建订单并设置支付超时
+  implements:
+    - F010
+  input: [userId, items, totalAmount, paymentDeadline]
+  output: [orderId]
+  constraints: [transaction, foreign keys]
+  acceptanceCriteria:
+    - req_id: F010-S09
+      case: "设置30分钟支付超时字段"
+
+# ==============================================================================
+# MODULE: F011 - 个人信息管理
+# ==============================================================================
+- type: Database
+  id: DB-UpdateUserPhone
+  description: 修改用户手机号
+  implements:
+    - F011
+  input: [userId, newPhone]
+  output: [success]
+  constraints: [unique phone]
+  acceptanceCriteria:
+    - req_id: F011-S12
+      case: "更新成功且不违反唯一约束"
+
+- type: Database
+  id: DB-UpdateUserEmail
+  description: 修改用户邮箱
+  implements:
+    - F011
+  input: [userId, newEmail]
+  output: [success]
+  constraints: [email format, unique]
+  acceptanceCriteria:
+    - req_id: F011-S15
+      case: "更新成功并通过格式校验"
+
+- type: Database
+  id: DB-UpdateUserPassword
+  description: 修改用户密码散列
+  implements:
+    - F011
+  input: [userId, newHash]
+  output: [success]
+  constraints: [password policy]
+  acceptanceCriteria:
+    - req_id: F011-S17
+      case: "更新密码散列成功"
+
+- type: Database
+  id: DB-UpdateUserAvatar
+  description: 更新头像URL
+  implements:
+    - F011
+  input: [userId, avatarUrl]
+  output: [success]
+  constraints: [url format]
+  acceptanceCriteria:
+    - req_id: F011-S09
+      case: "头像URL写入成功"
+
+# ==============================================================================
+# MODULE: F012 - 乘客管理
+# ==============================================================================
+- type: Database
+  id: DB-ListPassengers
+  description: 查询用户乘车人列表
+  implements:
+    - F012
+  input: [userId]
+  output: [passengers]
+  constraints: [limit and paging]
+  acceptanceCriteria:
+    - req_id: F012-S01
+      case: "正确返回列表数据"
+
+- type: Database
+  id: DB-CreatePassenger
+  description: 新增乘车人
+  implements:
+    - F012
+  input: [userId, name, idType, idNumber, phoneNumber(optional), passengerType]
+  output: [passengerId]
+  constraints: [idNumber validation, unique per user]
+  acceptanceCriteria:
+    - req_id: F012-S12
+      case: "身份证校验位通过方可创建"
+
+- type: Database
+  id: DB-UpdatePassenger
+  description: 更新乘车人（证件不可改）
+  implements:
+    - F012
+  input: [passengerId, name(optional), phoneNumber(optional), passengerType(optional)]
+  output: [success]
+  constraints: [immutable id fields]
+  acceptanceCriteria:
+    - req_id: F012-S21
+      case: "证件信息不可改，其他字段可改"
+
+- type: Database
+  id: DB-DeletePassenger
+  description: 删除乘车人
+  implements:
+    - F012
+  input: [passengerId]
+  output: [success]
+  constraints: [cascade optional]
+  acceptanceCriteria:
+    - req_id: F012-S22
+      case: "删除确认后执行删除"
+
+# ==============================================================================
+# MODULE: F013 - 订单管理
+# ==============================================================================
+- type: Database
+  id: DB-QueryOrdersByUser
+  description: 分页查询用户订单列表
+  implements:
+    - F013
+  input: [userId, status(optional), page(optional), limit(optional)]
+  output: [orders, total]
+  constraints: [indexes on userId/status/date]
+  acceptanceCriteria:
+    - req_id: F013-S01
+      case: "支持状态筛选与分页"
+
+- type: Database
+  id: DB-UpdateOrderStatus
+  description: 更新订单状态（取消/支付/改签等）
+  implements:
+    - F013
+    - F014
+    - F015
+  input: [orderId, status]
+  output: [success]
+  constraints: [state machine constraints]
+  acceptanceCriteria:
+    - req_id: F013-S24
+      case: "待支付→取消变更成功"
+
+- type: Database
+  id: DB-ReleaseTicketInventory
+  description: 释放锁定的车票库存
+  implements:
+    - F013
+  input: [lockId]
+  output: [success]
+  constraints: [reverse lock]
+  acceptanceCriteria:
+    - req_id: F009-S06
+      case: "超时或取消释放库存"
+
+# ==============================================================================
+# MODULE: F014 - 订单支付
+# ==============================================================================
+- type: Database
+  id: DB-CreatePaymentRecord
+  description: 创建支付记录并跟踪状态
+  implements:
+    - F014
+  input: [orderId, method, amount, status]
+  output: [paymentId]
+  constraints: [fk to orders, status lifecycle]
+  acceptanceCriteria:
+    - req_id: F014-S13
+      case: "创建支付订单记录"
+
+# ==============================================================================
+# MODULE: F015 - 车票改签
+# ==============================================================================
+- type: Database
+  id: DB-CheckChangeEligibility
+  description: 检查订单改签资格与次数限制
+  implements:
+    - F015
+  input: [orderId]
+  output: [eligible, reason(optional)]
+  constraints: [paid and unused, times<=1, before 30m]
+  acceptanceCriteria:
+    - req_id: F015-S01
+      case: "已支付且未使用方可改签"

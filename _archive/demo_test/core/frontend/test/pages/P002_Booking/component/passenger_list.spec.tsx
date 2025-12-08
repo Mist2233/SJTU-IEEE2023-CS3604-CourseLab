@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import BookingPage from '../../../../src/pages/P002/BookingPage.jsx'
+import BookingPage from '../../../../src/pages/P005/BookingPage.jsx'
 
 describe('P002_Booking 组件测试 - 乘客添加与删除', () => {
   it('添加乘客会增加表单行，删除按钮生效', async () => {

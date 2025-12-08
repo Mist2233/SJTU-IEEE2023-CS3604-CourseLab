@@ -1,0 +1,99 @@
+{
+    "current_version": "v1.0",
+    "total_pages": 6,
+    "total_functions": 16,
+    "total_navigations": 21,
+    
+    "page_registry": {
+      "P001": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F001", "F002"]
+      },
+      "P002": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F003", "F004", "F005", "F006"]
+      },
+      "P003": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F007"]
+      },
+      "P004": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F008"]
+      },
+      "P005": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F009", "F010"]
+      },
+      "P006": {
+        "version": "v1.0",
+        "status": "new",
+        "function_ids": ["F011", "F012", "F013", "F014", "F015", "F016"]
+      }
+    },
+    
+    "function_registry": {
+      "F001": { "version": "v1.0", "status": "new", "type": "auxiliary", "page_id": "P001" },
+      "F002": { "version": "v1.0", "status": "new", "type": "auxiliary", "page_id": "P001" },
+      "F003": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P002" },
+      "F004": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P002" },
+      "F005": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P002" },
+      "F006": { "version": "v1.0", "status": "new", "type": "auxiliary", "page_id": "P002" },
+      "F007": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P003" },
+      "F008": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P004" },
+      "F009": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P005" },
+      "F010": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P005" },
+      "F011": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P006" },
+      "F012": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P006" },
+      "F013": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P006" },
+      "F014": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P006" },
+      "F015": { "version": "v1.0", "status": "new", "type": "auxiliary", "page_id": "P006" },
+      "F016": { "version": "v1.0", "status": "new", "type": "core", "page_id": "P006" }
+    },
+    
+    "navigation_registry": {
+      "N001": { "version": "v1.0", "status": "new", "from": "P001", "to": "P002" },
+      "N002": { "version": "v1.0", "status": "new", "from": "P001", "to": "P003" },
+      "N003": { "version": "v1.0", "status": "new", "from": "P001", "to": "P004" },
+      "N004": { "version": "v1.0", "status": "new", "from": "P001", "to": "P006" },
+      "N005": { "version": "v1.0", "status": "new", "from": "P002", "to": "P001" },
+      "N006": { "version": "v1.0", "status": "new", "from": "P002", "to": "P005" },
+      "N007": { "version": "v1.0", "status": "new", "from": "P002", "to": "P003" },
+      "N008": { "version": "v1.0", "status": "new", "from": "P003", "to": "P004" },
+      "N009": { "version": "v1.0", "status": "new", "from": "P003", "to": "P001" },
+      "N010": { "version": "v1.0", "status": "new", "from": "P003", "to": "P002" },
+      "N011": { "version": "v1.0", "status": "new", "from": "P003", "to": "P001" },
+      "N012": { "version": "v1.0", "status": "new", "from": "P004", "to": "P003" },
+      "N013": { "version": "v1.0", "status": "new", "from": "P004", "to": "P003" },
+      "N014": { "version": "v1.0", "status": "new", "from": "P004", "to": "P001" },
+      "N015": { "version": "v1.0", "status": "new", "from": "P005", "to": "P002" },
+      "N016": { "version": "v1.0", "status": "new", "from": "P005", "to": "P006" },
+      "N017": { "version": "v1.0", "status": "new", "from": "P005", "to": "P005" },
+      "N018": { "version": "v1.0", "status": "new", "from": "P006", "to": "P001" },
+      "N019": { "version": "v1.0", "status": "new", "from": "P006", "to": "P002" },
+      "N020": { "version": "v1.0", "status": "new", "from": "P006", "to": "P001" },
+      "N021": { "version": "v1.0", "status": "new", "from": "P006", "to": "P002" }
+    },
+    
+    "version_history": [
+      {
+        "version": "v1.0",
+        "changes": {
+          "added_pages": ["P001", "P002", "P003", "P004", "P005", "P006"],
+          "added_functions": ["F001", "F002", "F003", "F004", "F005", "F006", "F007", "F008", "F009", "F010", "F011", "F012", "F013", "F014", "F015", "F016"],
+          "added_navigations": ["N001", "N002", "N003", "N004", "N005", "N006", "N007", "N008", "N009", "N010", "N011", "N012", "N013", "N014", "N015", "N016", "N017", "N018", "N019", "N020", "N021"],
+          "modified_pages": [],
+          "modified_functions": [],
+          "modified_navigations": [],
+          "removed_pages": [],
+          "removed_functions": [],
+          "removed_navigations": []
+        }
+      }
+    ]
+  }

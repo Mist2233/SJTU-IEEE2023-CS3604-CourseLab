@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import BookingPage from '../../../../src/pages/P002/BookingPage.jsx'
+import BookingPage from '../../../../src/pages/P005/BookingPage.jsx'
 
 describe('P002_Booking 组件测试 - 提交按钮状态', () => {
   it('未填写完整时点击提交显示错误提示；填写完整可提交', async () => {

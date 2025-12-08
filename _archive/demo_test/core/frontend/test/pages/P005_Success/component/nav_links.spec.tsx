@@ -11,7 +11,7 @@ describe('P005_Success 组件测试 - 导航链接验证', () => {
       <MemoryRouter initialEntries={[{ pathname: '/payment-success/ORDERY' } as any]}>
         <Routes>
           <Route path="/payment-success/:orderId" element={<PaymentSuccessPage />} />
-          <Route path="/my-orders" element={<div>我的订单</div>} />
+          <Route path="/my" element={<div>我的订单</div>} />
         </Routes>
       </MemoryRouter>
     )

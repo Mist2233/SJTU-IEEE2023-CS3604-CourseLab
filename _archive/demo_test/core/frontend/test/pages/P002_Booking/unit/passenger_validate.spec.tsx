@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import BookingPage from '../../../../src/pages/P002/BookingPage.jsx'
+import BookingPage from '../../../../src/pages/P005/BookingPage.jsx'
 
 describe('P002_Booking 单元测试 - 乘客信息校验', () => {
   it('姓名、证件号必填且证件号需18位格式', async () => {

@@ -1,0 +1,43 @@
+.booking-page { background: #f5f5f5; padding: 16px; }
+.train-summary { background: #e6f0ff; border: 1px solid #cfe0ff; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+.summary-top { display: flex; gap: 12px; font-weight: 600; color: #004499; }
+.seat-stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.seat-stat { background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; padding: 6px 10px; display: flex; gap: 8px; align-items: center; }
+.seat-stat.available .seat-available { color: #28a745; }
+.seat-stat.none { opacity: 0.6; }
+.seat-name { font-weight: 600; }
+.seat-price { color: #ff6600; }
+
+.passenger-section { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+.section-title { font-weight: 600; margin-bottom: 8px; }
+.saved-select-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px; background: #f8fbff; border: 1px solid #e6efff; border-radius: 6px; margin-bottom: 10px; }
+.saved-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.saved-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; }
+.saved-item input { transform: translateY(1px); }
+.passenger-form { border-top: 1px dashed #eee; padding-top: 8px; margin-top: 8px; }
+.form-row { display: grid; grid-template-columns: 160px 220px 1fr 220px 1.5fr auto; gap: 8px; align-items: end; }
+.form-group { display: flex; flex-direction: column; }
+.form-group.narrow { max-width: 160px; }
+.form-group.large { grid-column: span 1; }
+.form-group.xlarge { grid-column: span 1; }
+.form-group label { font-size: 12px; color: #666; margin-bottom: 4px; }
+.form-group input, .form-group select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+.remove-passenger-btn { background: none; border: none; color: #dc3545; cursor: pointer; }
+.actions-row { margin-top: 8px; }
+.add-passenger-btn { background: #f0f8ff; color: #0066cc; border: 1px solid #cfe0ff; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+.tips-box { margin-top: 12px; background: #fff7e6; border: 1px solid #ffe7ba; border-radius: 6px; padding: 8px; }
+.tips-title { font-weight: 600; color: #ad6800; margin-bottom: 4px; }
+.tips-box ul { margin: 0; padding-left: 18px; }
+
+.booking-summary { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px; }
+.total-price { font-weight: 700; color: #ff6600; }
+.summary-actions { display: flex; gap: 8px; }
+.secondary-btn { background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+.submit-order-btn { background: #ff9900; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+.form-group .ticket-type-select { width: 160px; }
+.seat-select { width: 160px; }
+.booking-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.booking-modal-card { width: 440px; background: #fff; border-radius: 8px; box-shadow: 0 10px 24px rgba(0,0,0,0.2); overflow: hidden; }
+.booking-modal-title { background: #dc3545; color: #fff; padding: 10px 14px; font-weight: 700; }
+.booking-modal-content { padding: 14px; color: #444; }
+.booking-modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 14px 12px; }

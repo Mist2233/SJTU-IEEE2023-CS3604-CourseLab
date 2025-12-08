@@ -1,210 +1,146 @@
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 const app = require('../../src/app');
 
-describe('Authentication API', () => {
-  describe('POST /api/auth/send-code', () => {
-    it('应该成功发送验证码到有效手机号', async () => {
-      const response = await request(app)
-        .post('/api/auth/send-code')
-        .send({
-          phone: '13800138000'
-        });
+const validId = '110105199001011234';
+const phone = '13900000001';
+const email = 'test1@example.com';
+const username = 'user_test1';
+const password = 'Passw0rd!';
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.message).toContain('验证码发送成功');
-    });
+async function clear() {
+  await request(app).post('/api/auth/clear-test-data');
+}
 
-    it('应该拒绝无效的手机号格式', async () => {
-      const response = await request(app)
-        .post('/api/auth/send-code')
-        .send({
-          phone: '123456'
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('手机号格式不正确');
-    });
-
-    it('应该限制同一手机号的发送频率', async () => {
-      const phone = '13800138001';
-      
-      // 第一次发送
-      await request(app)
-        .post('/api/auth/send-code')
-        .send({ phone });
-
-      // 立即再次发送
-      const response = await request(app)
-        .post('/api/auth/send-code')
-        .send({ phone });
-
-      expect(response.status).toBe(429);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('发送过于频繁');
-    });
+async function register(u = { username, email, phone, password, realName: '测试用户', idNumber: validId }) {
+  const res = await request(app).post('/api/auth/register').send({
+    username: u.username,
+    email: u.email,
+    phone: u.phone,
+    verificationCode: '123456',
+    password: u.password,
+    realName: u.realName,
+    idNumber: u.idNumber
   });
+  return res;
+}
 
-  describe('POST /api/auth/register', () => {
-    it('应该成功注册新用户', async () => {
-      const userData = {
-        phone: '13800138002',
-        verificationCode: '123456',
-        password: 'password123',
-        realName: '张三',
-        idNumber: '110101199001011234'
-      };
+async function login(identifier = phone, pwd = password) {
+  const res = await request(app).post('/api/auth/login').send({ identifier, password: pwd });
+  return res;
+}
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
-
-      expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('userId');
-      expect(response.body.data).toHaveProperty('token');
-      expect(response.body.message).toContain('注册成功');
-    });
-
-    it('应该拒绝已存在的手机号注册', async () => {
-      const userData = {
-        phone: '13800138003',
-        verificationCode: '123456',
-        password: 'password123',
-        realName: '李四',
-        idNumber: '110101199001011235'
-      };
-
-      // 第一次注册
-      await request(app)
-        .post('/api/auth/register')
-        .send(userData);
-
-      // 尝试用相同手机号再次注册
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('手机号已存在');
-    });
-
-    it('应该验证身份证号格式', async () => {
-      const userData = {
-        phone: '13800138004',
-        verificationCode: '123456',
-        password: 'password123',
-        realName: '王五',
-        idNumber: '123456' // 无效身份证号
-      };
-
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('身份证号格式不正确');
-    });
-
-    it('应该验证验证码的有效性', async () => {
-      const userData = {
-        phone: '13800138005',
-        verificationCode: '000000', // 错误验证码
-        password: 'password123',
-        realName: '赵六',
-        idNumber: '110101199001011236'
-      };
-
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(userData);
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('验证码错误或已过期');
-    });
-  });
-
-  describe('POST /api/auth/login', () => {
-    beforeEach(async () => {
-      // 创建测试用户
-      await request(app)
-        .post('/api/auth/register')
-        .send({
-          phone: '13800138006',
-          verificationCode: '123456',
-          password: 'password123',
-          realName: '测试用户',
-          idNumber: '110101199001011237'
-        });
-    });
-
-    it('应该成功登录有效用户', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          phone: '13800138006',
-          password: 'password123'
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('token');
-      expect(response.body.data).toHaveProperty('user');
-      expect(response.body.data.user).toHaveProperty('phone', '13800138006');
-      expect(response.body.message).toContain('登录成功');
-    });
-
-    it('应该拒绝错误的密码', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          phone: '13800138006',
-          password: 'wrongpassword'
-        });
-
-      expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('手机号或密码错误');
-    });
-
-    it('应该拒绝不存在的用户', async () => {
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send({
-          phone: '13800138999',
-          password: 'password123'
-        });
-
-      expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('手机号或密码错误');
-    });
-
-    it('应该限制登录尝试次数', async () => {
-      const loginData = {
-        phone: '13800138006',
-        password: 'wrongpassword'
-      };
-
-      // 多次错误登录尝试
-      for (let i = 0; i < 5; i++) {
-        await request(app)
-          .post('/api/auth/login')
-          .send(loginData);
-      }
-
-      // 第6次尝试应该被限制
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(loginData);
-
-      expect(response.status).toBe(429);
-      expect(response.body.success).toBe(false);
-      expect(response.body.message).toContain('登录尝试过于频繁');
-    });
-  });
+beforeEach(async () => {
+  await clear();
 });
+
+test('send-code invalid phone', async () => {
+  const r = await request(app).post('/api/auth/send-code').send({ phone: '123' });
+  expect(r.status).toBe(400);
+  expect(r.body.success).toBe(false);
+  expect(r.body.message).toBe('手机号格式不正确');
+});
+
+test('send-code success returns code in test env', async () => {
+  const r = await request(app).post('/api/auth/send-code').send({ phone });
+  expect(r.status).toBe(200);
+  expect(r.body.success).toBe(true);
+  expect(r.body.data.codeId).toBeDefined();
+  expect(r.body.data.code).toBeDefined();
+});
+
+test('register missing params', async () => {
+  const r = await request(app).post('/api/auth/register').send({});
+  expect(r.status).toBe(400);
+});
+
+test('register invalid fields', async () => {
+  let r = await request(app).post('/api/auth/register').send({ username: '1bad', email, phone, verificationCode: '123456', password, realName: 'a', idNumber: validId });
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/register').send({ username, email: 'bad', phone, verificationCode: '123456', password, realName: 'a', idNumber: validId });
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/register').send({ username, email, phone: '123', verificationCode: '123456', password, realName: 'a', idNumber: validId });
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/register').send({ username, email, phone, verificationCode: '123456', password, realName: 'a', idNumber: 'bad' });
+  expect(r.status).toBe(400);
+});
+
+test('register success and duplicate conflict', async () => {
+  const r1 = await register();
+  expect(r1.status).toBe(201);
+  const r2 = await request(app).post('/api/auth/register').send({ username: username + '2', email: 'test2@example.com', phone, verificationCode: '123456', password, realName: '测试用户', idNumber: '110105199001011235' });
+  expect(r2.status).toBe(400);
+});
+
+test('login validations and success', async () => {
+  const r0 = await request(app).post('/api/auth/login').send({});
+  expect(r0.status).toBe(400);
+  const r404 = await request(app).post('/api/auth/login').send({ identifier: 'nouser', password });
+  expect(r404.status).toBe(404);
+  await register();
+  const r401 = await request(app).post('/api/auth/login').send({ identifier: phone, password: 'bad' });
+  expect(r401.status).toBe(401);
+  const r = await login(phone, password);
+  expect(r.status).toBe(200);
+  expect(r.body.data.token).toBeDefined();
+});
+
+test('login rate limit after failures', async () => {
+  await register();
+  for (let i = 0; i < 5; i++) {
+    await request(app).post('/api/auth/login').send({ identifier: phone, password: 'bad' });
+  }
+  const r = await request(app).post('/api/auth/login').send({ identifier: phone, password: 'bad' });
+  expect(r.status).toBe(429);
+});
+
+test('me unauthorized and not found and success', async () => {
+  const r401 = await request(app).get('/api/auth/me');
+  expect(r401.status).toBe(401);
+  const fake = jwt.sign({ userId: 'no_user' }, process.env.JWT_SECRET || 'test-jwt-secret');
+  const r404 = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${fake}`);
+  expect(r404.status).toBe(404);
+  await register();
+  const lg = await login();
+  const token = lg.body.data.token;
+  const r = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${token}`);
+  expect(r.status).toBe(200);
+  expect(r.body.data.userId).toBe(username);
+});
+
+test('change-password validations and success', async () => {
+  const r401 = await request(app).post('/api/auth/change-password');
+  expect(r401.status).toBe(401);
+  await register();
+  const lg = await login();
+  const token = lg.body.data.token;
+  let r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({});
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: '123' });
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: 'bad', newPassword: 'Passw0rd2!' });
+  expect(r.status).toBe(400);
+  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: 'Passw0rd2!' });
+  expect(r.status).toBe(200);
+  const l2 = await request(app).post('/api/auth/login').send({ identifier: phone, password: 'Passw0rd2!' });
+  expect(l2.status).toBe(200);
+});
+
+test('forgot password send and reset', async () => {
+  await register();
+  const s = await request(app).post('/api/auth/forgot/send-code').send({ recipient: phone, idNumber: validId });
+  expect(s.status).toBe(200);
+  const code = s.body.data.code;
+  const r = await request(app).post('/api/auth/forgot/reset').send({ recipient: phone, idNumber: validId, verificationCode: code, newPassword: 'Passw0rd3!' });
+  expect(r.status).toBe(200);
+  const l = await request(app).post('/api/auth/login').send({ identifier: phone, password: 'Passw0rd3!' });
+  expect(l.status).toBe(200);
+});
+
+test('debug users returns list', async () => {
+  await register();
+  const r = await request(app).get('/api/auth/debug/users');
+  expect(r.status).toBe(200);
+  expect(r.body.data.userCount).toBeGreaterThanOrEqual(1);
+});
+

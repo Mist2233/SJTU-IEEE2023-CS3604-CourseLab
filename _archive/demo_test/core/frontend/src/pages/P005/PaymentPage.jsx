@@ -12,6 +12,7 @@ const PaymentPage = () => {
   const [order, setOrder] = useState(null)
   const [successModal, setSuccessModal] = useState(false)
   const [failModal, setFailModal] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -27,10 +28,12 @@ const PaymentPage = () => {
 
   const handlePayment = async () => {
     setLoading(true)
+    setError('')
     try {
       const res = await initiatePayment({ orderId, paymentMethod })
       setPaymentInfo(res?.data)
     } catch (error) {
+      setError(error?.message || '生成支付凭据失败')
     } finally {
       setLoading(false)
     }
@@ -49,7 +52,7 @@ const PaymentPage = () => {
       })
       if (success) {
         setSuccessModal(true)
-        setTimeout(() => navigate('/my-orders'), 1200)
+        setTimeout(() => navigate('/my#orders'), 1200)
       } else {
         setFailModal(true)
       }
@@ -63,6 +66,7 @@ const PaymentPage = () => {
           <div className="title">订单支付</div>
           <div className="subtitle">订单号：{orderId}</div>
         </div>
+        {error && (<div className="login-error-banner" style={{ margin: '10px 0' }}>{error}</div>)}
         {order && (
           <div className="order-info">
             <div className="route">{order.trainInfo.trainNumber} · {order.trainInfo.from} → {order.trainInfo.to} · {order.trainInfo.date}</div>

@@ -53,7 +53,7 @@ describe('P002_Search 组件测试 - 筛选栏交互（按现有实现）', () =
         <SearchResultsPage />
       </MemoryRouter>
     )
-    const [fromInput, toInput] = screen.getAllByPlaceholderText('输入或选择站点')
+    const [fromInput, toInput] = screen.getAllByPlaceholderText('简拼/全拼/汉字')
     await user.type(fromInput, '北京南')
     await user.type(toInput, '上海虹桥')
     await user.click(screen.getByText('查询'))

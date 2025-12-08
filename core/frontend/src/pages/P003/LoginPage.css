@@ -57,55 +57,56 @@
 
 /* 2. 主体背景区域 */
 .login-main-bg {
-  /* 模拟官网的深蓝色背景图 */
-  background: linear-gradient(135deg, #3b73da 0%, #004cb3 100%);
   height: 600px;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #f8f8f8;
+}
+
+.bg-carousel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.bg-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* 保持图片原始比例，如果需要铺满可以用 cover，但 12306 官网通常是居中显示的宽图，两侧可能有背景色延伸
+     这里我们先尝试 cover 以铺满区域，或者 contain 看效果。
+     考虑到用户说“纯蓝色的背景更改为滚动图”，通常意味着铺满。
+     但是这两个 URL 看起来是 Banner 图，可能不够宽。
+     如果是 Banner 图，通常做法是 background-size: cover;
+  */
+  background-size: cover;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.bg-slide.active {
+  opacity: 1;
 }
 
 .login-content-container {
   width: 1200px;
   height: 450px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   position: relative;
-}
-
-/* 左侧营销区 */
-.marketing-area {
-  flex: 1;
-  color: white;
-  padding-left: 40px;
-}
-
-.promo-title {
-  font-size: 36px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.promo-features {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 30px;
-  font-size: 18px;
-}
-
-.qr-download {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.download-text {
-  font-size: 16px;
-  line-height: 1.5;
+  z-index: 1;
 }
 
 /* 右侧：悬浮登录框 */
@@ -300,11 +301,6 @@
     width: 100%;
     padding: 0 20px;
     justify-content: center;
-  }
-
-  .marketing-area {
-    display: none;
-    /* 小屏幕隐藏左侧营销区 */
   }
 
   .welcome-text {

@@ -1,0 +1,127 @@
+.user-info-container {
+  font-family: "Microsoft YaHei", "SimHei", "Arial", sans-serif;
+  color: #333;
+  padding-top: 10px;
+}
+
+.info-header h2 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.info-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.info-section-header h3 {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.info-section {
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 15px;
+  line-height: 24px;
+}
+
+.info-label {
+  width: 200px;
+  text-align: right;
+  color: #999;
+  font-size: 14px;
+  padding-right: 20px;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.required::before {
+  content: '*';
+  color: #ff4d4f;
+  margin-right: 4px;
+}
+
+.status-verified {
+  color: #ff9900;
+}
+
+.status-text {
+  color: #ff9900;
+  margin-left: 20px;
+  font-size: 14px;
+}
+
+.info-section-divider {
+  border-bottom: 1px dashed #eee;
+  margin: 30px 0;
+}
+
+.edit-btn {
+  border: 1px solid #dedede;
+  background: #fff;
+  color: #333;
+  padding: 5px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s;
+}
+
+.edit-btn:hover {
+  color: #3B99FC;
+  border-color: #3B99FC;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 6px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  border: 1px solid #dedede;
+  background: #fff;
+}
+
+.action-btn.primary {
+  background: #ff9900;
+  color: white;
+  border-color: #ff9900;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
+
+.info-description {
+  padding-left: 20px;
+  font-size: 14px;
+  color: #666;
+  margin-top: -10px;
+}
+
+.loading-text, .error-text {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}

@@ -200,3 +200,75 @@
     font-size: 10px;
   }
 }
+
+/* 错误提示统一样式 */
+.error-tip {
+  color: #ff4d4f;
+  background: #fff1f0;
+  border: 1px solid #ffa39e;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+/* 轻量弹窗样式 */
+.ui-modal-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.ui-modal {
+  width: 360px;
+  background: #fff;
+  border: 1px solid #CFCDC7;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+
+.ui-modal-title {
+  background: linear-gradient(to bottom, #3B99FC 0%, #2a70b8 100%);
+  color: #fff;
+  padding: 10px 12px;
+  font-weight: bold;
+}
+
+.ui-modal-body {
+  padding: 14px 12px;
+  color: #333;
+}
+
+.ui-modal-actions {
+  padding: 10px 12px 16px;
+  text-align: right;
+}
+.input-with-toggle {
+  position: relative;
+}
+
+.input-with-toggle input {
+  width: 100%;
+  padding-right: 34px;
+}
+
+.input-with-toggle .toggle-eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #0077FF;
+  cursor: pointer;
+}

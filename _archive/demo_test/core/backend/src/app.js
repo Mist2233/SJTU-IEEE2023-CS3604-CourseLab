@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth');
 const trainRoutes = require('./routes/trains');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
+const passengerRoutes = require('./routes/passengers');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/trains', trainRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/passengers', passengerRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

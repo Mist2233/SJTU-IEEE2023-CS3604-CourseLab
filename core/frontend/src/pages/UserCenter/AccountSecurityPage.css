@@ -1,0 +1,108 @@
+.account-security-container {
+  padding: 20px;
+  background-color: #fff;
+  min-height: 100%;
+}
+
+.security-list {
+  border: 1px solid #eee;
+}
+
+.security-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.security-item:last-child {
+  border-bottom: none;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  width: 200px;
+}
+
+.security-icon {
+  font-size: 24px;
+  margin-right: 15px;
+}
+
+.security-icon.lock {
+  color: #ff9900;
+}
+
+.security-icon.phone {
+  color: #3b99fc;
+}
+
+.security-icon.email {
+  color: #28a745;
+}
+
+.security-icon.notification {
+  color: #17a2b8;
+}
+
+.item-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.item-middle {
+  flex: 1;
+  color: #666;
+  font-size: 14px;
+  text-align: left;
+  padding-left: 20px;
+}
+
+.item-right {
+  width: 100px;
+  text-align: right;
+}
+
+.action-btn {
+  padding: 5px 15px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.action-btn:hover {
+  border-color: #ff9900;
+  color: #ff9900;
+}
+
+@media (max-width: 600px) {
+  .security-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    gap: 10px;
+  }
+  
+  .item-left {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .item-middle {
+    width: 100%;
+    padding-left: 0;
+    margin-bottom: 10px;
+  }
+  
+  .item-right {
+    width: 100%;
+    text-align: right;
+  }
+}

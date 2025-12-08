@@ -25,13 +25,61 @@ db.serialize(() => {
       password TEXT NOT NULL,
       real_name TEXT NOT NULL,
       id_number TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_login DATETIME
     )
   `, (err) => {
     if (err) {
       console.error('创建用户表失败:', err.message);
     } else {
       console.log('用户表创建成功');
+      const ensureUnique = (col, indexName, excludeNull) => {
+        const where = excludeNull ? `WHERE ${col} IS NOT NULL` : '';
+        db.all(`SELECT ${col} AS v, COUNT(*) AS c FROM users ${where} GROUP BY ${col} HAVING COUNT(*) > 1`, [], (eDup, rowsDup) => {
+          if (eDup) {
+            console.warn(`检查 ${col} 重复失败:`, eDup.message);
+            return;
+          }
+          if (Array.isArray(rowsDup) && rowsDup.length > 0) {
+            console.warn(`检测到 ${col} 存在重复 ${rowsDup.length} 项，跳过唯一索引创建`);
+          } else {
+            db.run(`CREATE UNIQUE INDEX IF NOT EXISTS ${indexName} ON users(${col})`, [], (eIdx) => {
+              if (eIdx) console.warn(`创建 ${col} 唯一索引失败:`, eIdx.message);
+            });
+          }
+        });
+      };
+      ensureUnique('id_number', 'idx_users_id_number', false);
+
+      // 检查是否已有 email 列，若没有则添加，并创建唯一索引
+      db.all(`PRAGMA table_info(users)`, [], (eInfo, rows) => {
+        if (eInfo) {
+          console.warn('检查用户表结构失败:', eInfo.message);
+          return;
+        }
+        const hasEmail = Array.isArray(rows) && rows.some(r => r.name === 'email');
+        const hasLastLogin = Array.isArray(rows) && rows.some(r => r.name === 'last_login');
+        const ensureEmailIndex = () => ensureUnique('email', 'idx_users_email', true);
+        if (!hasEmail) {
+          db.run(`ALTER TABLE users ADD COLUMN email TEXT`, [], (eAdd) => {
+            if (eAdd) {
+              console.warn('添加邮箱列失败:', eAdd.message);
+            } else {
+              console.log('邮箱列已添加');
+            }
+            ensureEmailIndex();
+          });
+        } else {
+          ensureEmailIndex();
+        }
+
+        if (!hasLastLogin) {
+          db.run(`ALTER TABLE users ADD COLUMN last_login DATETIME`, [], (eAdd2) => {
+            if (eAdd2) console.warn('添加最后登录列失败:', eAdd2.message);
+            else console.log('最后登录列已添加');
+          });
+        }
+      });
     }
   });
 
@@ -92,6 +140,29 @@ db.serialize(() => {
       console.error('创建订单乘客表失败:', err.message);
     } else {
       console.log('订单乘客表创建成功');
+    }
+  });
+
+  // 常用乘车人表
+  db.run(`
+    CREATE TABLE IF NOT EXISTS user_passengers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id TEXT NOT NULL,
+      name TEXT NOT NULL,
+      name_en TEXT,
+      cert_type TEXT NOT NULL,
+      id_number TEXT NOT NULL,
+      phone TEXT,
+      passenger_type TEXT NOT NULL DEFAULT '成人',
+      is_default INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `, (err) => {
+    if (err) {
+      console.error('创建常用乘车人表失败:', err.message);
+    } else {
+      console.log('常用乘车人表创建成功');
+      db.run(`CREATE INDEX IF NOT EXISTS idx_user_passengers_user ON user_passengers(user_id)`, [], () => {});
     }
   });
 

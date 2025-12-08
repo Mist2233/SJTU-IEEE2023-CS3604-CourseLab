@@ -18,8 +18,19 @@
 ---
 
 ## 🚀 如何启动项目 (Quick Start)
-
+**当前为 `main` 分支（稳定版本）**  
 请按照以下步骤启动前端和后端服务。
+
+### 0. 获得开发分支
+
+```bash
+# 克隆仓库
+git clone https://github.com/Mist2233/SJTU-IEEE2023-CS3604-CourseLab.git
+
+# 切换分支
+git fetch origin
+git checkout develop
+```
 
 ### 1. 前端启动 (Frontend)
 
@@ -133,7 +144,7 @@ git push origin main
 # 5) 打main版本标签并推送（发布点）
 git tag -a v1.0.0 -m "release"
 git push origin v1.0.0
-```
+  ```
 - 精确对齐到 `develop`（覆盖式，对主线有强约束时使用）：
 ```bash
 git fetch origin

@@ -18,6 +18,7 @@ import OrderTrainPage from './pages/UserCenter/OrderTrainPage'
 import UserInfoPage from './pages/UserCenter/UserInfoPage'
 import PassengerPage from './pages/UserCenter/PassengerPage'
 import AccountSecurityPage from './pages/UserCenter/AccountSecurityPage'
+import AddressPage from './pages/UserCenter/AddressPage'
 import './App.css'
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
             <Route path="orders" element={<OrderTrainPage />} />
             <Route path="info" element={<UserInfoPage />} />
             <Route path="passengers" element={<PassengerPage />} />
+            <Route path="addresses" element={<AddressPage />} />
             <Route path="security" element={<AccountSecurityPage />} />
             <Route path="security/password" element={<ChangePasswordPage />} />
             <Route path="password" element={<ChangePasswordPage />} />

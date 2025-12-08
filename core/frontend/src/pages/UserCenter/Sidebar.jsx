@@ -53,7 +53,7 @@ const Sidebar = () => {
       type: 'group',
       children: [
         { title: '乘车人', path: '/user/passengers' },
-        { title: '地址管理', path: '', disabled: true },
+        { title: '地址管理', path: '/user/addresses' },
       ]
     },
     {

@@ -179,4 +179,81 @@ export const deletePassenger = async (id) => {
   });
 };
 
+let mockAddresses = [
+  { id: 1, name: '毛天宇', phone: '18900008785', province: '上海市', city: '上海市', district: '闵行区', addressLine: '东川路800号', postcode: '200240', isDefault: true },
+  { id: 2, name: '李晓华', phone: '15300001235', province: '浙江省', city: '杭州市', district: '西湖区', addressLine: '文三路 199 号', postcode: '310012', isDefault: false }
+];
+
+export const getAddresses = async (params) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      let list = [...mockAddresses];
+      const kw = (params?.keyword || '').trim();
+      if (kw) {
+        list = list.filter(a =>
+          String(a.name).includes(kw) ||
+          String(a.phone).includes(kw) ||
+          String(a.province + a.city + a.district + a.addressLine).includes(kw)
+        );
+      }
+      resolve({ data: { addresses: list } });
+    }, 300);
+  });
+};
+
+export const addAddress = async (address) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newId = Math.max(...mockAddresses.map(a => a.id), 0) + 1;
+      const isDefault = !!address.isDefault;
+      const newAddr = { id: newId, isDefault, ...address };
+      if (isDefault) {
+        mockAddresses = mockAddresses.map(a => ({ ...a, isDefault: false }));
+      }
+      mockAddresses.push(newAddr);
+      resolve({ data: newAddr });
+    }, 300);
+  });
+};
+
+export const updateAddress = async (id, address) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const isDefault = !!address.isDefault;
+      let updated;
+      if (isDefault) {
+        mockAddresses = mockAddresses.map(a => ({ ...a, isDefault: a.id === id }));
+        updated = mockAddresses.find(a => a.id === id);
+        Object.assign(updated, address, { id });
+      } else {
+        mockAddresses = mockAddresses.map(a => a.id === id ? { ...a, ...address, id } : a);
+        updated = mockAddresses.find(a => a.id === id);
+      }
+      resolve({ data: updated });
+    }, 300);
+  });
+};
+
+export const deleteAddress = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      mockAddresses = mockAddresses.filter(a => a.id !== id);
+      if (!mockAddresses.some(a => a.isDefault) && mockAddresses.length > 0) {
+        mockAddresses[0].isDefault = true;
+      }
+      resolve({ success: true });
+    }, 300);
+  });
+};
+
+export const setDefaultAddress = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      mockAddresses = mockAddresses.map(a => ({ ...a, isDefault: a.id === id }));
+      const addr = mockAddresses.find(a => a.id === id);
+      resolve({ data: addr });
+    }, 200);
+  });
+};
+
 export default api

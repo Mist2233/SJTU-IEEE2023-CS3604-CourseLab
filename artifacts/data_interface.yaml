@@ -1,0 +1,106 @@
+entities:
+  - name: User
+    description: "Core user entity for authentication and profile management."
+    storage: "SQLite (users table)"
+    source_ref: "backend/models/User.js"
+    fields:
+      - name: user_id
+        type: STRING
+        description: "Unique username/id. Primary Key."
+        is_primary: true
+      - name: username
+        type: STRING
+        description: "Display name or login account."
+        validation: "^[A-Za-z][A-Za-z0-9_]{5,29}$"
+      - name: password
+        type: STRING
+        description: "Plain text password (current implementation)."
+        validation: "Length 6-20 characters"
+      - name: phone
+        type: STRING
+        description: "Mobile phone number."
+        validation: "^1[3-9]\\d{9}$"
+      - name: id_number
+        type: STRING
+        description: "Chinese Resident ID number."
+        validation: "18-digit checksum (isValidIdNumber function)"
+      - name: email
+        type: STRING
+        description: "Email address."
+      - name: role
+        type: STRING
+        description: "User role (e.g., user, admin)."
+        default: "user"
+
+  - name: Passenger
+    description: "Passenger information associated with a user account."
+    storage: "SQLite (passengers table)"
+    source_ref: "backend/models/Passenger.js"
+    fields:
+      - name: id
+        type: INTEGER
+        description: "Auto-increment primary key."
+        is_primary: true
+      - name: user_id
+        type: STRING
+        description: "Foreign key to User."
+      - name: name
+        type: STRING
+        description: "Passenger real name."
+      - name: id_number
+        type: STRING
+        description: "Passenger ID number."
+        validation: "18-digit checksum"
+      - name: phone
+        type: STRING
+        description: "Passenger phone number."
+      - name: passenger_type
+        type: STRING
+        description: "Type: 成人 (Adult), 儿童 (Child), 学生 (Student)."
+        default: "成人"
+      - name: is_default
+        type: BOOLEAN
+        description: "Whether this is the default passenger for the user."
+
+  - name: Order
+    description: "Ticket order record."
+    storage: "SQLite (orders table) + Memory Map (for legacy compat)"
+    source_ref: "backend/models/Order.js"
+    fields:
+      - name: orderId
+        type: STRING
+        description: "Unique order identifier (e.g., ORDER{timestamp}{random})."
+        is_primary: true
+      - name: userId
+        type: STRING
+        description: "Foreign key to User."
+      - name: trainNumber
+        type: STRING
+        description: "Train identifier (e.g., G101)."
+      - name: status
+        type: STRING
+        description: "Enum: PENDING_PAYMENT, PAID, COMPLETED, CANCELLED."
+      - name: totalAmount
+        type: FLOAT
+        description: "Total price of the order."
+      - name: passengers
+        type: JSON
+        description: "List of passengers in this order."
+      - name: createdAt
+        type: DATETIME
+        description: "Order creation time."
+
+  - name: VerificationCode
+    description: "Temporary SMS/Email verification codes."
+    storage: "Memory (Map in auth.js)"
+    source_ref: "backend/routes/auth.js"
+    fields:
+      - name: phone
+        type: STRING
+        description: "Key for retrieval."
+      - name: code
+        type: STRING
+        description: "6-digit numeric code."
+      - name: timestamp
+        type: INTEGER
+        description: "Creation timestamp for expiry check (5 min)."

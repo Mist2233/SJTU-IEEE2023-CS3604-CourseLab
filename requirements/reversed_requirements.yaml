@@ -1,0 +1,120 @@
+- id: REQ-AUTH-001
+  name: "用户注册 (User Registration)"
+  status: "Implemented"
+  source_ref: "P004"
+  functional_description: "Allow users to create a new account using phone number and personal info."
+  logic_rules:
+    - "Username must start with letter, 6-30 chars, alphanumeric/underscore."
+    - "Password must be 6-20 characters."
+    - "Real Name and ID Number are required."
+    - "ID Number is validated with 18-digit checksum algorithm."
+    - "Phone number must be valid (11 digits, starts with 1[3-9])."
+    - "SMS Verification Code is required (Mocked in dev, rate limited 1 min)."
+  ui_description: "Multi-section form with real-time validation feedback. 60s countdown for SMS code."
+  artifacts:
+    ui_ids: ["UI-PAGE-REGISTER"]
+    api_ids: ["/api/auth/register", "/api/auth/send-code"]
+
+- id: REQ-AUTH-002
+  name: "用户登录 (User Login)"
+  status: "Implemented"
+  source_ref: "P003"
+  functional_description: "Allow users to login with Username/Email/Phone and Password."
+  logic_rules:
+    - "Supports multiple identifier types (Username, Email, Phone)."
+    - "Password validation."
+    - "Client-side lockout after 6 failed attempts (60s duration)."
+    - "Successful login returns JWT token (valid 24h)."
+  ui_description: "Tabbed interface (Scan/Account). Account tab has input fields."
+  artifacts:
+    ui_ids: ["UI-PAGE-LOGIN"]
+    api_ids: ["/api/auth/login"]
+
+- id: REQ-AUTH-003
+  name: "找回密码 (Forgot Password)"
+  status: "Implemented"
+  source_ref: "P003"
+  functional_description: "Allow users to reset password if forgotten."
+  logic_rules:
+    - "Step 1: Verify Phone/Email AND ID Number match."
+    - "Step 2: Send verification code to Phone/Email."
+    - "Step 3: Verify code and set new password."
+  ui_description: "Two-step wizard process."
+  artifacts:
+    ui_ids: ["UI-PAGE-FORGOT-PASSWORD"]
+    api_ids: ["/api/auth/forgot/send-code", "/api/auth/forgot/reset"]
+
+- id: REQ-USER-001
+  name: "查看个人信息 (View Profile)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "Display current user's registration details."
+  logic_rules:
+    - "Read-only display of Name, ID (partially masked in UI), Phone, Email, Role."
+  artifacts:
+    ui_ids: ["UI-PAGE-PERSONAL-INFO"]
+    api_ids: ["/api/auth/me"]
+
+- id: REQ-USER-002
+  name: "修改密码 (Change Password)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "Allow logged-in users to change their password."
+  logic_rules:
+    - "Requires Old Password verification."
+    - "New Password must meet complexity/length requirements."
+  artifacts:
+    ui_ids: ["UI-PAGE-CHANGE-PASSWORD"]
+    api_ids: ["/api/auth/change-password"]
+
+- id: REQ-PASSENGER-001
+  name: "常用乘车人管理 (Passenger Management)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "CRUD operations for frequently used passengers."
+  logic_rules:
+    - "Add/Edit: Validates Name, ID Number, Phone."
+    - "Delete: Removes passenger."
+    - "Set Default: Marks one passenger as default for quick selection."
+  ui_description: "List view with action buttons. Form for adding/editing."
+  artifacts:
+    ui_ids: ["UI-PAGE-PASSENGERS"]
+    api_ids: ["/api/passengers"]
+
+- id: REQ-ORDER-001
+  name: "我的订单 (Order History)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "List user's orders with status filtering."
+  logic_rules:
+    - "Filter tabs: All, Unpaid, Upcoming (Paid), Completed."
+    - "Shows Train Info, Passengers, Price, Status."
+  ui_description: "Card list layout. Status badges."
+  artifacts:
+    ui_ids: ["UI-PAGE-USER-ORDERS"]
+    api_ids: ["/api/orders/user/:userId"]
+
+- id: REQ-ORDER-002
+  name: "取消订单 (Cancel Order)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "Cancel an unpaid order."
+  logic_rules:
+    - "Only 'PENDING_PAYMENT' orders can be cancelled."
+    - "Restores ticket stock immediately."
+  artifacts:
+    ui_ids: ["UI-PAGE-USER-ORDERS"]
+    api_ids: ["/api/orders/:orderId/cancel"]
+
+- id: REQ-ORDER-003
+  name: "退票 (Refund Ticket)"
+  status: "Implemented"
+  source_ref: "P006"
+  functional_description: "Refund a paid ticket."
+  logic_rules:
+    - "Only 'PAID' orders can be refunded."
+    - "Restores ticket stock."
+    - "Updates status to 'CANCELLED' (or specific 'REFUNDED' status if defined, currently CANCELLED)."
+  artifacts:
+    ui_ids: ["UI-PAGE-USER-ORDERS"]
+    api_ids: ["/api/orders/:orderId/refund"]

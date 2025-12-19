@@ -1,0 +1,112 @@
+pages:
+  - id: UI-PAGE-LOGIN
+    name: "LoginPage"
+    path: "/login"
+    source_ref: "frontend/src/pages/P003/LoginPage.jsx"
+    description: "User login entry point."
+    sections:
+      - name: "LoginTabs"
+        elements: ["Scan Login (Mock QR)", "Account Login (Form)"]
+    validation:
+      - "Identifier required (Username/Email/Phone)"
+      - "Password required"
+      - "Client-side attempt limit: 6 failures locks for 60s"
+    api_calls:
+      - "POST /api/auth/login"
+
+  - id: UI-PAGE-FORGOT-PASSWORD
+    name: "ForgotPasswordPage"
+    path: "/forgot-password"
+    source_ref: "frontend/src/pages/P003/ForgotPasswordPage.jsx"
+    description: "Password recovery flow."
+    sections:
+      - name: "VerifyStep"
+        description: "Input Phone/Email + ID Number"
+      - name: "ResetStep"
+        description: "Input Code + New Password"
+    validation:
+      - "Phone/Email format check"
+      - "ID Number format check (18-digit)"
+      - "Password length 6-20"
+      - "Password match check"
+    api_calls:
+      - "POST /api/auth/forgot/send-code"
+      - "POST /api/auth/forgot/reset"
+
+  - id: UI-PAGE-REGISTER
+    name: "RegisterPage"
+    path: "/register"
+    source_ref: "frontend/src/pages/P004/RegisterPage.jsx"
+    description: "New user registration."
+    sections:
+      - name: "BasicInfo"
+        elements: ["Username", "Password", "Confirm Password"]
+      - name: "PersonalInfo"
+        elements: ["Real Name", "ID Type (Default ID Card)", "ID Number"]
+      - name: "ContactInfo"
+        elements: ["Phone", "Email", "Passenger Type"]
+      - name: "Verification"
+        elements: ["SMS Code Input", "Send Code Button (60s Timer)"]
+    validation:
+      - "Username: ^[A-Za-z][A-Za-z0-9_]{5,29}$"
+      - "Password: Length 6-20, Match Confirmation"
+      - "ID Number: 18-digit checksum"
+      - "Phone: ^1[3-9]\\d{9}$"
+    api_calls:
+      - "POST /api/auth/send-code"
+      - "POST /api/auth/register"
+
+  - id: UI-PAGE-PERSONAL-INFO
+    name: "PersonalInfoPage"
+    path: "/personal/info"
+    source_ref: "frontend/src/pages/P006/PersonalInfoPage.jsx"
+    description: "View user profile details."
+    elements: ["Username", "Name", "ID Number (Masked)", "Phone", "Email", "Role"]
+    api_calls:
+      - "GET /api/auth/me"
+
+  - id: UI-PAGE-CHANGE-PASSWORD
+    name: "ChangePasswordPage"
+    path: "/personal/password"
+    source_ref: "frontend/src/pages/P006/ChangePasswordPage.jsx"
+    description: "Update user password."
+    elements: ["Old Password", "New Password", "Confirm New Password"]
+    validation:
+      - "New Password length 6-20"
+      - "New Password != Old Password"
+    api_calls:
+      - "POST /api/auth/change-password"
+
+  - id: UI-PAGE-PASSENGERS
+    name: "PassengersPage"
+    path: "/personal/passengers"
+    source_ref: "frontend/src/pages/P006/PassengersPage.jsx"
+    description: "Manage frequently used passengers."
+    sections:
+      - name: "PassengerForm"
+        elements: ["Name", "ID Type", "ID Number", "Phone", "Type", "Default Checkbox"]
+      - name: "PassengerList"
+        elements: ["Card List", "Edit Button", "Delete Button", "Set Default Button"]
+    api_calls:
+      - "GET /api/passengers"
+      - "POST /api/passengers"
+      - "PUT /api/passengers/:id"
+      - "DELETE /api/passengers/:id"
+      - "POST /api/passengers/:id/default"
+
+  - id: UI-PAGE-USER-ORDERS
+    name: "UserOrdersPage"
+    path: "/personal/orders"
+    source_ref: "frontend/src/pages/P006/UserOrdersPage.jsx"
+    description: "View and manage order history."
+    sections:
+      - name: "FilterTabs"
+        elements: ["All", "Unpaid", "Upcoming", "Completed"]
+      - name: "OrderList"
+        elements: ["Order Card", "Train Info", "Passenger List", "Status Badge"]
+      - name: "Actions"
+        elements: ["Pay (Unpaid)", "Cancel (Unpaid)", "Refund (Paid)", "Rebook (Completed)"]
+    api_calls:
+      - "GET /api/orders/user/:userId"
+      - "POST /api/orders/:orderId/cancel"
+      - "POST /api/orders/:orderId/refund"

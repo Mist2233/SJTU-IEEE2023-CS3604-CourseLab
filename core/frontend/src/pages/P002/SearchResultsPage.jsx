@@ -57,7 +57,7 @@ const SearchResultsPage = () => {
     let cur = parseLocalDate(currentDateStr);
     if (cur < minDate) cur = new Date(minDate);
     if (cur > maxDate) cur = new Date(maxDate);
-    const start = new Date(cur); start.setDate(cur.getDate() - 1);
+    const start = new Date(cur); start.setDate(cur.getDate());
     for (let i = 0; i < 7; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
@@ -380,7 +380,7 @@ const SearchResultsPage = () => {
               <div
                 key={idx}
                 className={`date-item ${item.isCurrent ? 'active' : ''} ${item.disabled ? 'disabled' : ''}`}
-                onClick={() => { if (!item.disabled) handleDateChange(addDays(item.fullDate, -1)) }}
+                onClick={() => { if (!item.disabled) handleDateChange(item.fullDate) }}
               >
                 <span className="date-fmt">{item.display}</span>
                 <span className="week-fmt">{item.week}</span>

@@ -1,0 +1,20 @@
+API-GET-TRAINS-SEARCH:
+  path: "core/backend/src/routes/trains.js"
+  signature: "GET /api/trains/search"
+  related_req_id: "REQ-F002"
+  upstream_ids: ["UI-HOME-SEARCH-SUBMIT", "UI-SEARCH-PAGE-LAYOUT", "UI-SEARCH-DATE-LOGIC"]
+  downstream_ids: ["FUNC-GET-TICKETS", "FUNC-IS-PAST-DATE"]
+
+API-GET-PASSENGERS:
+  path: "core/backend/src/routes/passengers.js"
+  signature: "GET /api/passengers"
+  related_req_id: "REQ-F007"
+  upstream_ids: ["UI-BOOKING-PASSENGER-LOGIC"]
+  downstream_ids: ["FUNC-PASSENGER-LIST"]
+
+API-POST-ORDERS:
+  path: "core/backend/src/routes/orders.js"
+  signature: "POST /api/orders"
+  related_req_id: "REQ-F008"
+  upstream_ids: ["UI-BOOKING-SUBMIT-LOGIC"]
+  downstream_ids: ["FUNC-TICKET-UPDATE-STOCK", "FUNC-ORDER-CREATE", "FUNC-ORDER-ADD-PASSENGERS"]

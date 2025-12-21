@@ -237,7 +237,7 @@ router.post('/login', async (req, res) => {
         token,
         user: {
           phone: user.phone,
-          realName: '常量用户',
+          realName: user.real_name,
           idNumber: user.id_number,
           email: user.email
         }
@@ -368,7 +368,28 @@ if (process.env.NODE_ENV === 'test') {
   });
 }
 
-module.exports = router;
+// 修改密码
+router.post('/password', async (req, res) => {
+  const auth = req.headers.authorization || '';
+  const token = auth.startsWith('Bearer ') ? auth.substring(7) : '';
+  if (!token) return res.status(401).json({ success: false, message: '未授权' });
+  let payload;
+  try { payload = jwt.verify(token, process.env.JWT_SECRET || 'test-jwt-secret') } catch (_) {
+    return res.status(401).json({ success: false, message: '未授权' });
+  }
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) return res.status(400).json({ success: false, message: '参数缺失' });
+  try {
+    const user = await User.findByUserId(payload.userId);
+    if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
+    if (user.password !== oldPassword) return res.status(400).json({ success: false, message: '旧密码错误' });
+    await User.updatePasswordByUserId(user.user_id, newPassword);
+    res.json({ success: true, message: '密码修改成功' });
+  } catch (e) {
+    res.status(500).json({ success: false, message: '修改失败' });
+  }
+});
+
 // 获取当前用户信息
 router.get('/me', async (req, res) => {
   try {
@@ -387,33 +408,10 @@ router.get('/me', async (req, res) => {
       realName: user.real_name,
       idNumber: user.id_number,
       email: user.email,
-      createdAt: user.created_at,
-      lastLogin: user.last_login
-    } });
+    }});
   } catch (e) {
-    res.status(500).json({ success: false, message: '获取用户信息失败' });
+    res.status(500).json({ success: false, message: '获取失败' });
   }
 });
 
-// 修改密码
-router.post('/change-password', async (req, res) => {
-  const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.substring(7) : '';
-  if (!token) return res.status(401).json({ success: false, message: '未授权' });
-  let payload;
-  try { payload = jwt.verify(token, process.env.JWT_SECRET || 'test-jwt-secret') } catch (_) {
-    return res.status(401).json({ success: false, message: '未授权' });
-  }
-  const { oldPassword, newPassword } = req.body;
-  if (!oldPassword || !newPassword) return res.status(400).json({ success: false, message: '参数缺失' });
-  if (newPassword.length < 6 || newPassword.length > 20) return res.status(400).json({ success: false, message: '新密码长度需为6-20位' });
-  try {
-    const user = await User.findByUserId(payload.userId);
-    if (!user) return res.status(404).json({ success: false, message: '用户不存在' });
-  if (user.password !== oldPassword) return res.status(400).json({ success: false, message: '旧密码不正确' });
-    await User.updatePasswordByUserId(payload.userId, newPassword);
-    res.json({ success: true, message: '密码修改成功' });
-  } catch (e) {
-    res.status(500).json({ success: false, message: '密码修改失败' });
-  }
-});
+module.exports = router;

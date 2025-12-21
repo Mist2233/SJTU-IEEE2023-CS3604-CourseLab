@@ -1,0 +1,47 @@
+FUNC-GET-TICKETS:
+  path: "core/backend/src/services/TicketService.js"
+  signature: "getTickets(trainCode, date, defaultSeats)"
+  related_req_id: "REQ-F002"
+  upstream_ids: ["API-GET-TRAINS-SEARCH", "API-POST-ORDERS"]
+  downstream_ids: []
+  db_tables: [] # In-memory map "store"
+
+FUNC-IS-PAST-DATE:
+  path: "core/backend/src/routes/trains.js"
+  signature: "isPastDate(dateString)"
+  related_req_id: "REQ-F002-2"
+  upstream_ids: ["API-GET-TRAINS-SEARCH"]
+  downstream_ids: []
+  db_tables: []
+
+FUNC-PASSENGER-LIST:
+  path: "core/backend/src/models/Passenger.js" # Inferred model path
+  signature: "PassengerModel.list(userId, options)"
+  related_req_id: "REQ-F007"
+  upstream_ids: ["API-GET-PASSENGERS"]
+  downstream_ids: []
+  db_tables: ["passengers"]
+
+FUNC-TICKET-UPDATE-STOCK:
+  path: "core/backend/src/services/TicketService.js"
+  signature: "updateStock(trainCode, date, seatType, change)"
+  related_req_id: "REQ-F008"
+  upstream_ids: ["API-POST-ORDERS"]
+  downstream_ids: []
+  db_tables: []
+
+FUNC-ORDER-CREATE:
+  path: "core/backend/src/models/Order.js" # Inferred model path
+  signature: "Order.create(orderData)"
+  related_req_id: "REQ-F008"
+  upstream_ids: ["API-POST-ORDERS"]
+  downstream_ids: []
+  db_tables: ["orders"]
+
+FUNC-ORDER-ADD-PASSENGERS:
+  path: "core/backend/src/models/Order.js"
+  signature: "Order.addPassengers(orderId, passengers)"
+  related_req_id: "REQ-F008"
+  upstream_ids: ["API-POST-ORDERS"]
+  downstream_ids: []
+  db_tables: ["order_passengers"]

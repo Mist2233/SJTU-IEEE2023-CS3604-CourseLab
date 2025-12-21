@@ -28,10 +28,16 @@ const PassengerPage = () => {
   const fetchPassengers = async () => {
     setLoading(true);
     try {
-      const res = await getPassengers({ name: searchName });
-      setPassengers(res.data.passengers || []);
+      const res = await getPassengers({ page: 1, pageSize: 100 });
+      // Filter locally if needed since backend pagination list doesn't support name search yet
+      let list = res.data.passengers || [];
+      if (searchName) {
+        list = list.filter(p => p.name.includes(searchName));
+      }
+      setPassengers(list);
     } catch (error) {
-      message.error('获取乘车人列表失败');
+      const msg = error?.message || '获取乘车人列表失败';
+      message.error(msg);
     } finally {
       setLoading(false);
     }
@@ -49,8 +55,8 @@ const PassengerPage = () => {
     setEditingPassenger(null);
     form.resetFields();
     form.setFieldsValue({
-      certType: '居民身份证',
-      type: '成人'
+      cert_type: '居民身份证',
+      passenger_type: '成人'
     });
     setModalVisible(true);
   };
@@ -67,7 +73,8 @@ const PassengerPage = () => {
       message.success('删除成功');
       fetchPassengers();
     } catch (error) {
-      message.error('删除失败');
+      const msg = error?.message || '删除失败';
+      message.error(msg);
     }
   };
 
@@ -89,7 +96,8 @@ const PassengerPage = () => {
           setSelectedRowKeys([]);
           fetchPassengers();
         } catch (error) {
-          message.error('批量删除失败');
+          const msg = error?.message || '批量删除失败';
+          message.error(msg);
         }
       }
     });
@@ -108,7 +116,12 @@ const PassengerPage = () => {
       setModalVisible(false);
       fetchPassengers();
     } catch (error) {
-      // form validation failed
+      if (error?.errorFields) {
+        return;
+      }
+      const fallback = editingPassenger ? '修改失败' : '添加失败';
+      const msg = error?.message || fallback;
+      message.error(msg);
     }
   };
 
@@ -127,14 +140,14 @@ const PassengerPage = () => {
     },
     {
       title: '证件类型',
-      dataIndex: 'certType',
-      key: 'certType',
+      dataIndex: 'cert_type',
+      key: 'cert_type',
       width: 150,
     },
     {
       title: '证件号码',
-      dataIndex: 'certNo',
-      key: 'certNo',
+      dataIndex: 'id_number',
+      key: 'id_number',
       render: (text) => maskIDCard(text),
       width: 200,
     },
@@ -147,13 +160,12 @@ const PassengerPage = () => {
     },
     {
       title: '核验状态',
-      dataIndex: 'status',
       key: 'status',
-      render: (text) => (
+      render: () => (
         <div className="status-verified">
           <IdcardOutlined />
           <MobileOutlined />
-          <span>{text}</span>
+          <span>已通过</span>
         </div>
       ),
       width: 150,
@@ -237,7 +249,7 @@ const PassengerPage = () => {
             <Input placeholder="请输入姓名" />
           </Form.Item>
           <Form.Item
-            name="certType"
+            name="cert_type"
             label="证件类型"
             rules={[{ required: true, message: '请选择证件类型' }]}
           >
@@ -248,7 +260,7 @@ const PassengerPage = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            name="certNo"
+            name="id_number"
             label="证件号码"
             rules={[{ required: true, message: '请输入证件号码' }]}
           >
@@ -262,7 +274,7 @@ const PassengerPage = () => {
             <Input placeholder="请输入手机号" />
           </Form.Item>
           <Form.Item
-            name="type"
+            name="passenger_type"
             label="旅客类型"
             rules={[{ required: true, message: '请选择旅客类型' }]}
           >

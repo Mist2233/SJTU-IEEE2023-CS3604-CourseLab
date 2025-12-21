@@ -1,5 +1,5 @@
 import React from 'react';
-import UserOrdersPage from '../P006/UserOrdersPage';
+import UserOrdersPage from './UserOrdersPage';
 
 const OrderTrainPage = () => {
   return (

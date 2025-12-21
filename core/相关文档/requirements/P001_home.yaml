@@ -1,0 +1,147 @@
+id: P001
+name: 首页
+functional_description: 系统入口页面，提供全站导航、快捷查票、营销展示及服务入口。
+ui_description: |
+  参考代码路径: src/pages/P001/HomePage.jsx
+  页面结构自上而下包含：全局导航栏(Header)、Hero区域(轮播图+快捷查票)、服务图标栏、营销活动区。
+  其中全局导航栏由 Header 组件提供（src/components/Header.jsx），在除登录/找回密码页面以外的各业务页面统一复用。
+scenarios:
+children:
+  - id: F001
+    name: 导航栏访问
+    functional_description: 提供全站通用的顶部导航功能，包含用户登录状态管理、主要功能入口跳转、辅助功能入口及品牌展示。
+    ui_description: |
+      参考代码路径: src/components/Header.jsx
+      导航栏分为三层：
+      1. 顶部细条 (Top Bar): 灰色背景，高度较小。左侧为辅助功能（无障碍、语言等），右侧为用户状态区。
+      2. 品牌栏 (Brand Bar): 白色背景。左侧为Logo及“中国铁路12306”标识，右侧为站内搜索框。
+      3. 主导航栏 (Main Nav Bar): 蓝色背景。横向排列主要业务入口（首页、车票等），支持下拉菜单交互。
+    children:
+      - id: F001-1
+        name: 顶部细条 (Top Bar)
+        functional_description: 展示辅助链接和用户个人中心/登录入口。
+        ui_description: |
+          位于页面最顶端，灰色背景 (.top-bar)。
+          左侧包含：无障碍、关怀版、English。
+          右侧包含：我的12306、登录/注册（未登录）/“欢迎，[真实姓名]。[退出]”（已登录）。
+        scenarios:
+          - name: 未登录状态展示
+            steps:
+              - action: 用户访问网站且本地无有效Token
+                expectation: 右侧显示“我的12306”、“登录”、“注册”链接，不显示用户姓名和退出按钮。
+              - action: 点击“登录”链接
+                expectation: 跳转至 /login 页面。
+              - action: 点击“注册”链接
+                expectation: 跳转至 /register 页面。
+              - action: 点击“我的12306”链接
+                expectation: 跳转至 /login 页面。
+          - name: 已登录状态展示
+            steps:
+              - action: 用户登录成功（本地有Token和User信息）
+                expectation: 右侧显示“欢迎，[真实姓名]”及“[退出]”按钮；隐藏“登录/注册”链接。
+              - action: 点击“我的12306”
+                expectation: 跳转至 /my 个人中心页面。
+          - name: 用户退出登录
+            steps:
+              - action: 点击“[退出]”按钮
+                expectation: 清除本地Token和用户信息，触发状态更新事件，跳转回首页并恢复未登录状态展示。
+          - name: 辅助链接点击
+            steps:
+              - action: 点击“English”
+                expectation: 切换语言（目前仅作UI展示，不实现相应功能，也无需接口）。
+      - id: F001-2
+        name: 品牌栏 (Brand Bar)
+        functional_description: 展示品牌标识和全局搜索。
+        ui_description: |
+          位于Top Bar下方，白色背景 (.brand-bar)。
+          包含Logo图片和搜索输入框。
+        scenarios:
+          - name: 点击Logo
+            steps:
+              - action: 点击Logo区域
+                expectation: 跳转至首页 (/)。
+      - id: F001-3
+        name: 主导航栏 (Main Nav Bar)
+        functional_description: 提供核心业务功能的快速入口。
+        ui_description: |
+          位于Brand Bar下方，蓝色背景 (.main-nav-bar)。
+          菜单项包括：首页、车票、团购服务、会员服务、站车服务、商旅服务、出行指南、信息查询。
+          其中“车票”菜单支持展开下拉选择框（如单程购票、往返购票等），目前仅规划“单程-购买”用于跳转车票购买页，其余子项暂作为占位展示。
+        scenarios:
+          - name: 业务跳转-首页
+            steps:
+              - action: 点击“首页”
+                expectation: 立即跳转至首页 (/)。
+          - name: 业务跳转-车票菜单
+            steps:
+              - action: 将鼠标移动到或点击“车票”菜单
+                expectation: 在“车票”菜单下方展开下拉选择框，显示如“单程-购买”、“往返-购买”、“中转服务”、“退改签”等子项。
+              - action: 点击“单程-购买”子项
+                expectation: 跳转至车票查询/购买页 (/search，对应 P002)，后续查询与购票流程由相关页面功能定义。
+              - action: 点击“往返-购买”等其他子项
+                expectation: 目前仅作UI展示，点击不触发实际业务跳转，不调用后端接口。
+          - name: 其他菜单占位展示
+            steps:
+              - action: 将鼠标移动到或点击“团购服务”“会员服务”“站车服务”“商旅服务”“出行指南”“信息查询”等菜单或其下拉项
+                expectation: 目前仅作UI展示，菜单及下拉内容不可触发实际业务逻辑或接口调用。
+
+  - id: F002
+    name: 快捷车票查询
+    functional_description: 首页首屏左侧的快速查票组件，支持行程信息设置与查询跳转。
+    ui_description: |
+      参考代码路径: src/pages/P001/HomePage.jsx
+      位于Hero Banner左侧的悬浮卡片 (.search-card)。
+      顶部为Tab切换（单程/往返/中转/退改签）。
+      主体为表单区域，包含出发地/目的地输入、日期选择、乘客类型与车次类型筛选。
+      底部为全宽橙色“查询”按钮。
+    scenarios:
+      - name: 正常提交查询
+        steps:
+          - action: 页面加载
+            expectation: 默认选中“单程”Tab，日期默认为今日。
+          - action: 通过出发地选择 (F002-1) 设置出发站
+            expectation: 出发地输入框显示所选城市（具体交互见 F002-1）。
+          - action: 通过目的地选择 (F002-1) 设置到达站
+            expectation: 目的地输入框显示所选城市（具体交互见 F002-1）。
+          - action: 通过日期选择 (F002-2) 设置合法出发日期
+            expectation: 日期输入框显示未来15天内的某一日期（具体交互见 F002-2）。
+          - action: 根据需要勾选乘客类型和车次类型筛选
+            expectation: 表单信息完整且“查询”按钮处于可点击状态。
+          - action: 点击“查询”按钮
+            expectation: 跳转至 /search 页面，URL或State中携带查询参数（from=北京, to=上海, date=..., isHighSpeed=true）。
+      - name: 异常-缺少必填项
+        steps:
+          - action: 缺少出发地或目的地
+          - action: 点击“查询”按钮
+            expectation: 界面提示“请输入出发地和目的地”，不发生跳转。
+          - action: 缺少日期
+            expectation: 界面提示“请选择出发日期”，不发生跳转。
+    children:
+      - id: F002-1
+        name: 站名输入与互换
+        functional_description: 出发地和目的地的输入与快速互换。
+        ui_description: |
+          两个文本输入框，中间包含一个互换图标 (.swap-icon)。
+          输入框聚焦时弹出城市选择面板 (StationDropdown)。
+        scenarios:
+          - name: 城市选择
+            steps:
+              - action: 聚焦“出发地”输入框
+                expectation: 弹出城市选择面板，支持热门城市与字母索引切换。
+              - action: 选择面板中的城市
+                expectation: 城市名称填入输入框，面板关闭。
+          - name: 站名互换
+            steps:
+              - action: 点击中间的互换图标
+                expectation: 出发地与目的地的内容互换。
+      - id: F002-2
+        name: 日期与筛选
+        functional_description: 设置出发日期及附加筛选条件。
+        ui_description: |
+          日期选择器 (input type="date")，限制最小日期为今日，最大日期为15天后。
+          复选框：学生、高铁/动车。
+        scenarios:
+          - name: 日期限制
+            steps:
+              - action: 点击日期选择器
+                expectation: 仅可选择未来15天内的日期，过去日期不可选。

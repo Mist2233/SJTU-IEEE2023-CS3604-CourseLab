@@ -1,0 +1,186 @@
+P001:
+  name: "首页"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-NAV-CONTAINER", "UI-HOME-PAGE-LAYOUT"]
+    api_ids: []
+    func_ids: []
+
+F001:
+  name: "导航栏访问"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-NAV-CONTAINER"]
+    api_ids: []
+    func_ids: []
+
+F001-1:
+  name: "顶部细条 (Top Bar)"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HEADER-TOP-BAR", "UI-HEADER-USER-STATE"]
+    api_ids: []
+    func_ids: []
+
+F001-2:
+  name: "品牌栏 (Brand Bar)"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HEADER-BRAND-BAR"]
+    api_ids: []
+    func_ids: []
+
+F001-3:
+  name: "主导航栏 (Main Nav Bar)"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HEADER-MAIN-NAV"]
+    api_ids: []
+    func_ids: []
+
+F002:
+  name: "快捷车票查询"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HOME-SEARCH-CONTAINER", "UI-HOME-SEARCH-SUBMIT"]
+    api_ids: ["API-GET-TRAINS-SEARCH"]
+    func_ids: ["FUNC-GET-TICKETS"]
+
+F002-1:
+  name: "站名输入与互换"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HOME-SEARCH-STATION-LOGIC"]
+    api_ids: []
+    func_ids: []
+
+F002-2:
+  name: "日期与筛选"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-HOME-SEARCH-DATE-FILTER"]
+    api_ids: []
+    func_ids: ["FUNC-IS-PAST-DATE"]
+
+P002:
+  name: "车票查询结果页"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-NAV-CONTAINER", "UI-SEARCH-PAGE-LAYOUT"]
+    api_ids: ["API-GET-TRAINS-SEARCH"]
+    func_ids: []
+
+F003:
+  name: "车票查询"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-SEARCH-PAGE-LAYOUT"]
+    api_ids: ["API-GET-TRAINS-SEARCH"]
+    func_ids: []
+
+F003-1:
+  name: "出发地/目的地输入与互换"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-SEARCH-STATION-LOGIC"]
+    api_ids: []
+    func_ids: []
+
+F003-2:
+  name: "日期选择与横向导航"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-SEARCH-DATE-LOGIC"]
+    api_ids: ["API-GET-TRAINS-SEARCH"]
+    func_ids: []
+
+F003-3:
+  name: "高级筛选条件"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-SEARCH-FILTER-LOGIC"]
+    api_ids: []
+    func_ids: []
+
+F004:
+  name: "车票展示"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-SEARCH-LIST-RENDER"]
+    api_ids: []
+    func_ids: []
+
+P005:
+  name: "订单填写页"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-NAV-CONTAINER", "UI-BOOKING-PAGE-LAYOUT"]
+    api_ids: ["API-GET-PASSENGERS", "API-POST-ORDERS"]
+    func_ids: ["FUNC-PASSENGER-LIST", "FUNC-TICKET-UPDATE-STOCK", "FUNC-ORDER-CREATE", "FUNC-ORDER-ADD-PASSENGERS"]
+
+F007:
+  name: "订单显示"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-BOOKING-TRAIN-INFO", "UI-BOOKING-PASSENGER-LOGIC"]
+    api_ids: ["API-GET-PASSENGERS"]
+    func_ids: ["FUNC-PASSENGER-LIST"]
+
+F008:
+  name: "提交订单"
+  status:
+    interfaces_generated: true
+    tests_generated: false
+    implemented: true
+  artifacts:
+    ui_ids: ["UI-BOOKING-SUBMIT-LOGIC"]
+    api_ids: ["API-POST-ORDERS"]
+    func_ids: ["FUNC-ORDER-CREATE", "FUNC-TICKET-UPDATE-STOCK", "FUNC-ORDER-ADD-PASSENGERS"]

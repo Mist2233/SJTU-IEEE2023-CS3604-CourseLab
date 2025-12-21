@@ -1,0 +1,138 @@
+# --- P001 Granular Interfaces (Physical File: Header.jsx) ---
+UI-NAV-CONTAINER:
+  path: "core/frontend/src/components/Header.jsx"
+  description: "Root container for the global header."
+  related_req_id: "P001"
+  upstream_ids: []
+  downstream_ids: []
+
+UI-HEADER-TOP-BAR:
+  path: "core/frontend/src/components/Header.jsx"
+  description: "Top grey bar with accessibility links, language switch, and login/register links."
+  related_req_id: "F001-1"
+  upstream_ids: ["UI-NAV-CONTAINER"]
+  downstream_ids: []
+
+UI-HEADER-USER-STATE:
+  path: "core/frontend/src/components/Header.jsx"
+  description: "User login status logic (checkUserStatus), welcome message, and logout handler."
+  related_req_id: "F001-1"
+  upstream_ids: ["UI-NAV-CONTAINER"]
+  downstream_ids: []
+
+UI-HEADER-BRAND-BAR:
+  path: "core/frontend/src/components/Header.jsx"
+  description: "White bar with Logo and global search input."
+  related_req_id: "F001-2"
+  upstream_ids: ["UI-NAV-CONTAINER"]
+  downstream_ids: []
+
+UI-HEADER-MAIN-NAV:
+  path: "core/frontend/src/components/Header.jsx"
+  description: "Blue main navigation bar with menu items (Home, Ticket, etc.)."
+  related_req_id: "F001-3"
+  upstream_ids: ["UI-NAV-CONTAINER"]
+  downstream_ids: []
+
+
+
+# --- P001 Granular Interfaces (Physical File: HomePage.jsx) ---
+UI-HOME-PAGE-LAYOUT:
+  path: "core/frontend/src/pages/P001/HomePage.jsx"
+  description: "Home page container including banner, service icons, and promo sections."
+  related_req_id: "P001"
+  upstream_ids: ["UI-NAV-CONTAINER"]
+  downstream_ids: []
+
+UI-HOME-SEARCH-CONTAINER:
+  path: "core/frontend/src/pages/P001/HomePage.jsx"
+  description: "The floating search card container over the banner."
+  related_req_id: "F002"
+  upstream_ids: ["UI-HOME-PAGE-LAYOUT"]
+  downstream_ids: []
+
+UI-HOME-SEARCH-STATION-LOGIC:
+  path: "core/frontend/src/pages/P001/HomePage.jsx"
+  description: "Station input fields, swap button, and StationDropdown component integration."
+  related_req_id: "F002-1"
+  upstream_ids: ["UI-HOME-SEARCH-CONTAINER"]
+  downstream_ids: []
+
+UI-HOME-SEARCH-DATE-FILTER:
+  path: "core/frontend/src/pages/P001/HomePage.jsx"
+  description: "Date picker with min/max constraints and student/high-speed checkboxes."
+  related_req_id: "F002-2"
+  upstream_ids: ["UI-HOME-SEARCH-CONTAINER"]
+  downstream_ids: []
+
+UI-HOME-SEARCH-SUBMIT:
+  path: "core/frontend/src/pages/P001/HomePage.jsx"
+  description: "Search button and form submission handler (handleSearch)."
+  related_req_id: "F002"
+  upstream_ids: ["UI-HOME-SEARCH-CONTAINER"]
+  downstream_ids: ["API-GET-TRAINS-SEARCH"]
+
+# --- P002 Granular Interfaces (Physical File: SearchResultsPage.jsx) ---
+UI-SEARCH-PAGE-LAYOUT:
+  path: "core/frontend/src/pages/P002/SearchResultsPage.jsx"
+  description: "Main container for search results, managing global state (loading, error, params)."
+  related_req_id: "P002"
+  upstream_ids: ["UI-HOME-SEARCH-SUBMIT", "UI-HEADER-MAIN-NAV"]
+  downstream_ids: []
+
+UI-SEARCH-STATION-LOGIC:
+  path: "core/frontend/src/pages/P002/SearchResultsPage.jsx"
+  description: "Internal StationDropdown component, city grouping logic, and swap functionality."
+  related_req_id: "F003-1"
+  upstream_ids: ["UI-SEARCH-PAGE-LAYOUT"]
+  downstream_ids: []
+
+UI-SEARCH-DATE-LOGIC:
+  path: "core/frontend/src/pages/P002/SearchResultsPage.jsx"
+  description: "Date navigation bar generation (15-day window), prev/next logic, and date picker interaction."
+  related_req_id: "F003-2"
+  upstream_ids: ["UI-SEARCH-PAGE-LAYOUT"]
+  downstream_ids: ["API-GET-TRAINS-SEARCH"] # Date change triggers search
+
+UI-SEARCH-FILTER-LOGIC:
+  path: "core/frontend/src/pages/P002/SearchResultsPage.jsx"
+  description: "Advanced filter sidebar/dropdown, managing selected train types, stations, and time ranges."
+  related_req_id: "F003-3"
+  upstream_ids: ["UI-SEARCH-PAGE-LAYOUT"]
+  downstream_ids: [] # Filters client-side usually, or triggers search if server-side
+
+UI-SEARCH-LIST-RENDER:
+  path: "core/frontend/src/pages/P002/SearchResultsPage.jsx"
+  description: "Rendering of train table, seat availability cells (renderSeatCell), and booking button click handling."
+  related_req_id: "F004"
+  upstream_ids: ["UI-SEARCH-PAGE-LAYOUT"]
+  downstream_ids: [] # Navigation to booking handled here
+
+# --- P005 Granular Interfaces (Physical File: BookingPage.jsx) ---
+UI-BOOKING-PAGE-LAYOUT:
+  path: "core/frontend/src/pages/P005/BookingPage.jsx"
+  description: "Main container for booking process, state management for total price."
+  related_req_id: "P005"
+  upstream_ids: ["UI-SEARCH-LIST-RENDER"]
+  downstream_ids: []
+
+UI-BOOKING-TRAIN-INFO:
+  path: "core/frontend/src/pages/P005/BookingPage.jsx"
+  description: "Top section displaying train number, time, stations, and seat availability overview."
+  related_req_id: "F007"
+  upstream_ids: ["UI-BOOKING-PAGE-LAYOUT"]
+  downstream_ids: []
+
+UI-BOOKING-PASSENGER-LOGIC:
+  path: "core/frontend/src/pages/P005/BookingPage.jsx"
+  description: "Passenger management section: saved passenger list loading, multi-select, add/remove manual passenger forms."
+  related_req_id: "F007"
+  upstream_ids: ["UI-BOOKING-PAGE-LAYOUT"]
+  downstream_ids: ["API-GET-PASSENGERS"]
+
+UI-BOOKING-SUBMIT-LOGIC:
+  path: "core/frontend/src/pages/P005/BookingPage.jsx"
+  description: "Bottom bar, input validation (ID card regex), and order submission handler."
+  related_req_id: "F008"
+  upstream_ids: ["UI-BOOKING-PAGE-LAYOUT"]
+  downstream_ids: ["API-POST-ORDERS"]

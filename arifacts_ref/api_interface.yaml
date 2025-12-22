@@ -1,0 +1,14 @@
+# API Interface Registry
+API-GET-TICKETS:
+  path: "backend/src/routes/tickets.js"
+  signature: "GET /api/v1/tickets"
+  related_req_id: "REQ-1-1"
+  upstream_ids: ["UI-TICKET-QUERY-PAGE"]
+  downstream_ids: ["FUNC-SEARCH-TICKETS"]
+
+API-GET-STATIONS:
+  path: "backend/src/routes/stations.js"
+  signature: "GET /api/v1/stations"
+  related_req_id: "REQ-1-1-1"
+  upstream_ids: ["UI-STATION-SELECTOR"]
+  downstream_ids: ["FUNC-GET-STATIONS"]

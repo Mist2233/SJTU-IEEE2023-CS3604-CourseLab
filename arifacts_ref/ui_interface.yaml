@@ -1,0 +1,35 @@
+# UI Component Registry
+UI-TICKET-QUERY-PAGE:
+  path: "frontend/src/pages/TicketQueryPage.jsx"
+  description: "Main page for ticket query and result display."
+  related_req_id: "REQ-1"
+  upstream_ids: []
+  downstream_ids: ["UI-SEARCH-PANEL", "UI-TRAIN-LIST"]
+
+UI-SEARCH-PANEL:
+  path: "frontend/src/components/SearchPanel.jsx"
+  description: "Search panel for querying tickets."
+  related_req_id: "REQ-1-1"
+  upstream_ids: ["UI-TICKET-QUERY-PAGE"]
+  downstream_ids: ["UI-STATION-SELECTOR", "UI-DATE-SELECTOR"]
+
+UI-STATION-SELECTOR:
+  path: "frontend/src/components/StationSelector.jsx"
+  description: "Input component for selecting stations."
+  related_req_id: "REQ-1-1-1"
+  upstream_ids: ["UI-SEARCH-PANEL"]
+  downstream_ids: ["API-GET-STATIONS"]
+
+UI-DATE-SELECTOR:
+  path: "frontend/src/components/DateSelector.jsx"
+  description: "Date picker component."
+  related_req_id: "REQ-1-1-3"
+  upstream_ids: ["UI-SEARCH-PANEL"]
+  downstream_ids: []
+
+UI-TRAIN-LIST:
+  path: "frontend/src/components/TrainList.jsx"
+  description: "Displays search results in a table."
+  related_req_id: "REQ-1-2"
+  upstream_ids: ["UI-TICKET-QUERY-PAGE"]
+  downstream_ids: []

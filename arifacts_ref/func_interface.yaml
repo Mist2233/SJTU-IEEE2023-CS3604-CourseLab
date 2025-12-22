@@ -1,0 +1,16 @@
+# Function Interface Registry
+FUNC-SEARCH-TICKETS:
+  path: "backend/src/services/ticketService.js"
+  signature: "searchTickets(from, to, date)"
+  related_req_id: "REQ-1-1"
+  upstream_ids: ["API-GET-TICKETS"]
+  downstream_ids: []
+  db_tables: ["trains", "stations", "train_stations", "seat_inventory"]
+
+FUNC-GET-STATIONS:
+  path: "backend/src/services/stationService.js"
+  signature: "getStations(type)"
+  related_req_id: "REQ-1-1-1"
+  upstream_ids: ["API-GET-STATIONS"]
+  downstream_ids: []
+  db_tables: ["stations"]

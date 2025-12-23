@@ -104,9 +104,52 @@ const Header = () => {
         <div className="container nav-container">
           <Link to="/" className="nav-item">首页</Link>
 
-          <div className="nav-item-group">
-            <Link to="/search" className="nav-item">车票 <span className="arrow">⌄</span></Link>
-            {/* 这里可以做下拉菜单，暂时省略 */}
+          <div className="nav-item-group ticket-nav">
+            <div className="nav-item" style={{cursor: 'pointer'}}>车票 <span className="arrow">⌄</span></div>
+            <div className="dropdown-menu">
+              <div className="dropdown-section">
+                <div className="dropdown-title">购买</div>
+                <div className="dropdown-content">
+                  <div className="dropdown-row">
+                    <Link to="/search">单程</Link>
+                    <Link to="#">往返</Link>
+                  </div>
+                  <div className="dropdown-row">
+                    <Link to="#">中转换乘</Link>
+                    <Link to="#">计次·定期票</Link>
+                  </div>
+                </div>
+              </div>
+
+              <div className="section-divider"></div>
+
+              <div className="dropdown-section">
+                <div className="dropdown-title">变更</div>
+                <div className="dropdown-content">
+                  <div className="dropdown-row">
+                    <Link to="#">退票</Link>
+                    <Link to="#">改签</Link>
+                  </div>
+                  <div className="dropdown-row">
+                    <Link to="#">变更到站</Link>
+                  </div>
+                </div>
+              </div>
+
+              <div className="section-divider"></div>
+
+              <div className="dropdown-section">
+                <div className="dropdown-title">更多</div>
+                <div className="dropdown-content">
+                  <div className="dropdown-row">
+                    <Link to="#">中铁银通卡</Link>
+                  </div>
+                  <div className="dropdown-row">
+                    <Link to="#">国际列车</Link>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="nav-item-group">

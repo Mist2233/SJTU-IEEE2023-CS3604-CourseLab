@@ -171,3 +171,73 @@
   margin-left: 4px;
   opacity: 0.8;
 }
+
+/* --- Dropdown Menu Styles --- */
+.nav-item-group {
+  position: relative;
+  height: 100%;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 1000;
+  padding: 15px 20px;
+  min-width: 500px;
+  flex-direction: row;
+  color: #333;
+  cursor: default; /* Ensure cursor doesn't look like text select */
+}
+
+.nav-item-group:hover .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-section {
+  flex: 1;
+  padding: 0 15px;
+}
+
+.dropdown-title {
+  color: #3B99FC;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.dropdown-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dropdown-row {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-start;
+}
+
+.dropdown-menu a {
+  color: #333;
+  text-decoration: none;
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: 60px; /* Ensure some width for alignment */
+}
+
+.dropdown-menu a:hover {
+  color: #3B99FC;
+  text-decoration: underline;
+}
+
+.section-divider {
+  width: 1px;
+  background-color: #eee;
+  margin: 5px 0;
+}

@@ -20,8 +20,8 @@
 | `register-success.json` | 验证完整信息的成功注册流程 |
 
 **核心代码位置**:
-- **前端页面**: [`core/frontend/src/pages/P004/RegisterPage.jsx`](../core/frontend/src/pages/P004/RegisterPage.jsx)
-- **后端路由**: [`core/backend/src/routes/auth.js`](../core/backend/src/routes/auth.js) (涉及 `/check-username`, `/send-code`, `/register` 接口)
+- **前端页面**: [`core/frontend/src/pages/P004/RegisterPage.jsx`](/core/frontend/src/pages/P004/RegisterPage.jsx)
+- **后端路由**: [`core/backend/src/routes/auth.js`](/core/backend/src/routes/auth.js) (涉及 `/check-username`, `/send-code`, `/register` 接口)
 
 ---
 
@@ -34,8 +34,8 @@
 | `login-phone-code.json` | 验证使用手机号+验证码的登录方式 |
 
 **核心代码位置**:
-- **前端页面**: [`core/frontend/src/pages/P003/LoginPage.jsx`](../core/frontend/src/pages/P003/LoginPage.jsx)
-- **后端路由**: [`core/backend/src/routes/auth.js`](../core/backend/src/routes/auth.js) (涉及 `/login`, `/verify-2fa` 接口)
+- **前端页面**: [`core/frontend/src/pages/P003/LoginPage.jsx`](/core/frontend/src/pages/P003/LoginPage.jsx)
+- **后端路由**: [`core/backend/src/routes/auth.js`](/core/backend/src/routes/auth.js) (涉及 `/login`, `/verify-2fa` 接口)
 
 ---
 
@@ -60,9 +60,9 @@
 
 **核心代码位置**:
 - **前端页面**: 
-    - 搜索页: [`core/frontend/src/pages/P002/SearchResultsPage.jsx`](../core/frontend/src/pages/P002/SearchResultsPage.jsx)
-    - 首页(入口): [`core/frontend/src/pages/P001/HomePage.jsx`](../core/frontend/src/pages/P001/HomePage.jsx)
-- **后端路由**: [`core/backend/src/routes/trains.js`](../core/backend/src/routes/trains.js) (涉及 `/search` 接口)
+    - 搜索页: [`core/frontend/src/pages/P002/SearchResultsPage.jsx`](/core/frontend/src/pages/P002/SearchResultsPage.jsx)
+    - 首页(入口): [`core/frontend/src/pages/P001/HomePage.jsx`](/core/frontend/src/pages/P001/HomePage.jsx)
+- **后端路由**: [`core/backend/src/routes/trains.js`](/core/backend/src/routes/trains.js) (涉及 `/search` 接口)
 
 ---
 
@@ -79,8 +79,8 @@
 | `traveler-graceful-empty-results.json` | 验证列表为空时的展示 |
 
 **核心代码位置**:
-- **前端页面**: [`core/frontend/src/pages/P006/PassengerPage.jsx`](../core/frontend/src/pages/P006/PassengerPage.jsx)
-- **后端路由**: [`core/backend/src/routes/passengers.js`](../core/backend/src/routes/passengers.js)
+- **前端页面**: [`core/frontend/src/pages/P006/PassengerPage.jsx`](/core/frontend/src/pages/P006/PassengerPage.jsx)
+- **后端路由**: [`core/backend/src/routes/passengers.js`](/core/backend/src/routes/passengers.js)
 
 ---
 
@@ -94,9 +94,9 @@
 
 **核心代码位置**:
 - **前端页面**: 
-    - 预订页: [`core/frontend/src/pages/P005/BookingPage.jsx`](../core/frontend/src/pages/P005/BookingPage.jsx)
-    - 确认页: [`core/frontend/src/pages/P005/OrderConfirmationPage.jsx`](../core/frontend/src/pages/P005/OrderConfirmationPage.jsx)
-- **后端路由**: [`core/backend/src/routes/orders.js`](../core/backend/src/routes/orders.js)
+    - 预订页: [`core/frontend/src/pages/P005/BookingPage.jsx`](/core/frontend/src/pages/P005/BookingPage.jsx)
+    - 确认页: [`core/frontend/src/pages/P005/OrderConfirmationPage.jsx`](/core/frontend/src/pages/P005/OrderConfirmationPage.jsx)
+- **后端路由**: [`core/backend/src/routes/orders.js`](/core/backend/src/routes/orders.js)
 
 ---
 
@@ -109,5 +109,5 @@
 | `profile-view-profile.json` | 查看个人基本信息 |
 
 **核心代码位置**:
-- **前端页面**: [`core/frontend/src/pages/P006/UserInfoPage.jsx`](../core/frontend/src/pages/P006/UserInfoPage.jsx)
-- **后端路由**: [`core/backend/src/routes/auth.js`](../core/backend/src/routes/auth.js) (涉及 `/me` 接口)
+- **前端页面**: [`core/frontend/src/pages/P006/UserInfoPage.jsx`](/core/frontend/src/pages/P006/UserInfoPage.jsx)
+- **后端路由**: [`core/backend/src/routes/auth.js`](/core/backend/src/routes/auth.js) (涉及 `/me` 接口)

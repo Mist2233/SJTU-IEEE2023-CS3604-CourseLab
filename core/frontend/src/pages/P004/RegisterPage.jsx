@@ -155,6 +155,15 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    // 手机号特殊校验：未填写时弹窗提示
+    if (!formData.phone) {
+      validateAll() // 触发所有字段的行内错误提示
+      setDialogMessage('请输入手机号，以完成用户校验。')
+      setDialogOpen(true)
+      return
+    }
+
     const errMsg = validateAll()
     // Only show dialog if it's not the "please fill required fields" error (which is now inline)
     if (errMsg && errMsg !== '请完整填写必填项') {
@@ -503,24 +512,40 @@ const RegisterPage = () => {
             )}
 
             {dialogOpen && (
-              <div className="ui-modal-overlay">
-                <div className="ui-modal">
-                  <div className="ui-modal-title">提示</div>
-                  <div className="ui-modal-body">{dialogMessage}</div>
-                  <div className="ui-modal-actions">
-                    <button className="next-btn" type="button" onClick={() => setDialogOpen(false)}>我知道了</button>
+              <div className="reg-modal-overlay">
+                <div className="reg-modal-content">
+                  <div className="reg-modal-header">
+                    <span className="reg-modal-title">提示</span>
+                    <button className="reg-modal-close" type="button" onClick={() => setDialogOpen(false)}>×</button>
+                  </div>
+                  <div className="reg-modal-body">
+                    <div className="reg-modal-icon-text">
+                      <i className="reg-warn-icon">!</i>
+                      <span>{dialogMessage}</span>
+                    </div>
+                  </div>
+                  <div className="reg-modal-footer">
+                    <button className="reg-btn-primary" type="button" onClick={() => setDialogOpen(false)}>确定</button>
                   </div>
                 </div>
               </div>
             )}
 
             {successOpen && (
-              <div className="ui-modal-overlay">
-                <div className="ui-modal">
-                  <div className="ui-modal-title">注册成功</div>
-                  <div className="ui-modal-body">您的账号已创建成功</div>
-                  <div className="ui-modal-actions">
-                    <button className="next-btn" type="button" onClick={() => { setSuccessOpen(false); navigate('/login'); }}>去登录</button>
+              <div className="reg-modal-overlay">
+                <div className="reg-modal-content">
+                  <div className="reg-modal-header">
+                    <span className="reg-modal-title">注册成功</span>
+                    <button className="reg-modal-close" type="button" onClick={() => { setSuccessOpen(false); navigate('/login'); }}>×</button>
+                  </div>
+                  <div className="reg-modal-body">
+                    <div className="reg-modal-icon-text">
+                       {/* You might want a checkmark icon here for success, but using warn-icon for now or no icon */}
+                       <span style={{ fontSize: '18px', textAlign: 'center', width: '100%' }}>您的账号已创建成功</span>
+                    </div>
+                  </div>
+                  <div className="reg-modal-footer">
+                    <button className="reg-btn-primary" type="button" onClick={() => { setSuccessOpen(false); navigate('/login'); }}>去登录</button>
                   </div>
                 </div>
               </div>

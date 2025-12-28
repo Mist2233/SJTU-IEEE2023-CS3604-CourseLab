@@ -195,7 +195,7 @@
 }
 
 .nav-item-group:hover .dropdown-menu {
-  display: flex;
+  /* display: flex;  -- Controlled by React state now */
 }
 
 .dropdown-section {

@@ -7,6 +7,7 @@ const Header = () => {
   const location = useLocation()
   const [user, setUser] = useState(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [isTicketOpen, setIsTicketOpen] = useState(false)
 
   useEffect(() => {
     const checkUserStatus = () => {
@@ -104,19 +105,22 @@ const Header = () => {
         <div className="container nav-container">
           <Link to="/" className="nav-item">首页</Link>
 
-          <div className="nav-item-group ticket-nav">
+          <div className="nav-item-group ticket-nav"
+            onMouseEnter={() => setIsTicketOpen(true)}
+            onMouseLeave={() => setIsTicketOpen(false)}
+          >
             <div className="nav-item" style={{cursor: 'pointer'}}>车票 <span className="arrow">⌄</span></div>
-            <div className="dropdown-menu">
+            <div className="dropdown-menu" style={{ display: isTicketOpen ? 'flex' : 'none' }}>
               <div className="dropdown-section">
                 <div className="dropdown-title">购买</div>
                 <div className="dropdown-content">
                   <div className="dropdown-row">
-                    <Link to="/search">单程</Link>
-                    <Link to="#">往返</Link>
+                    <Link to="/search" onClick={() => setIsTicketOpen(false)}>单程</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>往返</Link>
                   </div>
                   <div className="dropdown-row">
-                    <Link to="#">中转换乘</Link>
-                    <Link to="#">计次·定期票</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>中转换乘</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>计次·定期票</Link>
                   </div>
                 </div>
               </div>
@@ -127,11 +131,11 @@ const Header = () => {
                 <div className="dropdown-title">变更</div>
                 <div className="dropdown-content">
                   <div className="dropdown-row">
-                    <Link to="#">退票</Link>
-                    <Link to="#">改签</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>退票</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>改签</Link>
                   </div>
                   <div className="dropdown-row">
-                    <Link to="#">变更到站</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>变更到站</Link>
                   </div>
                 </div>
               </div>
@@ -142,10 +146,10 @@ const Header = () => {
                 <div className="dropdown-title">更多</div>
                 <div className="dropdown-content">
                   <div className="dropdown-row">
-                    <Link to="#">中铁银通卡</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>中铁银通卡</Link>
                   </div>
                   <div className="dropdown-row">
-                    <Link to="#">国际列车</Link>
+                    <Link to="#" onClick={() => setIsTicketOpen(false)}>国际列车</Link>
                   </div>
                 </div>
               </div>

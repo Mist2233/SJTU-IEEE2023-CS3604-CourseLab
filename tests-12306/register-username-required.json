@@ -1,0 +1,21 @@
+{
+  "name": "注册 用户名必填",
+  "steps": [
+    {
+      "action": "点击顶部的“注册”",
+      "expectation": ""
+    },
+    {
+      "action": "在“手机号码”输入框输入“18621523333”",
+      "expectation": ""
+    },
+    {
+      "action": "往下滑动",
+      "expectation": ""
+    },
+    {
+      "action": "点击“下一步”",
+      "expectation": "显示标红的“请输入用户名”的提示"
+    }
+  ]
+}

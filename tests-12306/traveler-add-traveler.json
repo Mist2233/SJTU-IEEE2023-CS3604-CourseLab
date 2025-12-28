@@ -1,0 +1,41 @@
+{
+  "name": "添加乘车人",
+  "steps": [
+    {
+      "action": "点击“我的12306”",
+      "expectation": ""
+    },
+    {
+      "action": "往下滑动",
+      "expectation": ""
+    },
+    {
+      "action": "侧边栏点击“乘车人”",
+      "expectation": "显示当前账号已关联的乘客列表（默认乘客）"
+    },
+    {
+      "action": "点击“添加”按钮",
+      "expectation": ""
+    },
+    {
+      "action": "在“姓名”输入框中输入“张三”",
+      "expectation": ""
+    },
+    {
+      "action": "在“证件号码”输入框中输入“150207199009273275”",
+      "expectation": ""
+    },
+    {
+      "action": "在“手机号码”输入框中输入“18621523333”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“保存”",
+      "expectation": "弹窗显示保存成功"
+    },
+    {
+      "action": "点击“确定”",
+      "expectation": "乘车人列表里出现“张三”"
+    }
+  ]
+}

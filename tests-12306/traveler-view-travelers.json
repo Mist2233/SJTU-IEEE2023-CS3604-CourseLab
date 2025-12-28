@@ -1,0 +1,17 @@
+{
+  "name": "查看乘车人",
+  "steps": [
+    {
+      "action": "点击“我的12306”",
+      "expectation": ""
+    },
+    {
+      "action": "往下滑动",
+      "expectation": ""
+    },
+    {
+      "action": "侧边栏点击“乘车人”",
+      "expectation": "显示当前账号已关联的乘客列表（默认乘客）"
+    }
+  ]
+}

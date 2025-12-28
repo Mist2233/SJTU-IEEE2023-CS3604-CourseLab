@@ -1,0 +1,17 @@
+{
+  "name": "注册 手机号验证",
+  "steps": [
+    {
+      "action": "点击顶部的“注册”",
+      "expectation": ""
+    },
+    {
+      "action": "往下滑动",
+      "expectation": ""
+    },
+    {
+      "action": "点击“下一步”",
+      "expectation": "显示“请输入手机号，以完成用户校验”提示"
+    }
+  ]
+}

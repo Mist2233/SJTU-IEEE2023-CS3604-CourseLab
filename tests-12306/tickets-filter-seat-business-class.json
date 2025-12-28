@@ -1,0 +1,37 @@
+{
+  "name": "筛选席别 商务座",
+  "steps": [
+    {
+      "action": "点击顶部导航栏的“车票”下拉框（非箭头）",
+      "expectation": ""
+    },
+    {
+      "action": "点击“单程”链接",
+      "expectation": ""
+    },
+    {
+      "action": "点击“出发地”输入框",
+      "expectation": ""
+    },
+    {
+      "action": "在选择框中点击“北京”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“目的地”输入框",
+      "expectation": ""
+    },
+    {
+      "action": "在选择框中点击“天津”",
+      "expectation": ""
+    },
+    {
+      "action": "在下方的日期栏中点击最后一个日期",
+      "expectation": ""
+    },
+    {
+      "action": "点击“商务座”文字以勾选对应选项",
+      "expectation": "列表中的每个车次必须包含商务座"
+    }
+  ]
+}

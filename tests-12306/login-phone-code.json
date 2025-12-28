@@ -1,0 +1,29 @@
+{
+  "name": "登录 需要请求验证码",
+  "steps": [
+    {
+      "action": "点击顶部的“登录”",
+      "expectation": ""
+    },
+    {
+      "action": "在“用户名/邮箱/手机号”输入框输入“username”",
+      "expectation": ""
+    },
+    {
+      "action": "在“密码”输入框输入“password”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“立即登录”",
+      "expectation": ""
+    },
+    {
+      "action": "在“请输入登录账号绑定的证件号后4位”输入框输入“0040”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“获取验证码”",
+      "expectation": "按钮中的文字变成“重新发送”"
+    }
+  ]
+}

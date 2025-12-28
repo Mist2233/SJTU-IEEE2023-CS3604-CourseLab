@@ -1,0 +1,49 @@
+{
+  "name": "修改查询条件",
+  "steps": [
+    {
+      "action": "点击顶部导航栏的“车票”下拉框（非箭头）",
+      "expectation": ""
+    },
+    {
+      "action": "点击“单程”链接",
+      "expectation": ""
+    },
+    {
+      "action": "点击“出发地”输入框",
+      "expectation": ""
+    },
+    {
+      "action": "在选择框中点击“上海”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“目的地”输入框",
+      "expectation": ""
+    },
+    {
+      "action": "在选择框中点击“北京”",
+      "expectation": ""
+    },
+    {
+      "action": "在下方的日期栏中点击最后一个日期",
+      "expectation": ""
+    },
+    {
+      "action": "点击查询按钮",
+      "expectation": "显示列车班次（上海-北京）"
+    },
+    {
+      "action": "点击“目的地”输入框",
+      "expectation": ""
+    },
+    {
+      "action": "在选择框中点击“天津”",
+      "expectation": ""
+    },
+    {
+      "action": "点击查询按钮",
+      "expectation": "修改查询前的列车班次（上海-北京）和修改后（上海-天津）不一样"
+    }
+  ]
+}

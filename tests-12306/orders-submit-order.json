@@ -1,0 +1,33 @@
+{
+  "name": "提交订单",
+  "steps": [
+    {
+      "action": "点击顶部导航栏的“车票”下拉框",
+      "expectation": ""
+    },
+    {
+      "action": "点击“单程”",
+      "expectation": ""
+    },
+    {
+      "action": "在“出发地”输入框输入“上海”，回车",
+      "expectation": ""
+    },
+    {
+      "action": "在“目的地”输入框输入“天津”，回车",
+      "expectation": ""
+    },
+    {
+      "action": "在下方的日期栏中点击第二个日期",
+      "expectation": ""
+    },
+    {
+      "action": "点击“查询”",
+      "expectation": ""
+    },
+    {
+      "action": "点击车次列表中的第一个“预订”按钮",
+      "expectation": "跳出信息弹窗，或者跳转至具有“提交订单”的信息页面"
+    }
+  ]
+}

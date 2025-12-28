@@ -1,0 +1,25 @@
+{
+  "name": "优雅处理空结果（乘车人）",
+  "steps": [
+    {
+      "action": "点击“我的12306”",
+      "expectation": ""
+    },
+    {
+      "action": "往下滑动",
+      "expectation": ""
+    },
+    {
+      "action": "点击“乘车人”",
+      "expectation": ""
+    },
+    {
+      "action": "在“请输入乘客姓名”搜索框输入“ABCDEFG”",
+      "expectation": ""
+    },
+    {
+      "action": "点击“查询”",
+      "expectation": "显示列表为空"
+    }
+  ]
+}

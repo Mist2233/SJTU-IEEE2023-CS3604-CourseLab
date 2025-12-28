@@ -33,7 +33,7 @@ const RegisterPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMessage, setDialogMessage] = useState('')
   const [successOpen, setSuccessOpen] = useState(false)
-  const [usernameError, setUsernameError] = useState('')
+  const [emptyErrors, setEmptyErrors] = useState({})
 
   // 倒计时逻辑
   useEffect(() => {
@@ -72,22 +72,30 @@ const RegisterPage = () => {
       if (!/^\d{6}$/.test(value || '')) msg = '请输入6位短信验证码'
     }
     setFieldErrors(prev => ({ ...prev, [name]: msg }))
+    setEmptyErrors(prev => ({ ...prev, [name]: false }))
     return msg
   }
 
   const validateAll = () => {
     const keys = ['username','password','confirmPassword','realName','idNumber','email','phone','verificationCode','agreed']
     let firstErr = ''
+    const newEmptyErrors = {}
     keys.forEach(k => {
       const val = formData[k]
-      const msg = validateField(k, val)
+      // Check for empty required fields
       if (!val && ['username','password','confirmPassword','realName','idNumber','phone','verificationCode'].includes(k)) {
-        firstErr ||= '请完整填写必填项'
+        newEmptyErrors[k] = true
+        firstErr ||= '请完整填写必填项' // Keep this for now to stop submission, but don't show generic error if inline errors exist
       }
+      
+      const msg = validateField(k, val)
       if (!firstErr && msg) firstErr = msg
     })
+    
+    setEmptyErrors(newEmptyErrors)
+    
     if (!formData.agreed) firstErr ||= '请同意服务条款'
-    return firstErr
+    return Object.keys(newEmptyErrors).length > 0 ? '请完整填写必填项' : firstErr
   }
 
   const handleInputChange = (e) => {
@@ -96,7 +104,7 @@ const RegisterPage = () => {
 
     setFormData(prev => ({ ...prev, [name]: val }))
     if (name === 'username') {
-      setUsernameError('') // Clear error when typing
+      setEmptyErrors(prev => ({ ...prev, username: false })) // Clear empty error when typing
     }
 
     if (name === 'password') {
@@ -113,9 +121,9 @@ const RegisterPage = () => {
     try {
       const res = await checkUsername(formData.username)
       if (res.exists) {
-        setUsernameError('该用户名已经占用，请重新选择用户名！')
+        setFieldErrors(prev => ({ ...prev, username: '该用户名已经占用，请重新选择用户名！' }))
       } else {
-        setUsernameError('')
+        setFieldErrors(prev => ({ ...prev, username: '' }))
       }
     } catch (e) {
       console.error(e)
@@ -148,11 +156,15 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const errMsg = validateAll()
-    if (errMsg) {
+    // Only show dialog if it's not the "please fill required fields" error (which is now inline)
+    if (errMsg && errMsg !== '请完整填写必填项') {
       setError(errMsg)
       setDialogMessage(errMsg)
       setDialogOpen(true)
       return
+    } else if (errMsg === '请完整填写必填项') {
+        // Just return to stop submission, inline errors are already shown by validateAll updating state
+        return
     }
 
     setLoading(true)
@@ -213,12 +225,22 @@ const RegisterPage = () => {
                 <div className="row-tip orange-tip">{fieldErrors.username || '6-30位字母、数字或“_”,字母开头'}</div>
               </div>
 
-              {/* Username Error Row */}
-              {usernameError && (
+              {/* Username Empty Error */}
+              {emptyErrors.username && (
                 <div className="register-row error-row">
                   <div className="row-label"></div>
                   <div className="row-error-content">
-                    <i className="error-icon">x</i> {usernameError}
+                    <i className="error-icon">x</i> 请输入用户名:
+                  </div>
+                </div>
+              )}
+
+              {/* Username Duplicate Error */}
+              {fieldErrors.username && fieldErrors.username.includes('占用') && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> {fieldErrors.username}
                   </div>
                 </div>
               )}
@@ -251,6 +273,16 @@ const RegisterPage = () => {
                 <div className="row-tip">6-20位字母、数字或符号</div>
               </div>
 
+              {/* Password Empty Error */}
+              {emptyErrors.password && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> 请输入密码:
+                  </div>
+                </div>
+              )}
+
               {/* --- 确认密码 --- */}
               <div className="register-row">
                 <div className="row-label required">确认密码：</div>
@@ -272,6 +304,16 @@ const RegisterPage = () => {
                 </div>
                 <div className="row-tip orange-tip">{fieldErrors.email || ''}</div>
               </div>
+
+              {/* Confirm Password Empty Error */}
+              {emptyErrors.confirmPassword && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> 请输入确认密码:
+                  </div>
+                </div>
+              )}
 
               {/* --- 证件类型 --- */}
               <div className="register-row">
@@ -298,6 +340,16 @@ const RegisterPage = () => {
                 <div className="row-tip orange-tip">姓名填写规则（用于身份核验，请正确填写）</div>
               </div>
 
+              {/* Real Name Empty Error */}
+              {emptyErrors.realName && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> 请输入您的姓名:
+                  </div>
+                </div>
+              )}
+
               {/* --- 证件号码 --- */}
               <div className="register-row">
                 <div className="row-label required">证件号码：</div>
@@ -312,6 +364,16 @@ const RegisterPage = () => {
                 </div>
                 <div className="row-tip orange-tip">{fieldErrors.idNumber || '（用于身份核验，请正确填写）'}</div>
               </div>
+
+              {/* ID Number Empty Error */}
+              {emptyErrors.idNumber && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> 请输入证件号码:
+                  </div>
+                </div>
+              )}
 
               {/* --- 邮箱 --- */}
               <div className="register-row dashed-top">
@@ -355,6 +417,16 @@ const RegisterPage = () => {
             <div className="row-tip orange-tip">{fieldErrors.phone || '请正确填写手机号码，稍后将向该手机号发送短信验证码'}</div>
           </div>
 
+          {/* Phone Empty Error */}
+          {emptyErrors.phone && (
+            <div className="register-row error-row">
+              <div className="row-label"></div>
+              <div className="row-error-content">
+                <i className="error-icon">x</i> 请正确填写手机号码，稍后将向该手机号发送短信验证码
+              </div>
+            </div>
+          )}
+
           {/* --- 短信验证码 --- */}
           <div className="register-row">
             <div className="row-label required">短信验证码：</div>
@@ -371,6 +443,16 @@ const RegisterPage = () => {
               )}
             </div>
           </div>
+
+          {/* Verification Code Empty Error */}
+          {emptyErrors.verificationCode && (
+            <div className="register-row error-row">
+              <div className="row-label"></div>
+              <div className="row-error-content">
+                <i className="error-icon">x</i> 请输入短信验证码:
+              </div>
+            </div>
+          )}
 
               {/* --- 旅客类型 --- */}
               <div className="register-row">

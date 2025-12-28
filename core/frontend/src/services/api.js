@@ -57,6 +57,16 @@ export const verify2FA = async ({ userId, idLast4, code }) => {
   }
 }
 
+export const checkUsername = async (username) => {
+  try {
+    const response = await api.get('/auth/check-username', { params: { username } })
+    return response
+  } catch (error) {
+    console.error('检查用户名失败:', error)
+    throw error
+  }
+}
+
 export const register = async (userData) => {
   try {
     const response = await api.post('/auth/register', userData)

@@ -38,6 +38,25 @@ function maskPhone(phone) {
   return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
 }
 
+// GET /api/auth/check-username
+router.get('/check-username', async (req, res) => {
+  const { username } = req.query;
+  if (!username) {
+    return res.status(400).json({ success: false, message: '用户名不能为空' });
+  }
+
+  try {
+    const user = await User.findByUserId(username);
+    if (user) {
+      return res.json({ success: true, exists: true, message: '用户名已存在' });
+    }
+    return res.json({ success: true, exists: false, message: '用户名可用' });
+  } catch (error) {
+    console.error('检查用户名失败:', error);
+    return res.status(500).json({ success: false, message: '服务器错误' });
+  }
+});
+
 // POST /api/auth/send-code
 router.post('/send-code', async (req, res) => {
   let { phone, userId, idLast4 } = req.body;

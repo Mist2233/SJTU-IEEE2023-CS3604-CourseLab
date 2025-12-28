@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { register, sendVerificationCode } from '../../services/api'
+import { register, sendVerificationCode, checkUsername } from '../../services/api'
 import './RegisterPage.css'
 
 const RegisterPage = () => {
@@ -33,6 +33,7 @@ const RegisterPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [dialogMessage, setDialogMessage] = useState('')
   const [successOpen, setSuccessOpen] = useState(false)
+  const [usernameError, setUsernameError] = useState('')
 
   // 倒计时逻辑
   useEffect(() => {
@@ -94,11 +95,31 @@ const RegisterPage = () => {
     const val = type === 'checkbox' ? checked : value
 
     setFormData(prev => ({ ...prev, [name]: val }))
+    if (name === 'username') {
+      setUsernameError('') // Clear error when typing
+    }
 
     if (name === 'password') {
       setPasswordStrength(calculateStrength(val))
     }
     validateField(name, val, { ...formData, [name]: val })
+  }
+
+  const handleUsernameBlur = async () => {
+    if (!formData.username) return
+    // If format is invalid, don't check backend
+    if (validateField('username', formData.username)) return
+
+    try {
+      const res = await checkUsername(formData.username)
+      if (res.exists) {
+        setUsernameError('该用户名已经占用，请重新选择用户名！')
+      } else {
+        setUsernameError('')
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const handleSendCode = async () => {
@@ -186,10 +207,21 @@ const RegisterPage = () => {
                     placeholder="用户名设置成功后不可修改"
                     value={formData.username}
                     onChange={handleInputChange}
+                    onBlur={handleUsernameBlur}
                   />
                 </div>
                 <div className="row-tip orange-tip">{fieldErrors.username || '6-30位字母、数字或“_”,字母开头'}</div>
               </div>
+
+              {/* Username Error Row */}
+              {usernameError && (
+                <div className="register-row error-row">
+                  <div className="row-label"></div>
+                  <div className="row-error-content">
+                    <i className="error-icon">x</i> {usernameError}
+                  </div>
+                </div>
+              )}
 
               {/* --- 密码 --- */}
               <div className="register-row">

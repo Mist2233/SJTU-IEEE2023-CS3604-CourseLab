@@ -33,9 +33,41 @@ function isValidUsername(username) {
   return /^[A-Za-z][A-Za-z0-9_]{5,29}$/.test(username);
 }
 
+function maskPhone(phone) {
+  if (!phone || phone.length < 7) return phone;
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+}
+
 // POST /api/auth/send-code
 router.post('/send-code', async (req, res) => {
-  const { phone } = req.body;
+  let { phone, userId, idLast4 } = req.body;
+
+  let user = null;
+  if (userId && !phone) {
+    user = await User.findByUserId(userId);
+    if (user) phone = user.phone;
+  }
+
+  // 如果提供了 idLast4，则进行校验（用于二次验证场景）
+  if (userId) {
+    if (!idLast4) {
+      return res.status(400).json({ success: false, message: '请提供证件号后4位' });
+    }
+
+    if (!user) {
+      // 如果前面没查过，再查一次
+      user = await User.findByUserId(userId);
+      if (user) phone = user.phone;
+    }
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+    
+    if (!user.id_number || user.id_number.slice(-4) !== idLast4) {
+      return res.status(400).json({ success: false, message: '证件号后4位错误' });
+    }
+  }
 
   // 验证手机号格式
   if (!phone || !isValidPhoneNumber(phone)) {
@@ -227,6 +259,18 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: '账号或密码错误' });
     }
 
+    // 检查是否为用户名登录（非手机号且非邮箱）
+    const isUsernameLogin = !isValidPhoneNumber(identifier) && !isValidEmail(identifier);
+    if (isUsernameLogin) {
+      // 需要二次验证
+      return res.json({
+        success: true,
+        require2FA: true,
+        userId: user.user_id,
+        maskedPhone: maskPhone(user.phone)
+      });
+    }
+
     const token = generateToken(user.user_id);
     try { await User.updateLastLogin(user.user_id) } catch (_) {}
     res.json({
@@ -246,6 +290,56 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('登录失败:', error);
     res.status(500).json({ success: false, message: '登录失败，请稍后重试' });
+  }
+});
+
+// POST /api/auth/verify-2fa
+router.post('/verify-2fa', async (req, res) => {
+  const { userId, idLast4, code } = req.body;
+  
+  if (!userId || !idLast4 || !code) {
+    return res.status(400).json({ success: false, message: '参数缺失' });
+  }
+
+  try {
+    const user = await User.findByUserId(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: '用户不存在' });
+    }
+    
+    // 验证身份证后4位
+    if (!user.id_number || user.id_number.slice(-4) !== idLast4) {
+      return res.status(400).json({ success: false, message: '证件号后4位错误' });
+    }
+    
+    // 验证短信验证码
+    const ok = await VerificationCode.verifyRecipient(user.phone, code);
+    if (!ok) {
+      return res.status(400).json({ success: false, message: '验证码错误或已过期' });
+    }
+    
+    // 验证通过
+    const token = generateToken(user.user_id);
+    try { await User.updateLastLogin(user.user_id) } catch (_) {}
+    
+    res.json({
+      success: true,
+      message: '登录成功',
+      data: {
+        userId: user.user_id,
+        token,
+        user: {
+          phone: user.phone,
+          realName: user.real_name,
+          idNumber: user.id_number,
+          email: user.email,
+          lastLogin: new Date().toISOString()
+        }
+      }
+    });
+  } catch (err) {
+    console.error('2FA verification failed:', err);
+    res.status(500).json({ success: false, message: '验证失败，请稍后重试' });
   }
 });
 

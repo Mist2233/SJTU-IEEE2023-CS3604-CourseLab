@@ -36,12 +36,23 @@ api.interceptors.response.use(
 )
 
 // 认证相关API
-export const sendVerificationCode = async (phone) => {
+export const sendVerificationCode = async (data) => {
   try {
-    const response = await api.post('/auth/send-code', { phone })
+    const payload = typeof data === 'string' ? { phone: data } : data
+    const response = await api.post('/auth/send-code', payload)
     return response
   } catch (error) {
     console.error('发送验证码失败:', error)
+    throw error
+  }
+}
+
+export const verify2FA = async ({ userId, idLast4, code }) => {
+  try {
+    const response = await api.post('/auth/verify-2fa', { userId, idLast4, code })
+    return response
+  } catch (error) {
+    console.error('二次验证失败:', error)
     throw error
   }
 }

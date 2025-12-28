@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../../services/api'
+import { login, sendVerificationCode, verify2FA } from '../../services/api'
 import './LoginPage.css'
 
 const backgroundImages = [
@@ -31,6 +31,14 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false)
   const [loginAttempts, setLoginAttempts] = useState(0)
   const [showPassword, setShowPassword] = useState(false)
+
+  // 2FA State
+  const [show2FA, setShow2FA] = useState(false)
+  const [twoFAData, setTwoFAData] = useState({ userId: null, maskedPhone: '' })
+  const [twoFAForm, setTwoFAForm] = useState({ idLast4: '', code: '' })
+  const [twoFAError, setTwoFAError] = useState('')
+  const [twoFASuccess, setTwoFASuccess] = useState('')
+  const [countdown, setCountdown] = useState(0)
 
   const validateIdentifier = (id) => {
     return !!String(id || '').trim()
@@ -71,6 +79,12 @@ const LoginPage = () => {
       const data = await login({ identifier: formData.identifier, password: formData.password })
 
       if (data.success) {
+        if (data.require2FA) {
+           setTwoFAData({ userId: data.userId, maskedPhone: data.maskedPhone })
+           setShow2FA(true)
+           setLoading(false)
+           return
+        }
         const token = data.token ?? data.data?.token
         const user = data.user ?? data.data?.user
         const userId = data.userId ?? data.data?.userId
@@ -93,6 +107,67 @@ const LoginPage = () => {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSendCode = async () => {
+    if (countdown > 0) return
+    if (!twoFAForm.idLast4 || twoFAForm.idLast4.length !== 4) {
+      setTwoFAError('请先输入正确的身份证后四位')
+      return
+    }
+    
+    setTwoFAError('')
+    setTwoFASuccess('')
+    
+    try {
+      const res = await sendVerificationCode({ 
+        userId: twoFAData.userId,
+        idLast4: twoFAForm.idLast4
+      })
+      if (res.data && res.data.code) {
+        setTwoFASuccess(`获取手机验证码成功！验证码：${res.data.code}`)
+      } else {
+        setTwoFASuccess('获取手机验证码成功！')
+      }
+      setCountdown(60)
+      const timer = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    } catch (err) {
+      setTwoFAError(err.message || err.response?.data?.message || '发送验证码失败')
+    }
+  }
+
+  const handleVerify2FA = async () => {
+     setTwoFAError('')
+     try {
+       const data = await verify2FA({ 
+         userId: twoFAData.userId, 
+         idLast4: twoFAForm.idLast4, 
+         code: twoFAForm.code 
+       })
+       if (data.success) {
+         const token = data.token ?? data.data?.token
+         const user = data.user ?? data.data?.user
+         const userId = data.userId ?? data.data?.userId
+         const userStored = { ...(user || {}), id: userId }
+         localStorage.setItem('token', token)
+         localStorage.setItem('user', JSON.stringify(userStored))
+         window.dispatchEvent(new CustomEvent('userLoginStatusChanged'))
+         setLoginAttempts(0)
+         navigate('/')
+       } else {
+         setTwoFAError(data.message || '验证失败')
+       }
+     } catch (err) {
+       setTwoFAError(err.message || '验证失败')
+     }
   }
 
   return (
@@ -235,6 +310,63 @@ const LoginPage = () => {
         <p>© 2008-2025 中国铁道科学研究院集团有限公司</p>
         <p>京ICP备05020493号-4 | ICP证：京B2-20202537</p>
       </div>
+      {/* 2FA Modal */}
+      {show2FA && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="modal-close" onClick={() => setShow2FA(false)}>×</button>
+            <div className="modal-header">选择验证方式</div>
+            <div className="modal-body">
+              <div className="modal-subtitle">短信验证</div>
+              <div className="modal-row">
+                  <input
+                    type="text"
+                    className="modal-input"
+                    placeholder="请输入身份证后四位"
+                    value={twoFAForm.idLast4}
+                    onChange={(e) => {
+                      setTwoFAForm({ ...twoFAForm, idLast4: e.target.value })
+                      setTwoFAError('')
+                      setTwoFASuccess('')
+                    }}
+                    maxLength={4}
+                  />
+                </div>
+                <div className="modal-row">
+                  <div className="modal-input-group">
+                    <input
+                      type="text"
+                      className="modal-input"
+                      placeholder="输入验证码"
+                      value={twoFAForm.code}
+                      onChange={(e) => {
+                        setTwoFAForm({ ...twoFAForm, code: e.target.value })
+                        setTwoFAError('')
+                      }}
+                    />
+                  <button
+                    type="button"
+                    className={`modal-btn-code ${(!twoFAForm.idLast4 || twoFAForm.idLast4.length !== 4) ? 'disabled' : ''}`}
+                    onClick={handleSendCode}
+                    disabled={countdown > 0 || !twoFAForm.idLast4 || twoFAForm.idLast4.length !== 4}
+                  >
+                    {countdown > 0 ? `重新发送(${countdown})` : '获取验证码'}
+                  </button>
+                </div>
+              </div>
+              {twoFASuccess && (
+                <div className="success-msg-box">
+                  {twoFASuccess}
+                </div>
+              )}
+              {twoFAError && <div className="error-msg">{twoFAError}</div>}
+            </div>
+            <div className="modal-footer">
+              <button className="modal-btn modal-btn-primary full-width" onClick={handleVerify2FA}>确定</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

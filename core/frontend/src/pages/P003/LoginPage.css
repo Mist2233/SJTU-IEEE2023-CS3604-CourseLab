@@ -99,6 +99,143 @@
   opacity: 1;
 }
 
+/* 2FA Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 4px;
+  width: 340px; /* Adjust width to match screenshot roughly */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+}
+
+.modal-header {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-subtitle {
+  color: #3B99FC;
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.modal-row {
+  margin-bottom: 15px;
+}
+
+.modal-input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #ddd;
+  padding: 0 10px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.modal-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-btn-code {
+  height: 40px;
+  padding: 0 15px;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  cursor: pointer;
+  color: #666;
+  white-space: nowrap;
+  border-radius: 2px;
+  min-width: 100px;
+}
+
+.modal-btn-code.disabled {
+  color: #ccc;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  height: 40px;
+  padding: 0 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+}
+
+.modal-btn-primary {
+  background-color: #ff8001 !important;
+  color: white !important;
+  border: none !important;
+  transition: background-color 0.3s;
+}
+
+.modal-btn-primary:hover {
+  background-color: #e67300 !important;
+}
+
+.modal-btn-primary.full-width {
+  width: 100%;
+}
+
+.success-msg-box {
+  border: 1px solid #000;
+  color: #f00;
+  padding: 8px;
+  text-align: left; /* Screenshot text looks left aligned? Actually centered looks better but let's stick to simple */
+  margin-top: 10px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.error-msg {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 5px;
+  text-align: center;
+}
+
 .login-content-container {
   width: 1200px;
   height: 450px;

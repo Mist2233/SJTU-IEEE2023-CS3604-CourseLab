@@ -94,7 +94,7 @@ const RegisterPage = () => {
     
     setEmptyErrors(newEmptyErrors)
     
-    if (!formData.agreed) firstErr ||= '请同意服务条款'
+    if (!formData.agreed) firstErr ||= '请确定服务条款！'
     return Object.keys(newEmptyErrors).length > 0 ? '请完整填写必填项' : firstErr
   }
 

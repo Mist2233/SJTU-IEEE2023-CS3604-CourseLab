@@ -151,7 +151,7 @@ router.post('/register', async (req, res) => {
   const { username, email, phone, verificationCode, password, realName, idNumber } = req.body;
 
   // 验证参数
-  if (!username || !email || !phone || !verificationCode || !password || !realName || !idNumber) {
+  if (!username || !phone || !verificationCode || !password || !realName || !idNumber) {
     console.log('注册失败: 参数缺失');
     return res.status(400).json({ 
       success: false, 
@@ -163,7 +163,7 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ success: false, message: '用户名格式不正确' });
   }
 
-  if (!isValidEmail(email)) {
+  if (email && !isValidEmail(email)) {
     return res.status(400).json({ success: false, message: '邮箱格式不正确' });
   }
 
@@ -209,8 +209,10 @@ router.post('/register', async (req, res) => {
     const byId = await User.findByIdNumber(idNumber);
     if (byId) return res.status(400).json({ success: false, message: '身份证已存在' });
 
-    const byEmail = await User.findByEmail(email);
-    if (byEmail) return res.status(400).json({ success: false, message: '邮箱已存在' });
+    if (email) {
+      const byEmail = await User.findByEmail(email);
+      if (byEmail) return res.status(400).json({ success: false, message: '邮箱已存在' });
+    }
 
     const byUserId = await User.findByUserId(username);
     if (byUserId) return res.status(400).json({ success: false, message: '用户名已存在' });

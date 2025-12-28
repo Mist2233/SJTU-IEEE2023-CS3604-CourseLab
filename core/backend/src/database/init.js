@@ -323,6 +323,34 @@ db.serialize(() => {
             });
           }
         });
+
+        // 补充北京-天津特定车次数据（含商务座）
+        db.get("SELECT COUNT(*) as cnt FROM trains WHERE train_number='C2001' AND departure_station='北京南'", [], (err, row) => {
+          if (!err && row && row.cnt === 0) {
+            const bjTianjinTrains = [
+              // 商务座充足的车次
+              ['C2001','北京南','天津','06:05','06:35','0小时30分','C',10,50,200,0,0,0,0],
+              ['C2003','北京南','天津','06:15','06:45','0小时30分','C',10,50,200,0,0,0,0],
+              ['G105','北京南','天津南','07:05','07:39','0小时34分','G',15,20,200,0,0,0,0],
+              ['G107','北京南','天津南','07:25','07:59','0小时34分','G',15,20,200,0,0,0,0],
+              ['C2017','北京南','天津','08:10','08:40','0小时30分','C',10,50,200,0,0,0,0],
+              ['G305','北京南','天津西','12:30','13:02','0小时32分','G',10,20,100,0,0,0,0]
+            ];
+            
+            const stmtSuppBJ = db.prepare(`INSERT INTO trains (
+              train_number, departure_station, arrival_station, departure_time, arrival_time, duration, type_prefix,
+              business_class, first_class, second_class, premium_sleeper, soft_sleeper, hard_sleeper, hard_seat
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+            
+            db.serialize(() => {
+              bjTianjinTrains.forEach(r => stmtSuppBJ.run(r));
+              stmtSuppBJ.finalize(errSuppBJ => {
+                if (errSuppBJ) console.error('补充北京-天津车次失败:', errSuppBJ.message);
+                else console.log('已补充北京-天津车次数据（含商务座）', bjTianjinTrains.length);
+              });
+            });
+          }
+        });
       });
     }
   });

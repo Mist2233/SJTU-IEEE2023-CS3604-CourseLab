@@ -16,7 +16,15 @@ const SearchResultsPage = () => {
   const [selectedTrainPrefixes, setSelectedTrainPrefixes] = useState([]);
   const [selectedDepStations, setSelectedDepStations] = useState([]);
   const [selectedArrStations, setSelectedArrStations] = useState([]);
-  const [filterSeat, setFilterSeat] = useState({ business: false, first: false, second: false });
+  const [filterSeat, setFilterSeat] = useState({ 
+    business: false, 
+    first: false, 
+    second: false,
+    hardSleeper: false,
+    softSleeper: false,
+    hardSeat: false,
+    noSeat: false
+  });
   const [filterTimeRange, setFilterTimeRange] = useState('00-24');
 
   // --- 搜索条件状态 ---
@@ -202,6 +210,11 @@ const SearchResultsPage = () => {
     if (filterSeat.business) seatKeys.push('businessClass');
     if (filterSeat.first) seatKeys.push('firstClass');
     if (filterSeat.second) seatKeys.push('secondClass');
+    if (filterSeat.hardSleeper) seatKeys.push('hardSleeper');
+    if (filterSeat.softSleeper) seatKeys.push('softSleeper');
+    if (filterSeat.hardSeat) seatKeys.push('hardSeat');
+    if (filterSeat.noSeat) seatKeys.push('noSeat');
+    
     const [startH, endH] = (filterTimeRange || '00-24').split('-').map(x => parseInt(x, 10));
     return list.filter(t => {
       if (selectedTrainPrefixes.length > 0) {
@@ -440,6 +453,10 @@ const SearchResultsPage = () => {
                       <label><input type="checkbox" checked={filterSeat.business} onChange={(e) => setFilterSeat({ ...filterSeat, business: e.target.checked })} /> 商务座/特等座</label>
                       <label><input type="checkbox" checked={filterSeat.first} onChange={(e) => setFilterSeat({ ...filterSeat, first: e.target.checked })} /> 一等座</label>
                       <label><input type="checkbox" checked={filterSeat.second} onChange={(e) => setFilterSeat({ ...filterSeat, second: e.target.checked })} /> 二等座/二等包座</label>
+                      <label><input type="checkbox" checked={filterSeat.softSleeper} onChange={(e) => setFilterSeat({ ...filterSeat, softSleeper: e.target.checked })} /> 软卧</label>
+                      <label><input type="checkbox" checked={filterSeat.hardSleeper} onChange={(e) => setFilterSeat({ ...filterSeat, hardSleeper: e.target.checked })} /> 硬卧</label>
+                      <label><input type="checkbox" checked={filterSeat.hardSeat} onChange={(e) => setFilterSeat({ ...filterSeat, hardSeat: e.target.checked })} /> 硬座</label>
+                      <label><input type="checkbox" checked={filterSeat.noSeat} onChange={(e) => setFilterSeat({ ...filterSeat, noSeat: e.target.checked })} /> 无座</label>
                     </>
                   )}
                 </div>

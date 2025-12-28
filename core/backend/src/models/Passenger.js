@@ -19,6 +19,19 @@ class PassengerModel {
     });
   }
 
+  static findByIdNumber(userId, idNumber) {
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT id FROM user_passengers WHERE user_id = ? AND id_number = ?`,
+        [userId, idNumber],
+        (err, row) => {
+          if (err) return reject(err);
+          resolve(row);
+        }
+      );
+    });
+  }
+
   static create(userId, p) {
     return new Promise((resolve, reject) => {
       const { name, name_en, cert_type, id_number, phone, passenger_type, is_default } = p;

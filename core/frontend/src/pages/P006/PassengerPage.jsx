@@ -175,7 +175,12 @@ const PassengerPage = () => {
       key: 'action',
       render: (text, record) => (
         <div>
-          <Popconfirm title="确定删除吗？" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm 
+            title="确定删除吗？" 
+            onConfirm={() => handleDelete(record.id)}
+            okText="确定"
+            cancelText="取消"
+          >
             <DeleteOutlined className="action-icon delete" />
           </Popconfirm>
           <EditOutlined className="action-icon edit" onClick={() => handleEdit(record)} />
@@ -234,6 +239,8 @@ const PassengerPage = () => {
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
         width={600}
+        okText="确定"
+        cancelText="取消"
       >
         <Form
           form={form}

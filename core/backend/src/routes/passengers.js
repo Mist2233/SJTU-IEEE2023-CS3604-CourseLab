@@ -33,6 +33,10 @@ router.post('/', authenticate, async (req, res) => {
   if (!p.cert_type) p.cert_type = '身份证';
   if (!isValidId(p.id_number)) return res.status(400).json({ success: false, message: '身份证格式不正确' });
   try {
+    const existing = await PassengerModel.findByIdNumber(req.user.userId, p.id_number);
+    if (existing) {
+      return res.status(400).json({ success: false, message: '该联系人已存在，请使用不同的姓名和证件' });
+    }
     const created = await PassengerModel.create(req.user.userId, p);
     res.status(201).json({ success: true, data: created });
   } catch (e) { res.status(500).json({ success: false, message: '新增失败' }); }

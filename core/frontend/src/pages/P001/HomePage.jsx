@@ -55,6 +55,7 @@ const HomePage = () => {
   const handleSearch = (e) => {
     e.preventDefault()
     if (!searchForm.from || !searchForm.to) { setFormError('请输入出发地和目的地'); return }
+    if (searchForm.from === searchForm.to) { setFormError('出发地和目的地不能相同'); return }
     navigate('/search', { state: searchForm })
   }
 

@@ -476,6 +476,27 @@ if (process.env.NODE_ENV === 'test') {
         });
       });
 
+      await new Promise((resolve, reject) => {
+        db.run('DELETE FROM user_passengers', [], function(err) {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
+      await new Promise((resolve, reject) => {
+        db.run('DELETE FROM orders', [], function(err) {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
+      await new Promise((resolve, reject) => {
+        db.run('DELETE FROM order_passengers', [], function(err) {
+          if (err) return reject(err);
+          resolve();
+        });
+      });
+
       res.json({ success: true, message: '测试数据已清理' });
     } catch (error) {
       res.status(500).json({ success: false, message: '清理失败' });
@@ -494,6 +515,7 @@ router.post('/password', async (req, res) => {
   }
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) return res.status(400).json({ success: false, message: '参数缺失' });
+  if (newPassword.length < 6) return res.status(400).json({ success: false, message: '密码长度至少6位' });
   try {
     const user = await User.findByUserId(payload.userId);
     if (!user) return res.status(404).json({ success: false, message: '用户不存在' });

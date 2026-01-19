@@ -109,18 +109,18 @@ test('me unauthorized and not found and success', async () => {
 });
 
 test('change-password validations and success', async () => {
-  const r401 = await request(app).post('/api/auth/change-password');
+  const r401 = await request(app).post('/api/auth/password');
   expect(r401.status).toBe(401);
   await register();
   const lg = await login();
   const token = lg.body.data.token;
-  let r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({});
+  let r = await request(app).post('/api/auth/password').set('Authorization', `Bearer ${token}`).send({});
   expect(r.status).toBe(400);
-  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: '123' });
+  r = await request(app).post('/api/auth/password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: '123' });
   expect(r.status).toBe(400);
-  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: 'bad', newPassword: 'Passw0rd2!' });
+  r = await request(app).post('/api/auth/password').set('Authorization', `Bearer ${token}`).send({ oldPassword: 'bad', newPassword: 'Passw0rd2!' });
   expect(r.status).toBe(400);
-  r = await request(app).post('/api/auth/change-password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: 'Passw0rd2!' });
+  r = await request(app).post('/api/auth/password').set('Authorization', `Bearer ${token}`).send({ oldPassword: password, newPassword: 'Passw0rd2!' });
   expect(r.status).toBe(200);
   const l2 = await request(app).post('/api/auth/login').send({ identifier: phone, password: 'Passw0rd2!' });
   expect(l2.status).toBe(200);

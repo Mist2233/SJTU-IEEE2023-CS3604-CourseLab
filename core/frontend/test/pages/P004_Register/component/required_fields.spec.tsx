@@ -22,6 +22,6 @@ describe('P004_Register 组件测试 - 必填项拦截', () => {
     await user.type(document.querySelector('.phone-input') as HTMLInputElement, '13800138000')
     await user.type(screen.getByPlaceholderText('请输入短信验证码'), '123456')
     await user.click(screen.getByRole('button', { name: '下一步' }))
-    expect(screen.getAllByText('请同意服务条款').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('请确定服务条款！').length).toBeGreaterThan(0)
   })
 })

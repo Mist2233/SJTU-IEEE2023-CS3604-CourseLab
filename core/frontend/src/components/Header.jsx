@@ -109,7 +109,7 @@ const Header = () => {
             onMouseEnter={() => setIsTicketOpen(true)}
             onMouseLeave={() => setIsTicketOpen(false)}
           >
-            <div className="nav-item" style={{cursor: 'pointer'}}>车票 <span className="arrow">⌄</span></div>
+            <Link to="/search" className="nav-item" style={{cursor: 'pointer'}}>车票 <span className="arrow">⌄</span></Link>
             <div className="dropdown-menu" style={{ display: isTicketOpen ? 'flex' : 'none' }}>
               <div className="dropdown-section">
                 <div className="dropdown-title">购买</div>
